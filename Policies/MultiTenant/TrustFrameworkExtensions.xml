@@ -40,7 +40,12 @@
         <Restriction>
           <Pattern RegularExpression="^[A-Z_$][A-Z_$0-9]*$" HelpText="Please enter a valid tenant name (upper case alpha and digit)." />
         </Restriction>         
-      </ClaimType>                  
+      </ClaimType> 
+      <ClaimType Id="appTenantSelection">
+        <DisplayName>Select application tenant</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>DropdownSingleSelect</UserInputType>
+      </ClaimType>                       
     </ClaimsSchema>
 
   </BuildingBlocks>
