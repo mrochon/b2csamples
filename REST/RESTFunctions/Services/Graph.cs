@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -15,11 +16,19 @@ namespace RESTFunctions.Services
         public Graph(IOptions<ConfidentialClientApplicationOptions> opts)
         {
             var thumb = opts.Value.ClientSecret;
-            opts.Value.ClientSecret = String.Empty;
-            _app = ConfidentialClientApplicationBuilder
-                .CreateWithApplicationOptions(opts.Value)
-                .WithCertificate(ReadCertificateFromStore(thumb))
-                .Build();
+            var cert = ReadCertificateFromStore(thumb);
+            if (cert != null)
+            {
+                opts.Value.ClientSecret = String.Empty;
+                _app = ConfidentialClientApplicationBuilder
+                    .CreateWithApplicationOptions(opts.Value)
+                    .WithCertificate(cert)
+                    .Build();
+            } else
+                _app = ConfidentialClientApplicationBuilder
+                    .CreateWithApplicationOptions(opts.Value)
+                    .WithClientSecret(thumb)
+                    .Build();
         }
         IConfidentialClientApplication _app;
 
@@ -39,19 +48,28 @@ namespace RESTFunctions.Services
         private static X509Certificate2 ReadCertificateFromStore(string thumprint)
         {
             X509Certificate2 cert = null;
-            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            var certCollection = store.Certificates;
+            try
+            {
 
-            // Find unexpired certificates.
-            var currentCerts = certCollection.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+                using (var store = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+                {
+                    store.Open(OpenFlags.ReadOnly);
+                    var certCollection = store.Certificates;
 
-            // From the collection of unexpired certificates, find the ones with the correct name.
-            var signingCert = currentCerts.Find(X509FindType.FindByThumbprint, thumprint, false);
+                    // Find unexpired certificates.
+                    var currentCerts = certCollection.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
 
-            // Return the first certificate in the collection, has the right name and is current.
-            cert = signingCert.OfType<X509Certificate2>().OrderByDescending(c => c.NotBefore).FirstOrDefault();
-            store.Close();
+                    // From the collection of unexpired certificates, find the ones with the correct name.
+                    var signingCert = currentCerts.Find(X509FindType.FindByThumbprint, thumprint, false);
+
+                    // Return the first certificate in the collection, has the right name and is current.
+                    cert = signingCert.OfType<X509Certificate2>().OrderByDescending(c => c.NotBefore).FirstOrDefault();
+                    store.Close();
+                }
+            } catch (Exception ex)
+            {
+                Debug.WriteLine($"ReadCertificateFromStore exception: {0}", ex.Message);
+            }
             return cert;
         }
     }

@@ -26,10 +26,10 @@
         <UserHelpText>Id of the application tenant.</UserHelpText>
         <UserInputType>Readonly</UserInputType>
       </ClaimType>   
-      <ClaimType Id="appTenantRole">
+      <ClaimType Id="appTenantRoles">
         <DisplayName>Users role in the app tenant (admin or member)</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>User role in the application tenant.</UserHelpText>
+        <DataType>stringCollection</DataType>
+        <UserHelpText>User role(s) in the application tenant.</UserHelpText>
         <UserInputType>Readonly</UserInputType>
       </ClaimType>      
       <ClaimType Id="appTenantName">
@@ -137,28 +137,11 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-        <TechnicalProfile Id="REST-GetTenants">
+        <TechnicalProfile Id="REST-GetUserRoles">
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2capis.azurewebsites.net/tenant/forUser</Item>
-            <Item Key="AuthenticationType">None</Item>
-            <Item Key="SendClaimsIn">QueryString</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantSelection" PartnerClaimType="tenantId" />
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>         
-        <TechnicalProfile Id="REST-GetUserRole">
-          <DisplayName>Get user role</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ServiceUrl">https://b2capis.azurewebsites.net/tenant</Item>
+            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/getUserRoles</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">QueryString</Item>
             <Item Key="AllowInsecureAuthInProduction">true</Item>            
@@ -172,7 +155,8 @@
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantRole" PartnerClaimType="role" />
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>    
@@ -195,7 +179,7 @@
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
-            <OutputClaim ClaimTypeReferenceId="appTenantRole" DefaultValue="member" AlwaysUseDefaultValue="true"/>
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>               
@@ -258,30 +242,6 @@
 
       </TechnicalProfiles>
     </ClaimsProvider>
-
-    <ClaimsProvider>
-      <DisplayName>Self asserted</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="SelfAsserted-TenantSelection">
-          <DisplayName>Select tenant</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantSelection" />
-          </OutputClaims>
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
-          </ValidationTechnicalProfiles>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialSignup" />
-        </TechnicalProfile>      
-      </TechnicalProfiles>
-    </ClaimsProvider>
-     
 
   </ClaimsProviders>
 
@@ -465,17 +425,11 @@
 
         <OrchestrationStep Order="7" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="GetUserTenants" TechnicalProfileReferenceId="REST-GetUserTenants" />
+            <ClaimsExchange Id="GetUserRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
           </ClaimsExchanges>
         </OrchestrationStep>         
 
-        <OrchestrationStep Order="8" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="SelectTenant" TechnicalProfileReferenceId="SelfAsserted-SelectTenant" />
-          </ClaimsExchanges>
-        </OrchestrationStep> 
-
-        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
  
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />

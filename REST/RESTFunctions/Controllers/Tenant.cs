@@ -150,19 +150,19 @@ namespace RESTFunctions.Controllers
             }
         }
 
-        [HttpGet("getUserRole")]
-        public async Task<IActionResult> GetUserRoleByNameAsync(string tenantName, string userId)
+        [HttpGet("getUserRoles")]
+        public async Task<IActionResult> GetUserRolesByNameAsync(string tenantName, string userId)
         {
             var http = await _graph.GetClientAsync();
             try
             {
-                string role = null;
+                IEnumerable<string> roles = null;
                 string tenantId = await GetTenantIdFromNameAsync(tenantName);
                 if (!String.IsNullOrEmpty(tenantId))
                 {
-                    role = await GetUserRoleByIdAsync(tenantId, userId);
+                    roles = await GetUserRolesByIdAsync(tenantId, userId);
                 }
-                return new JsonResult(new { tenantId, role });
+                return new JsonResult(new { tenantName, roles });
             }
             catch (HttpRequestException ex)
             {
@@ -170,14 +170,16 @@ namespace RESTFunctions.Controllers
             }
         }
 
-        private async Task<string> GetUserRoleByIdAsync(string tenantId, string userId)
+        private async Task<IEnumerable<string>> GetUserRolesByIdAsync(string tenantId, string userId)
         {
-            string role = null;
+            List<string> roles = new List<string>();
             if (await IsMemberAsync(tenantId, userId, true))
-                role = "admin";
+                roles.Add("admin");
             else if (await IsMemberAsync(tenantId, userId, false))
-                role = "member";
-            return role;
+                roles.Add("member");
+            else
+                roles = null;
+            return roles;
         }
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
@@ -235,7 +237,7 @@ namespace RESTFunctions.Controllers
         private async Task<string> GetTenantIdFromNameAsync(string tenantName)
         {
             var http = await _graph.GetClientAsync();
-            var json = await http.GetStringAsync($"{Graph.BaseUrl}groups?$filter=(mailNickName eq {tenantName.ToUpper()})");
+            var json = await http.GetStringAsync($"{Graph.BaseUrl}groups?$filter=(mailNickName eq '{tenantName.ToUpper()}')");
             var tenants = JObject.Parse(json)["value"].Value<JArray>();
             string tenantId = null;
             if (tenants.Count == 1)
