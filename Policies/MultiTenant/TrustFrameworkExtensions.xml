@@ -96,18 +96,16 @@
           <CryptographicKeys>
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
-          <!--InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" Required="true" />
-          </InputClaims-->
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="appTenantDescription" />
             <OutputClaim ClaimTypeReferenceId="appTenantId" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" />            
           </OutputClaims>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="REST-CreateTenant" />
           </ValidationTechnicalProfiles>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-NOOP" />
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>   
@@ -119,7 +117,7 @@
           <DisplayName>Create a new tenant</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2capis.azurewebsites.net/tenant</Item>
+            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <Item Key="AllowInsecureAuthInProduction">true</Item>            
@@ -128,12 +126,13 @@
             <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_ClientCertificate" />
           </CryptographicKeys-->
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="Name" />
-            <InputClaim ClaimTypeReferenceId="appTenantDescription" PartnerClaimType="Description" />
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="UserObjectId" />
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
+            <InputClaim ClaimTypeReferenceId="appTenantDescription" PartnerClaimType="description" />
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="ownerId" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="Id" />
+            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="id" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />            
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
@@ -326,7 +325,7 @@
         </OrchestrationStep>
         <OrchestrationStep Order="7" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="NewTenantData" TechnicalProfileReferenceId="NewTenantData" />
+            <ClaimsExchange Id="CreateTenant" TechnicalProfileReferenceId="NewTenantData" />
           </ClaimsExchanges>
         </OrchestrationStep>      
         <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />

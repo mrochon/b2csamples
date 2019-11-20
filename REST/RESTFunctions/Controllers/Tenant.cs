@@ -37,8 +37,8 @@ namespace RESTFunctions.Controllers
                 var result = JObject.Parse(json);
                 return new JsonResult(new TenantDef()
                 {
-                    Name = result["displayName"].Value<string>(),
-                    Description = result["description"].Value<string>()
+                    name = result["displayName"].Value<string>(),
+                    description = result["description"].Value<string>()
                 });
             } catch (HttpRequestException)
             {
@@ -65,37 +65,38 @@ namespace RESTFunctions.Controllers
              }
              */
 
-            if ((string.IsNullOrEmpty(tenant.Name) || (string.IsNullOrEmpty(tenant.UserObjectId))))
+            if ((string.IsNullOrEmpty(tenant.name) || (string.IsNullOrEmpty(tenant.ownerId))))
                 return BadRequest("Invalid parameters");
 
             var http = await _graph.GetClientAsync();
             try
             {
-                await http.GetStringAsync($"{Graph.BaseUrl}users/{tenant.UserObjectId}");
+                await http.GetStringAsync($"{Graph.BaseUrl}users/{tenant.ownerId}");
             } catch (HttpRequestException ex)
             {
                 return BadRequest("Unable to validate user id");
             }
-            if ((tenant.Name.Length > 60) || !Regex.IsMatch(tenant.Name, "^[A-Za-z]\\w*$"))
+            if ((tenant.name.Length > 60) || !Regex.IsMatch(tenant.name, "^[A-Za-z]\\w*$"))
                 return BadRequest("Invalid tenant name");
-            var resp = await http.GetAsync($"{Graph.BaseUrl}groups?$filter=(displayName eq '{tenant.Name}')");
+            var resp = await http.GetAsync($"{Graph.BaseUrl}groups?$filter=(displayName eq '{tenant.name}')");
             if (!resp.IsSuccessStatusCode)
                 return BadRequest("Unable to validate tenant existence");
             var values = JObject.Parse(await resp.Content.ReadAsStringAsync())["value"].Value<JArray>();
             if (values.Count != 0)
-                return BadRequest("Tenant already exists");
+                return new ObjectResult(new { userMessage = "Tenant already exists", status = 409 }) { StatusCode = 409 };
+                //return BadRequest("Tenant already exists");
             var group = new
             {
-                description = tenant.Description,
-                mailNickname = tenant.Name,
-                displayName = tenant.Name.ToUpper(),
+                description = tenant.description,
+                mailNickname = tenant.name,
+                displayName = tenant.name.ToUpper(),
                 groupTypes = new string[] { },
                 mailEnabled = false,
                 securityEnabled = true,
             };
             // add user who created this group as both owner and member
             var jGroup = JObject.FromObject(group);
-            var owners = new string[] { $"{Graph.BaseUrl}users/{tenant.UserObjectId}" };
+            var owners = new string[] { $"{Graph.BaseUrl}users/{tenant.ownerId}" };
             jGroup.Add("owners@odata.bind", JArray.FromObject(owners));
             jGroup.Add("members@odata.bind", JArray.FromObject(owners));
             //  https://docs.microsoft.com/en-us/graph/api/group-post-groups?view=graph-rest-1.0&tabs=http
@@ -108,7 +109,7 @@ namespace RESTFunctions.Controllers
             var newGroup = JObject.Parse(json);
             var id = newGroup["id"].Value<string>();
             // add this group to the user's tenant collection
-            return new OkObjectResult(new { Id = id });
+            return new OkObjectResult(new { id, roles = new string[] { "admin" }, userMessage = "Tenant created" });
         }
 
         [HttpGet("forUser")]
@@ -251,9 +252,9 @@ namespace RESTFunctions.Controllers
 
     public class TenantDef
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string UserObjectId { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string ownerId { get; set; }
     }
     public class Member
     {
