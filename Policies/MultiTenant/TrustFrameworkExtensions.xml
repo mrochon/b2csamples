@@ -41,6 +41,12 @@
           <Pattern RegularExpression="^[A-Z_$][A-Z_$0-9]*$" HelpText="Please enter a valid tenant name (upper case alpha and digit)." />
         </Restriction>         
       </ClaimType> 
+      <ClaimType Id="appTenantName1">
+        <DisplayName>Unique tenant name</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Unique tenant name.</UserHelpText>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>       
       <ClaimType Id="appTenantSelection">
         <DisplayName>Select application tenant</DisplayName>
         <DataType>string</DataType>
@@ -136,6 +142,28 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
+        <TechnicalProfile Id="REST-GetUserTenants">
+          <DisplayName>Get user role</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>            
+          </Metadata>
+          <!--CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_B2cRestClientId" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_B2cRestClientSecret" />
+          </CryptographicKeys-->
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>         
         <TechnicalProfile Id="REST-GetUserRoles">
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -421,14 +449,22 @@
             <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <OrchestrationStep Order="7" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="GetUserRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
+            <ClaimsExchange Id="GetTenants" TechnicalProfileReferenceId="REST-GetUserRoles" />
           </ClaimsExchanges>
-        </OrchestrationStep>         
-
-        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        </OrchestrationStep>  
+        <OrchestrationStep Order="8" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SelectTenant" TechnicalProfileReferenceId="REST-GetUserRoles" />
+          </ClaimsExchanges>
+        </OrchestrationStep>    
+        <OrchestrationStep Order="9" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetUserTenantRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
+          </ClaimsExchanges>
+        </OrchestrationStep>                   
+        <OrchestrationStep Order="10" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
  
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
