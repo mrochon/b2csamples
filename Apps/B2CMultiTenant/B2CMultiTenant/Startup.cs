@@ -39,15 +39,20 @@ namespace B2CMultiTenant
             });
             // https://docs.microsoft.com/en-us/aspnet/core/security/authorization/limitingidentitybyscheme?view=aspnetcore-3.0
             services
-                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    //options.DefaultChallengeScheme = "Custom Scheme";
+                })
                     .AddCookie(options => {
                         options.LoginPath = "/Account/Unauthorized/";
                         options.AccessDeniedPath = "/Account/Forbidden/";
                     })
-                    // .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
+                    .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
             services
                 .AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             //.AddMvc(options =>
             //{
             //    var policy = new AuthorizationPolicyBuilder()
@@ -77,6 +82,9 @@ namespace B2CMultiTenant
             {
                 NameClaimType = "name"
             };
+            options.CallbackPath = new PathString($"/signin-{policy}"); // otherwise getting 'correlation error'
+            options.SignedOutCallbackPath = new PathString($"/signout-{policy}");
+            options.SignedOutRedirectUri = "/";
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -98,7 +106,6 @@ namespace B2CMultiTenant
             app.UseCookiePolicy();
 
             app.UseAuthentication();
-
 
             app.UseMvc(routes =>
             {

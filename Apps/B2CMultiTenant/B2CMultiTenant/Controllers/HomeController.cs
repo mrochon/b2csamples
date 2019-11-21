@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace B2CMultiTenant.Controllers
 {
@@ -21,14 +22,28 @@ namespace B2CMultiTenant.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            return View(User.Claims);
         }
-
+        public IActionResult MemberSignIn()
+        {
+            return Challenge(
+                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
+                new string[] { "mtsusi" });
+        }
         public IActionResult NewTenant()
         {
             return Challenge(
-                new AuthenticationProperties() { RedirectUri = "/TenantAdmin" },
+                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
                 new string[] { "mtsusint" });
+        }
+        [Authorize]
+        public IActionResult SignOut()
+        {
+            var loginPath = User.Claims.First(c => c.Type == "http://schemas.microsoft.com/claims/authnclassreference").Value;
+            var policy = loginPath.Split('_')[2];
+            return SignOut(
+                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
+                new string[] { CookieAuthenticationDefaults.AuthenticationScheme, policy });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

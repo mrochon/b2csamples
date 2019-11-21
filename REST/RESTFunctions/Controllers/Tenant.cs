@@ -94,11 +94,10 @@ namespace RESTFunctions.Controllers
                 mailEnabled = false,
                 securityEnabled = true,
             };
-            // add user who created this group as both owner and member
             var jGroup = JObject.FromObject(group);
             var owners = new string[] { $"{Graph.BaseUrl}users/{tenant.ownerId}" };
             jGroup.Add("owners@odata.bind", JArray.FromObject(owners));
-            jGroup.Add("members@odata.bind", JArray.FromObject(owners));
+            //jGroup.Add("members@odata.bind", JArray.FromObject(owners));
             //  https://docs.microsoft.com/en-us/graph/api/group-post-groups?view=graph-rest-1.0&tabs=http
             resp = await http.PostAsync(
                 $"{Graph.BaseUrl}groups",
@@ -109,7 +108,7 @@ namespace RESTFunctions.Controllers
             var newGroup = JObject.Parse(json);
             var id = newGroup["id"].Value<string>();
             // add this group to the user's tenant collection
-            return new OkObjectResult(new { id, roles = new string[] { "admin" }, userMessage = "Tenant created" });
+            return new OkObjectResult(new { id, roles = new string[] { "admin", "member" }, userMessage = "Tenant created" });
         }
 
         [HttpGet("forUser")]
@@ -197,30 +196,35 @@ namespace RESTFunctions.Controllers
             return (member != null);
         }
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddMember([FromBody] TenantMember memb)
+        // add or confirm user is member, return roles
+        [HttpPost("member")]
+        public async Task<IActionResult> Member([FromBody] TenantMember memb)
         {
             var tenantName = memb.tenantName.ToUpper();
             var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
             if (tenantId == null)
                 return BadRequest();
             var http = await _graph.GetClientAsync();
-            var refs = new List<string>() { "members" };
-            //if (memb.isAdmin) refs.Add("owners");
-            foreach (var refType in refs)
+            if (await IsMemberAsync(tenantId, memb.userId, true)) // skip already an admin
             {
-                //if (await IsMemberAsync(tenantId, memb.userId, refType == "admin")) // skip if user already in this role
-                //    continue;
+                return new JsonResult(new { tenantId, roles = new string[] { "admin", "member" } });
+            }
+            else if (await IsMemberAsync(tenantId, memb.userId, false))
+            {
+                return new JsonResult(new { tenantId, roles = new string[] { "member" } });
+            }
+            else
+            {
                 var resp = await http.PostAsync(
-                    $"{Graph.BaseUrl}groups/{tenantId}/{refType}/$ref",
+                    $"{Graph.BaseUrl}groups/{tenantId}/members/$ref",
                     new StringContent(
                         $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{memb.userId}\"}}",
                         System.Text.Encoding.UTF8,
                         "application/json"));
                 if (!resp.IsSuccessStatusCode)
                     return BadRequest("Add member failed");
+                return new JsonResult(new { tenantId, roles = new string[] { "member" }, isNewMember = true });
             }
-            return new JsonResult(new { tenantId, roles = new string[] { "member" } });
         }
 
         [HttpGet("{tenantName}/invite")]

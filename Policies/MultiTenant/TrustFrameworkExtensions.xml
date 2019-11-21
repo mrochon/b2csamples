@@ -57,32 +57,15 @@
         <DisplayName>Select application tenant</DisplayName>
         <DataType>string</DataType>
         <UserInputType>DropdownSingleSelect</UserInputType>
-      </ClaimType>                       
+      </ClaimType>     
+      <ClaimType Id="isNewMember">
+        <DisplayName>User joined an app tenant</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>                    
     </ClaimsSchema>
-    <ClaimsTransformations>
-      <ClaimsTransformation Id="Select1stTenantId" TransformationMethod="GetSingleItemFromStringCollection">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="appTenantIds" TransformationClaimType="collection" />
-        </InputClaims>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="appTenantId" TransformationClaimType="extractedItem" />
-        </OutputClaims>
-      </ClaimsTransformation>    
-      <ClaimsTransformation Id="Select1stTenantName" TransformationMethod="GetSingleItemFromStringCollection">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="appTenants" TransformationClaimType="collection" />
-        </InputClaims>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="appTenantName" TransformationClaimType="extractedItem" />
-        </OutputClaims>
-      </ClaimsTransformation>        
-    </ClaimsTransformations>
-
   </BuildingBlocks>
 
   <ClaimsProviders>
-
-
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>    
       <TechnicalProfiles>
@@ -136,8 +119,8 @@
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-NOOP" />
         </TechnicalProfile>
-        <TechnicalProfile Id="SelfAsserted-JoinTenant">
-          <DisplayName>Join tenant</DisplayName>
+        <TechnicalProfile Id="SelfAsserted-JoinOrSelectTenant">
+          <DisplayName>Select tenant</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
@@ -145,42 +128,20 @@
           <CryptographicKeys>
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
-          <!--InputClaims>
+          <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" />
-          </InputClaims-->          
+          </InputClaims>          
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantName" />
-            <OutputClaim ClaimTypeReferenceId="appTenantId" />            
+            <OutputClaim ClaimTypeReferenceId="appTenantId" />  
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" />    
+            <OutputClaim ClaimTypeReferenceId="isNewMember" />      
           </OutputClaims>
           <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="REST-AddMember" />
+            <ValidationTechnicalProfile ReferenceId="REST-GetOrJoinTenant" />
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-NOOP" />
         </TechnicalProfile>    
-        <!-- Really a misnomer - B2C functionality does not allow yet to select from a dynamic list -->
-        <TechnicalProfile Id="SelfAsserted-SelectTenant">
-          <DisplayName>Tenant selection</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
-          <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="Select1stTenantId" />
-            <InputClaimsTransformation ReferenceId="Select1stTenantName" />            
-          </InputClaimsTransformations>
-          <!--InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" />
-            <InputClaim ClaimTypeReferenceId="appTenantId" />            
-          </InputClaims-->
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantId" />
-            <!--OutputClaim ClaimTypeReferenceId="appTenantName" /-->   
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-NOOP" />
-        </TechnicalProfile>             
       </TechnicalProfiles>
     </ClaimsProvider>   
 
@@ -210,34 +171,6 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-        <TechnicalProfile Id="REST-GetUserTenants">
-          <DisplayName>Get user tenants and roles</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/forUser</Item>
-            <Item Key="AuthenticationType">None</Item>
-            <Item Key="SendClaimsIn">QueryString</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
-          </Metadata>
-          <!--CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_B2cRestClientId" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_B2cRestClientSecret" />
-          </CryptographicKeys-->
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenants" PartnerClaimType="tenants" />
-            <OutputClaim ClaimTypeReferenceId="appTenantIds" PartnerClaimType="tenantIds" />
-            <!--OutputClaim ClaimTypeReferenceId="appTenants" PartnerClaimType="roles" /-->                        
-          </OutputClaims>
-          <!-- HACK - the SelectTenant step does not seem to work! -->
-          <OutputClaimsTransformations>
-            <OutputClaimsTransformation ReferenceId="Select1stTenantId" />
-            <OutputClaimsTransformation ReferenceId="Select1stTenantName" />            
-          </OutputClaimsTransformations>          
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>         
         <TechnicalProfile Id="REST-GetUserRoles">
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -261,11 +194,11 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>    
-        <TechnicalProfile Id="REST-AddMember">
+        <TechnicalProfile Id="REST-GetOrJoinTenant">
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/add</Item>
+            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/member</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <Item Key="AllowInsecureAuthInProduction">true</Item>            
@@ -281,6 +214,7 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+            <OutputClaim ClaimTypeReferenceId="isNewMember" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>               
@@ -516,36 +450,12 @@
             <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
           </ClaimsExchanges>
         </OrchestrationStep>            
-        <!-- Relying on the standard SignUpOrSignInPolicy for the first 6 steps -->
         <OrchestrationStep Order="7" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="GetTenants" TechnicalProfileReferenceId="REST-GetUserTenants" />
+            <ClaimsExchange Id="EnterTenantName" TechnicalProfileReferenceId="SelfAsserted-JoinOrSelectTenant" />
           </ClaimsExchanges>
         </OrchestrationStep>  
-        <OrchestrationStep Order="8" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>appTenants</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>        
-          <ClaimsExchanges>
-            <ClaimsExchange Id="EnterTenantName" TechnicalProfileReferenceId="SelfAsserted-JoinTenant" />
-          </ClaimsExchanges>
-        </OrchestrationStep>  
-        <!-- HACK - first tenant selected for every user -->  
-        <!--OrchestrationStep Order="9" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
-              <Value>appTenants</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>          
-          <ClaimsExchanges>
-            <ClaimsExchange Id="SelectTenant" TechnicalProfileReferenceId="SelfAsserted-SelectTenant" />
-          </ClaimsExchanges>
-        </OrchestrationStep-->                   
-        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
  
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
