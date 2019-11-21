@@ -83,7 +83,7 @@ namespace RESTFunctions.Controllers
                 return BadRequest("Unable to validate tenant existence");
             var values = JObject.Parse(await resp.Content.ReadAsStringAsync())["value"].Value<JArray>();
             if (values.Count != 0)
-                return new ObjectResult(new { userMessage = "Tenant already exists", status = 409 }) { StatusCode = 409 };
+                return new ObjectResult(new { userMessage = "Tenant already exists", status = 409 }) { StatusCode = (int) System.Net.HttpStatusCode.Conflict };
                 //return BadRequest("Tenant already exists");
             var group = new
             {
@@ -128,7 +128,12 @@ namespace RESTFunctions.Controllers
             {
                 var json = await http.GetStringAsync($"{Graph.BaseUrl}users/{userId}/memberOf");
                 var groups = JObject.Parse(json)["value"].Value<JArray>();
-                var membership = new List<Member>();
+                var membership = new
+                {
+                    tenantIds = new List<string>(),
+                    tenants = new List<string>(),
+                    roles = new List<string>()
+                };
                 foreach (var group in groups)
                 {
                     var isGroup = group["@odata.type"].Value<string>() == "#microsoft.graph.group";
@@ -137,12 +142,12 @@ namespace RESTFunctions.Controllers
                     json = await http.GetStringAsync($"{Graph.BaseUrl}groups/{id}/owners");
                     var values = JObject.Parse(json)["value"].Value<JArray>();
                     var admin = values.FirstOrDefault(u => u["id"].Value<string>() == userId);
-                    membership.Add(new Member
-                    {
-                        GroupId = group["id"].Value<string>(),
-                        IsAdmin = admin != null
-                    });
+                    membership.tenantIds.Add(group["id"].Value<string>());
+                    membership.tenants.Add(group["displayName"].Value<string>());
+                    membership.roles.Add(admin != null ? "admin" : "member");
                 }
+                if (membership.tenantIds.Count == 0)
+                    return new JsonResult(new { });
                 return new JsonResult(membership);
             }
             catch (HttpRequestException ex)
@@ -192,27 +197,30 @@ namespace RESTFunctions.Controllers
             return (member != null);
         }
 
-        [HttpPut("add")]
-        public async Task<IActionResult> AddMember([FromBody] string tenantName, string userId, bool isAdmin = false)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddMember([FromBody] TenantMember memb)
         {
-            var tenantId = await GetTenantIdFromNameAsync(tenantName);
+            var tenantName = memb.tenantName.ToUpper();
+            var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
+            if (tenantId == null)
+                return BadRequest();
             var http = await _graph.GetClientAsync();
             var refs = new List<string>() { "members" };
-            if (isAdmin) refs.Add("owners");
+            //if (memb.isAdmin) refs.Add("owners");
             foreach (var refType in refs)
             {
-                if (await IsMemberAsync(tenantId, userId, refType == "admin")) // skip if user already in this role
-                    continue;
+                //if (await IsMemberAsync(tenantId, memb.userId, refType == "admin")) // skip if user already in this role
+                //    continue;
                 var resp = await http.PostAsync(
                     $"{Graph.BaseUrl}groups/{tenantId}/{refType}/$ref",
                     new StringContent(
-                        $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{userId}\"}}",
+                        $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{memb.userId}\"}}",
                         System.Text.Encoding.UTF8,
                         "application/json"));
                 if (!resp.IsSuccessStatusCode)
                     return BadRequest("Add member failed");
             }
-            return new JsonResult(new { tenantId, role = isAdmin ? "admin" : "member" });
+            return new JsonResult(new { tenantId, roles = new string[] { "member" } });
         }
 
         [HttpGet("{tenantName}/invite")]
@@ -256,9 +264,9 @@ namespace RESTFunctions.Controllers
         public string description { get; set; }
         public string ownerId { get; set; }
     }
-    public class Member
+    public class TenantMember
     {
-        public string GroupId;
-        public bool IsAdmin;
+        public string tenantName { get; set; }
+        public string userId { get; set; }
     }
 }

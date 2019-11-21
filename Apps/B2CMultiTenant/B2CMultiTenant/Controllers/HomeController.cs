@@ -16,11 +16,9 @@ namespace B2CMultiTenant.Controllers
     //[Authorize]
     public class HomeController : Controller
     {
-        public HomeController(IOptionsMonitor<MultiTenantOptions> opts)
+        public HomeController()
         {
-            _mtOptions = opts;
         }
-        IOptionsMonitor<MultiTenantOptions> _mtOptions;
         public IActionResult Index()
         {
             return View();

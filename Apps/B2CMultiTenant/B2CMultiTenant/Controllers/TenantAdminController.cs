@@ -12,6 +12,7 @@ namespace B2CMultiTenant.Controllers
     {
         public IActionResult Index()
         {
+            var u = User;
             return View();
         }
     }

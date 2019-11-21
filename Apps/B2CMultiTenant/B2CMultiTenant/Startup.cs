@@ -73,6 +73,10 @@ namespace B2CMultiTenant
             options.ClientId = aadOptions.ClientId;
             var aadTenant = aadOptions.Domain.Split('.')[0];
             options.MetadataAddress = $"https://{aadTenant}.b2clogin.com/{aadOptions.TenantId}/b2c_1a_{policy}/v2.0/.well-known/openid-configuration";
+            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+            {
+                NameClaimType = "name"
+            };
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
