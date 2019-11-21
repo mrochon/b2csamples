@@ -32,20 +32,23 @@
     }
     else
     {
-        <p>Demonstrates use of single Azure AD B2C tenant authentication service for SaaS applications.</p>
+        <p>Demonstrates the use of a single Azure AD B2C tenant as authentication service for a SaaS application.</p>
         <p>
             A SaaS application commonly uses the concept of a <b>tenant</b> to group users whose use of the application
-            are totally separated from use by any other groups. For example, an application may provide administrative
-            services for small businesses. Each business is considered a tenant in the application. To distinguish such a tenant
-            from Azure AD tenants, this application uses the term application tenant. (Azure AD is also a SaaS application, hence it
-            also has the concept of tenant.
+            are totally separated from use by any other groups. For example, a SaaS application may provide accounting
+            services. Each business using the application is considered a tenant in the application. To distinguish such a tenant
+            from Azure AD tenants, this application uses the term <b>application tenant</b>. (Azure AD is also a SaaS application, hence it
+            also has the concept of a tenant).
         </p>
         <p>
-            In this sample users can either create new application tenants or sign up to existing tenants.
-            Each application tenant has a short name and (optional) description. Users sign in or up to existing tenants by
-            entering the tenant's name after authenticating to the system. After signin the application received an
-            id token with, among others, the application tenant's unique internal id (guid), name and user's role (admin or member;
-            tenant creators are automatically assigned admin role, everybody else is a member).
+            In this sample an individual can either <a href="~/home/newtenant">create</a> a new application tenant or <a href="/home/membersignin">
+            sign in</a> to existing tenants.
+            Each application tenant has a short name and (optional) description. In order to sign in or sign up to existing tenants
+            users will need to provide the short name of the application tenant. After signin, the application receives an
+            OpenIDConnect id token with, among others, the application tenant's unique internal id (guid), name and user's role (admin or member;
+            tenant creators are automatically assigned admin role, everybody else is a member). This data allows the application
+            to make the appropriate authorization and data separation decisions. In this app, all the claims recived in the token
+            are displayed on this page.
         </p>
     }
 </div>

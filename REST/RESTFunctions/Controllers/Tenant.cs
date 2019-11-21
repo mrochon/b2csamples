@@ -83,8 +83,7 @@ namespace RESTFunctions.Controllers
                 return BadRequest("Unable to validate tenant existence");
             var values = JObject.Parse(await resp.Content.ReadAsStringAsync())["value"].Value<JArray>();
             if (values.Count != 0)
-                return new ObjectResult(new { userMessage = "Tenant already exists", status = 409 }) { StatusCode = (int) System.Net.HttpStatusCode.Conflict };
-                //return BadRequest("Tenant already exists");
+                return new ConflictObjectResult(new { userMessage = "Tenant already exists", status = 409, version = 1.0 });
             var group = new
             {
                 description = tenant.description,
@@ -203,7 +202,7 @@ namespace RESTFunctions.Controllers
             var tenantName = memb.tenantName.ToUpper();
             var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
             if (tenantId == null)
-                return BadRequest();
+                return new NotFoundObjectResult(new { userMessage = "Tenant does not exist", status = 404, version = 1.0 });
             var http = await _graph.GetClientAsync();
             if (await IsMemberAsync(tenantId, memb.userId, true)) // skip already an admin
             {
