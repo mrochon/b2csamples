@@ -41,8 +41,7 @@ namespace B2CMultiTenant
             services
                 .AddAuthentication(options =>
                 {
-                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    //options.DefaultChallengeScheme = "Custom Scheme";
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 })
                     .AddCookie(options => {
                         options.LoginPath = "/Account/Unauthorized/";
