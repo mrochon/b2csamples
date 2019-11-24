@@ -40,6 +40,7 @@ namespace RESTFunctions.Services
             }
             if (isAuthorized)
             {
+                // Call the next delegate/middleware in the pipeline
                 await _next(context);
             }
             else
@@ -47,8 +48,6 @@ namespace RESTFunctions.Services
                 context.Response.StatusCode = 403;
                 await context.Response.WriteAsync("Unauthorized");
             }
-            // Call the next delegate/middleware in the pipeline
-            await _next(context);
         }
     }
 

@@ -185,6 +185,36 @@ namespace RESTFunctions.Controllers
                 roles = null;
             return roles;
         }
+        [HttpGet("members")]
+        public async Task<List<Member>> Members(string tenantName)
+        {
+            var tenantId = await GetTenantIdFromNameAsync(tenantName);
+            if (tenantId == null) return null;
+            var http = await _graph.GetClientAsync();
+            var result = new List<Member>();
+            foreach(var role in new string[] { "admin", "member"})
+            {
+                var entType = (role == "admin") ? "owners" : "members";
+                var json = await http.GetStringAsync($"{Graph.BaseUrl}groups/{tenantId}/{entType}");
+                foreach(var memb in JObject.Parse(json)["value"].Value<JArray>())
+                {
+                    var user = result.FirstOrDefault(m => m.userId == memb["id"].Value<string>());
+                    if (user != null) // already exists; can only be because already owner; add member role
+                        user.roles.Add("member");
+                    else
+                    {
+                        user = new Member()
+                        {
+                            tenantId = tenantId,
+                            userId = memb["id"].Value<string>(),
+                            roles = new List<string>() { role }
+                        };
+                        result.Add(user);
+                    }
+                }
+            }
+            return result;
+        }
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
             var http = await _graph.GetClientAsync();
@@ -271,5 +301,11 @@ namespace RESTFunctions.Controllers
     {
         public string tenantName { get; set; }
         public string userId { get; set; }
+    }
+    public class Member
+    {
+        public string tenantId { get; set; }
+        public string userId { get; set; }
+        public List<string> roles { get; set; }
     }
 }
