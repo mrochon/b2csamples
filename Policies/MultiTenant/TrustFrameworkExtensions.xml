@@ -153,13 +153,13 @@
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant</Item>
-            <Item Key="AuthenticationType">None</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
-          <!--CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_ClientCertificate" />
-          </CryptographicKeys-->
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+          </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
             <InputClaim ClaimTypeReferenceId="appTenantDescription" PartnerClaimType="description" />
@@ -171,42 +171,18 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-        <TechnicalProfile Id="REST-GetUserRoles">
-          <DisplayName>Get user role</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/getUserRoles</Item>
-            <Item Key="AuthenticationType">None</Item>
-            <Item Key="SendClaimsIn">QueryString</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
-          </Metadata>
-          <!--CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_B2cRestClientId" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_B2cRestClientSecret" />
-          </CryptographicKeys-->
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenantName}" />
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
-            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>    
         <TechnicalProfile Id="REST-GetOrJoinTenant">
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/member</Item>
-            <Item Key="AuthenticationType">None</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
-          <!--CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_B2cRestClientId" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_B2cRestClientSecret" />
-          </CryptographicKeys-->
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+          </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName"  />
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />

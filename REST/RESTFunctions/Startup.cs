@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Mvc;
+using RESTFunctions.Services;
 
 namespace RESTFunctions
 {
@@ -45,9 +46,8 @@ namespace RESTFunctions
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-
             app.UseHttpsRedirection();
+            app.UseCertificateValidator();
             app.UseMvc();
         }
     }
