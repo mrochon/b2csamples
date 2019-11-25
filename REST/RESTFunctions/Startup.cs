@@ -30,6 +30,7 @@ namespace RESTFunctions
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.Configure<ClientCertificateOptions>(Configuration.GetSection("AuthCert"));
             services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("MultiTenant"));
             services.AddSingleton<Services.Graph>();
         }
@@ -45,7 +46,6 @@ namespace RESTFunctions
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
-
             }
             app.UseCertificateValidator();
             app.UseHttpsRedirection();

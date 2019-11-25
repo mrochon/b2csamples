@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
@@ -49,22 +50,7 @@ namespace RESTFunctions.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TenantDef tenant)
         {
-            /*
-            var headers = base.Request.Headers;
-            var certHeader = headers["X-ARR-ClientCert"];
-            if (!String.IsNullOrEmpty(certHeader))
-            {
-                try
-                {
-                    byte[] clientCertBytes = Convert.FromBase64String(certHeader);
-                    var certificate = new X509Certificate2(clientCertBytes);
-                } catch(Exception ex)
-                {
-
-                }
-             }
-             */
-
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             if ((string.IsNullOrEmpty(tenant.name) || (string.IsNullOrEmpty(tenant.ownerId))))
                 return BadRequest("Invalid parameters");
 
@@ -113,6 +99,7 @@ namespace RESTFunctions.Controllers
         [HttpGet("forUser")]
         public async Task<IActionResult> GetForUser(string userId)
         {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             //if ((string.IsNullOrEmpty(userId) || (string.IsNullOrEmpty(userId))))
             //if (userId == Guid.Empty)
             //    return BadRequest("Invalid parameters");
@@ -157,6 +144,7 @@ namespace RESTFunctions.Controllers
         [HttpGet("getUserRoles")]
         public async Task<IActionResult> GetUserRolesByNameAsync(string tenantName, string userId)
         {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             var http = await _graph.GetClientAsync();
             try
             {
@@ -186,7 +174,7 @@ namespace RESTFunctions.Controllers
             return roles;
         }
         [HttpGet("members")]
-        public async Task<List<Member>> Members(string tenantName)
+        public async Task<IActionResult> Members(string tenantName)
         {
             var tenantId = await GetTenantIdFromNameAsync(tenantName);
             if (tenantId == null) return null;
@@ -213,7 +201,7 @@ namespace RESTFunctions.Controllers
                     }
                 }
             }
-            return result;
+            return new JsonResult(result);
         }
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
@@ -229,6 +217,7 @@ namespace RESTFunctions.Controllers
         [HttpPost("member")]
         public async Task<IActionResult> Member([FromBody] TenantMember memb)
         {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             var tenantName = memb.tenantName.ToUpper();
             var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
             if (tenantId == null)
@@ -259,6 +248,7 @@ namespace RESTFunctions.Controllers
         [HttpGet("{tenantName}/invite")]
         public IActionResult GetInviteToken(string tenantName, string email)
         {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             const string issuer = "http://b2cmultitenant";
             const string audience = "https://login.microsoftonline.com/mrochonb2cprod.onmicrosoft.com";
 
