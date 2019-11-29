@@ -173,6 +173,7 @@ namespace RESTFunctions.Controllers
                 roles = null;
             return roles;
         }
+        [Authorize(Roles ="admin")]
         [HttpGet("members")]
         public async Task<IActionResult> Members(string tenantName)
         {

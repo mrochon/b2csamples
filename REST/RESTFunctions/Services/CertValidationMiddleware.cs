@@ -56,21 +56,12 @@ namespace RESTFunctions.Services
                 catch (Exception ex)
                 {
                     Trace.WriteLine($"System exception: {ex.Message}");
-                    //context.Response.StatusCode = 500;
-                    //await context.Response.WriteAsync("Failed");
-                    //return;
                 }
             }
             if (isAuthorized)
             {
                 context.User = new System.Security.Claims.ClaimsPrincipal(identity);
             }
-            //else
-            //{
-            //    context.Response.StatusCode = 403;
-            //    await context.Response.WriteAsync("Unauthorized");
-            //}
-            // Call the next delegate/middleware in the pipeline
             await _next(context);
         }
     }
