@@ -11,15 +11,18 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using B2CMultiTenant.Extensions;
 
 namespace B2CMultiTenant.Controllers
 {
     //[Authorize]
     public class HomeController : Controller
     {
-        public HomeController()
+        public HomeController(TokenService tokenService)
         {
+            _tokenService = tokenService;
         }
+        TokenService _tokenService;
         public IActionResult Index()
         {
             return View(User.Claims);

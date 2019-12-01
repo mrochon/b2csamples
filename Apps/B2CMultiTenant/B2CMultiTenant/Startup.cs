@@ -16,6 +16,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
+using B2CMultiTenant.Models;
+using B2CMultiTenant.Extensions;
+using Microsoft.Identity.Client;
 
 namespace B2CMultiTenant
 {
@@ -31,12 +36,16 @@ namespace B2CMultiTenant
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.Configure<OpenIdConnectOptions>(Configuration.GetSection("AzureAD"));
+            services.AddSingleton<Extensions.TokenService>();
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
             // https://docs.microsoft.com/en-us/aspnet/core/security/authorization/limitingidentitybyscheme?view=aspnetcore-3.0
             services
                 .AddAuthentication(options =>
@@ -49,6 +58,7 @@ namespace B2CMultiTenant
                     })
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
+            services.AddSession();
             services
                 .AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -84,6 +94,16 @@ namespace B2CMultiTenant
             options.CallbackPath = new PathString($"/signin-{policy}"); // otherwise getting 'correlation error'
             options.SignedOutCallbackPath = new PathString($"/signout-{policy}");
             options.SignedOutRedirectUri = "/";
+            options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            options.Events.OnAuthorizationCodeReceived = async (ctx) =>
+            {
+                ctx.HandleCodeRedemption();
+                var ts = ActivatorUtilities.GetServiceOrCreateInstance<Extensions.TokenService>(ctx.HttpContext.RequestServices);
+                var tokens = await ts.AuthApp.AcquireTokenByAuthorizationCode(
+                    RESTService.Scopes,
+                    ctx.ProtocolMessage.Code).ExecuteAsync();
+                ctx.HandleCodeRedemption(tokens.IdToken, tokens.IdToken);
+            };
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,6 +123,8 @@ namespace B2CMultiTenant
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            app.UseSession();
 
             app.UseAuthentication();
 
