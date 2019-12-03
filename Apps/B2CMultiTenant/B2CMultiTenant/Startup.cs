@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using B2CMultiTenant.Models;
 using B2CMultiTenant.Extensions;
 using Microsoft.Identity.Client;
+using System.Security.Claims;
 
 namespace B2CMultiTenant
 {
@@ -32,6 +33,7 @@ namespace B2CMultiTenant
         }
 
         public IConfiguration Configuration { get; }
+        public static IAccount ACCOUNT;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -39,6 +41,7 @@ namespace B2CMultiTenant
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.Configure<OpenIdConnectOptions>(Configuration.GetSection("AzureAD"));
             services.AddSingleton<Extensions.TokenService>();
+            services.AddTransient<RESTService>();
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -58,7 +61,7 @@ namespace B2CMultiTenant
                     })
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
-            services.AddSession();
+            services.AddSession(options => options.Cookie.IsEssential = true);
             services
                 .AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -95,14 +98,24 @@ namespace B2CMultiTenant
             options.SignedOutCallbackPath = new PathString($"/signout-{policy}");
             options.SignedOutRedirectUri = "/";
             options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+            //TODO: Improve, Concat could not be used
+            foreach(var s in RESTService.Scopes)
+                options.Scope.Add(s);
             options.Events.OnAuthorizationCodeReceived = async (ctx) =>
             {
                 ctx.HandleCodeRedemption();
+                // The cache will need the claims from the ID token.
+                // If they are not yet in the HttpContext.User's claims, so adding them here.
+                if (!ctx.HttpContext.User.Claims.Any())
+                {
+                    (ctx.HttpContext.User.Identity as ClaimsIdentity).AddClaims(ctx.Principal.Claims);
+                }
                 var ts = ActivatorUtilities.GetServiceOrCreateInstance<Extensions.TokenService>(ctx.HttpContext.RequestServices);
                 var tokens = await ts.AuthApp.AcquireTokenByAuthorizationCode(
                     RESTService.Scopes,
-                    ctx.ProtocolMessage.Code).ExecuteAsync();
-                ctx.HandleCodeRedemption(tokens.IdToken, tokens.IdToken);
+                    ctx.ProtocolMessage.Code).ExecuteAsync().ConfigureAwait(false);
+                ACCOUNT = tokens.Account;
+                ctx.HandleCodeRedemption(null, tokens.IdToken);
             };
         }
 

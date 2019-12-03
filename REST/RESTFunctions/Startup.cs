@@ -39,7 +39,8 @@ namespace RESTFunctions
             })
                 .AddJwtBearer(jwtOptions =>
                 {
-                    jwtOptions.Authority = $"https://login.microsoftonline.com/tfp/{Configuration["B2C:TenantId"]}/{Configuration["B2C:Policy"]}/v2.0/";
+                    jwtOptions.MetadataAddress = $"{Configuration["B2C:Instance"]}/{Configuration["B2C:TenantId"]}/{Configuration["B2C:Policy"]}/v2.0/.well-known/openid-configuration";
+                    //jwtOptions.Authority = $"https://login.microsoftonline.com/tfp/{Configuration["B2C:TenantId"]}/{Configuration["B2C:Policy"]}/v2.0/";
                     jwtOptions.Audience = Configuration["B2C:ClientId"];
                     //jwtOptions.Events = new JwtBearerEvents
                     //{

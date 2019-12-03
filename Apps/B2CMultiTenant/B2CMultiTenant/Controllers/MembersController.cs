@@ -24,12 +24,13 @@ namespace B2CMultiTenant.Controllers
         public async Task<IActionResult> Index()
         {
             var http = await _rest.GetClientAsync();
-            var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members");
+            var tenantName = User.FindFirst("appTenantName").Value;
+            var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members?tenantName={tenantName}");
             var members = JArray.Parse(json).Select(m => new Member
             {
-                Id = m["id"].Value<string>(),
-                Role = (m["roles"].Value<IEnumerable<string>>()).Aggregate((i, r) => $"{i}, {r}")
-            });
+                Id = m["userId"].Value<string>(),
+                Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}"))
+            }).ToList();
             return View(members);
         }
         /*

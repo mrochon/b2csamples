@@ -29,6 +29,7 @@ namespace B2CMultiTenant.Extensions
                         .Create(_options.CurrentValue.ClientId)
                         .WithClientSecret(_configuration["AzureAD:ClientSecret"])
                         .WithB2CAuthority("https://b2cmultitenant.b2clogin.com/tfp/b2cmultitenant.onmicrosoft.com/b2c_1a_mtsusi")
+                        .WithRedirectUri("http://localhost:62385/signin-mtsusi")
                         .Build();
                     _authApp.UserTokenCache.SetBeforeAccess(BeforeAccessNotification);
                     _authApp.UserTokenCache.SetAfterAccess(AfterAccessNotification);
@@ -40,13 +41,12 @@ namespace B2CMultiTenant.Extensions
         IConfidentialClientApplication _authApp;
         public async Task<string> GetUserTokenAsync(string[] scopes)
         {
-            var acctId = _httpContext.HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/objectid").Value;
-            var acct = await AuthApp.GetAccountAsync(acctId);
-            var tokens = await (AuthApp.AcquireTokenSilent(scopes, acct)).ExecuteAsync();
+            //var acct = (await _authApp.GetAccountsAsync().ConfigureAwait(false)).FirstOrDefault();
+            var acct = Startup.ACCOUNT;
+            var tokens = await (_authApp.AcquireTokenSilent(scopes, acct)).ExecuteAsync().ConfigureAwait(false);
             return tokens.AccessToken;
         }
 
-        private static readonly string SessionPrefix = "__MSAL";
         IOptionsMonitor<OpenIdConnectOptions> _options;
         IHttpContextAccessor _httpContext;
         private static readonly object _lock = new object();
@@ -56,9 +56,18 @@ namespace B2CMultiTenant.Extensions
             lock (_lock)
             {
                 byte[] cache;
-                if (_httpContext.HttpContext.Session.TryGetValue($"{SessionPrefix}.{args.Account.HomeAccountId.ObjectId}", out cache))
+                string key;
+                if (args.Account == null)
                 {
-                    args.TokenCache.DeserializeMsalV3(cache);
+                    var objectId = _httpContext.HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+                    var tenantId = _httpContext.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
+                    key = $"{objectId}-b2c_1a_mtsusi.{tenantId}";
+                }
+                else
+                    key = args.Account.HomeAccountId.Identifier;
+                if (_httpContext.HttpContext.Session.TryGetValue(key, out cache))
+                {
+                    args.TokenCache.DeserializeMsalV3(cache, shouldClearExistingCache: true);
                 }
             }
         }
@@ -71,7 +80,11 @@ namespace B2CMultiTenant.Extensions
                 lock (_lock)
                 {
                     var cache = args.TokenCache.SerializeMsalV3();
-                    _httpContext.HttpContext.Session.Set($"{SessionPrefix}.{args.Account.HomeAccountId.ObjectId}", cache);
+                    //var objectId = _httpContext.HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+                    //var tenantId = _httpContext.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
+                    //var key = $"{objectId}-b2c_1a_mtsusi.{tenantId}";
+                    var key = args.Account.HomeAccountId.Identifier;
+                    _httpContext.HttpContext.Session.Set(key, cache);
                 }
             }
         }
