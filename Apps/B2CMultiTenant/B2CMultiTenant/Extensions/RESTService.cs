@@ -17,7 +17,8 @@ namespace B2CMultiTenant.Extensions
             "https://b2cmultitenant.onmicrosoft.com/b2crestapi/Members.ReadAll",
             "offline_access"
         };
-        public static readonly string Url = "http://localhost:57688";
+        //public static readonly string Url = "http://localhost:57688";
+        public static readonly string Url = "https://b2crestapis.azurewebsites.net";
         TokenService _tokenService;
         public async Task<HttpClient> GetClientAsync()
         {

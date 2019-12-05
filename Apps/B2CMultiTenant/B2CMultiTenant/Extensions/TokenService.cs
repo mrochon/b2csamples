@@ -27,14 +27,15 @@ namespace B2CMultiTenant.Extensions
                 {
                     _authApp = ConfidentialClientApplicationBuilder
                         .Create(_options.CurrentValue.ClientId)
-                        .WithClientSecret(_configuration["AzureAD:ClientSecret"])
+                        .WithClientSecret(_options.CurrentValue.ClientSecret)
+                        //.WithClientSecret(_configuration["AzureAD:ClientSecret"])
                         //.WithB2CAuthority("https://fabrikamb2c.b2clogin.com/tfp/{tenant}/{PolicySignInSignUp}")
                         .WithB2CAuthority("https://b2cmultitenant.b2clogin.com/tfp/b2cmultitenant.onmicrosoft.com/b2c_1a_mtsusi")
                         //.WithB2CAuthority("https://b2cmultitenant.b2clogin.com/b2cmultitenant.onmicrosoft.com/b2c_1a_mtsusi/v2.0") // errors: must have 3 segments, incl. tfp or invalid instance
                         .WithRedirectUri("http://localhost:62385/signin-mtsusi")
                         .Build();
-                    //_authApp.UserTokenCache.SetBeforeAccess(BeforeAccessNotification);
-                    //_authApp.UserTokenCache.SetAfterAccess(AfterAccessNotification);
+                    _authApp.UserTokenCache.SetBeforeAccess(BeforeAccessNotification);
+                    _authApp.UserTokenCache.SetAfterAccess(AfterAccessNotification);
                 }
                 return _authApp;
             }
