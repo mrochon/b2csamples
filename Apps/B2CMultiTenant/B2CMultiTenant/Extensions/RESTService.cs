@@ -14,7 +14,8 @@ namespace B2CMultiTenant.Extensions
         }
         public static readonly string[] Scopes =
         {
-            "https://b2cmultitenant.onmicrosoft.com/b2crestapi/Members.ReadAll"
+            "https://b2cmultitenant.onmicrosoft.com/b2crestapi/Members.ReadAll",
+            "offline_access"
         };
         public static readonly string Url = "http://localhost:57688";
         TokenService _tokenService;

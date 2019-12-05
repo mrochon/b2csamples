@@ -31,10 +31,7 @@ namespace B2CMultiTenant
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
-        public static IAccount ACCOUNT;
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -111,10 +108,10 @@ namespace B2CMultiTenant
                     (ctx.HttpContext.User.Identity as ClaimsIdentity).AddClaims(ctx.Principal.Claims);
                 }
                 var ts = ActivatorUtilities.GetServiceOrCreateInstance<Extensions.TokenService>(ctx.HttpContext.RequestServices);
-                var tokens = await ts.AuthApp.AcquireTokenByAuthorizationCode(
+                var auth = ts.AuthApp;
+                var tokens = await auth.AcquireTokenByAuthorizationCode(
                     RESTService.Scopes,
                     ctx.ProtocolMessage.Code).ExecuteAsync().ConfigureAwait(false);
-                ACCOUNT = tokens.Account;
                 ctx.HandleCodeRedemption(null, tokens.IdToken);
             };
         }

@@ -198,6 +198,8 @@ namespace RESTFunctions.Controllers
                             userId = memb["id"].Value<string>(),
                             roles = new List<string>() { role }
                         };
+                        var userJson = await http.GetStringAsync($"{Graph.BaseUrl}users/{user.userId}?$select=displayName");
+                        user.name = JObject.Parse(userJson)["displayName"].Value<string>();
                         result.Add(user);
                     }
                 }
@@ -298,5 +300,6 @@ namespace RESTFunctions.Controllers
         public string tenantId { get; set; }
         public string userId { get; set; }
         public List<string> roles { get; set; }
+        public string name { get; set; }
     }
 }

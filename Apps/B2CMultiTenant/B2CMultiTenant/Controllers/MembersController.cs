@@ -29,7 +29,8 @@ namespace B2CMultiTenant.Controllers
             var members = JArray.Parse(json).Select(m => new Member
             {
                 Id = m["userId"].Value<string>(),
-                Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}"))
+                Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}")),
+                DisplayName = m["name"].Value<string>()
             }).ToList();
             return View(members);
         }
