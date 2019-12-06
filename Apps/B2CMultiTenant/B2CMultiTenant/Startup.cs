@@ -35,18 +35,15 @@ namespace B2CMultiTenant
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.Configure<OpenIdConnectOptions>(Configuration.GetSection("AzureAD"));
-            services.AddSingleton<Extensions.TokenService>();
-            services.AddTransient<RESTService>();
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
-            // https://docs.microsoft.com/en-us/aspnet/core/security/authorization/limitingidentitybyscheme?view=aspnetcore-3.0
+            services.AddHttpContextAccessor();
+            services.AddScoped<Extensions.TokenService>();
+            services.AddTransient<RESTService>();
             services
                 .AddAuthentication(options =>
                 {
@@ -58,6 +55,8 @@ namespace B2CMultiTenant
                     })
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
+            services.Configure<ConfidentialClientApplicationOptions>(options => Configuration.Bind("AzureAD", options));
+
             services.AddSession(options => options.Cookie.IsEssential = true);
             services
                 .AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -107,7 +106,7 @@ namespace B2CMultiTenant
                 {
                     (ctx.HttpContext.User.Identity as ClaimsIdentity).AddClaims(ctx.Principal.Claims);
                 }
-                var ts = ActivatorUtilities.GetServiceOrCreateInstance<Extensions.TokenService>(ctx.HttpContext.RequestServices);
+                var ts = ctx.HttpContext.RequestServices.GetRequiredService<Extensions.TokenService>();
                 var auth = ts.AuthApp;
                 var tokens = await auth.AcquireTokenByAuthorizationCode(
                     RESTService.Scopes,
