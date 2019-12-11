@@ -244,12 +244,12 @@
           </ErrorHandlers>
         </TechnicalProfile>
 
-        <TechnicalProfile Id="Google-OAUTH-Existing">
+        <!--TechnicalProfile Id="Google-OAUTH-Existing">
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingAlternativeSecurityId" />
           </ValidationTechnicalProfiles>        
           <IncludeTechnicalProfile ReferenceId="Google-OAUTH" />        
-        </TechnicalProfile>
+        </TechnicalProfile-->
 
       </TechnicalProfiles>
     </ClaimsProvider>

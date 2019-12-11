@@ -44,6 +44,7 @@ namespace B2CMultiTenant
             services.AddHttpContextAccessor();
             services.AddScoped<Extensions.TokenService>();
             services.AddTransient<RESTService>();
+            services.AddTransient<InvitationService>();
             services
                 .AddAuthentication(options =>
                 {
@@ -56,10 +57,12 @@ namespace B2CMultiTenant
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
             services.Configure<ConfidentialClientApplicationOptions>(options => Configuration.Bind("AzureAD", options));
+            services.Configure<InvitationTokenOptions>(options => Configuration.Bind("Invitation", options));
 
             services.AddSession(options => options.Cookie.IsEssential = true);
             services
                 .AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.Configure<InvitationTokenOptions>(options => Configuration.Bind("Invitation", options));
 
             //.AddMvc(options =>
             //{

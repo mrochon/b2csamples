@@ -9,17 +9,23 @@ using B2CMultiTenant.Models;
 using Microsoft.AspNetCore.Authorization;
 using B2CMultiTenant.Extensions;
 using Newtonsoft.Json.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace B2CMultiTenant.Controllers
 {
     [Authorize]
     public class MembersController : Controller
     {
-        public MembersController(RESTService rest)
+        public MembersController(RESTService rest, InvitationService invite)
         {
             _rest = rest;
+            _invite = invite;
         }
         RESTService _rest;
+        InvitationService _invite;
         // GET: Members
         public async Task<IActionResult> Index()
         {
@@ -34,6 +40,31 @@ namespace B2CMultiTenant.Controllers
             }).ToList();
             return View(members);
         }
+
+        [Authorize(Roles ="admin")]
+        public IActionResult Invite()
+        {
+            return View(new Invitee());
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles ="admin")]
+        public IActionResult Invite([Bind("Email,IsAdmin")] Invitee invitee)
+        {
+            if (ModelState.IsValid)
+            {
+                var role = invitee.IsAdmin ? "admin" : "member";
+                invitee.InvitationUrl = _invite.GetInvitationUrl(invitee.Email, new Dictionary<string, string>()
+                {
+                    {"tenant", User.FindFirst("appTenantName").Value },
+                    {"roles",  $"[\"{role}\"]" }
+                });
+                return View(invitee);
+                //return RedirectToAction(nameof(Invite));
+            }
+            return View(new Invitee());
+        }
+
         /*
 
         // GET: Members/Details/5
@@ -161,5 +192,6 @@ namespace B2CMultiTenant.Controllers
             return _context.Member.Any(e => e.Id == id);
         }
         */
+
     }
 }

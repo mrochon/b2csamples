@@ -1,0 +1,38 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                      xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+                      PolicySchemaVersion="0.3.0.0"
+                      TenantId="b2cmultitenant.onmicrosoft.com"
+                      PolicyId="B2C_1A_MTInvitation"
+                      DeploymentMode="Development"
+                      PublicPolicyUri="http://mrochonb2cprod.onmicrosoft.com/B2C_1A_MTInvitation">
+  <BasePolicy>
+    <TenantId>b2cmultitenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_MTInvitationExtensions</PolicyId>
+  </BasePolicy>
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="Invitation" />
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <CryptographicKeys>
+        <Key Id="client_secret" StorageReferenceId="B2C_1A_InvitationTokenSigningKey" />
+      </CryptographicKeys>
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="invitedEmail" PartnerClaimType="email" Required="true" />
+        <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenant" Required="true" />
+      </InputClaims>
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <OutputClaim ClaimTypeReferenceId="appTenantName" />
+        <OutputClaim ClaimTypeReferenceId="appTenantId" />  
+        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" /> 
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
