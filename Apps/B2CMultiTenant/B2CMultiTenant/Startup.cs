@@ -22,6 +22,7 @@ using B2CMultiTenant.Models;
 using B2CMultiTenant.Extensions;
 using Microsoft.Identity.Client;
 using System.Security.Claims;
+using Microsoft.Extensions.Primitives;
 
 namespace B2CMultiTenant
 {
@@ -100,6 +101,15 @@ namespace B2CMultiTenant
             //TODO: Improve, Concat could not be used
             foreach(var s in RESTService.Scopes)
                 options.Scope.Add(s);
+            options.Events.OnRedirectToIdentityProvider = async (ctx) =>
+            {
+                if (ctx.Properties.Parameters.ContainsKey("tenant"))
+                {
+                    var tenantName = ((StringValues) ctx.Properties.Parameters["tenant"]).First();
+                    ctx.ProtocolMessage.Parameters.Add("tenant", tenantName);
+                }
+                await Task.FromResult(0);
+            };
             options.Events.OnAuthorizationCodeReceived = async (ctx) =>
             {
                 ctx.HandleCodeRedemption();

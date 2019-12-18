@@ -32,7 +32,7 @@
         <br/><br/>
         @if (User.IsInRole("admin"))
         {
-            <p>You can now ask other users to join your tenant: @User.FindFirst("appTenantName").Value </p>
+            <p>You can <a asp-controller="Members" asp-action="Invite">create invitation urls for other users</a> to join your tenant: @User.FindFirst("appTenantName").Value </p>
         }
     }
     else

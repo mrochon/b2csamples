@@ -25,12 +25,19 @@ namespace B2CMultiTenant.Controllers
         TokenService _tokenService;
         public IActionResult Index()
         {
+            if (User.FindFirst(c => c.Type == "isNewMember")?.Value == "true")
+            {
+                var tenantName = User.FindFirst(c => c.Type == "appTenantName").Value;
+                ViewBag.ReentryUrl = $"{Request.Host}/home/membersignin?tenant={tenantName}";
+            }
             return View(User.Claims);
         }
         public IActionResult MemberSignIn()
         {
-            return Challenge(
-                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
+            var p = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+            if (Request.Query.ContainsKey("tenant"))
+                p.Parameters.Add("tenant", Request.Query["tenant"]);
+            return Challenge(p,
                 new string[] { "mtsusi" });
         }
         public IActionResult NewTenant()

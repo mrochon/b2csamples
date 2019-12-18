@@ -79,6 +79,11 @@
             <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="0cde5f40-7869-48c3-8484-8dbf90e202b0" />
           </InputClaims>
         </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" />
+          </InputClaims>
+        </TechnicalProfile>        
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -184,7 +189,7 @@
             <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName"  />
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" />
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
           </InputClaims>
           <OutputClaims>
