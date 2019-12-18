@@ -15,7 +15,8 @@
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="Email" class="control-label"></label>
+                    <!--label asp-for="Email" class="control-label"></!--label-->
+                    <label>Invitee email</label>
                     <input asp-for="Email" class="form-control" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>

@@ -1,4 +1,5 @@
 ﻿using B2CMultiTenant.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +15,12 @@ namespace B2CMultiTenant.Extensions
 {
     public class InvitationService
     {
-        public InvitationService(IOptionsMonitor<InvitationTokenOptions> tokenOptions, IOptionsMonitor<ConfidentialClientApplicationOptions> clientOptions)
+        public InvitationService(
+            IHttpContextAccessor http,
+            IOptionsMonitor<InvitationTokenOptions> tokenOptions, 
+            IOptionsMonitor<ConfidentialClientApplicationOptions> clientOptions)
         {
+            _httpContext = http;
             _tokenOptions = tokenOptions;
             _clientOptions = clientOptions;
         }
@@ -26,11 +31,13 @@ namespace B2CMultiTenant.Extensions
             var domainId = tokenOptions.Domain.Split('.')[0];
             if (string.IsNullOrEmpty(clientOptions.TenantId))
                 clientOptions.TenantId = tokenOptions.Domain;
-            var replyUrl = tokenOptions.RedirectUri;
+            var req = _httpContext.HttpContext.Request;
+            var replyUrl = $"{req.Scheme}://{req.Host}{_tokenOptions.CurrentValue.RedirectPath}";
             var jwt = CreateJWTToken(email, userClaims);
-            var url = $"https://{domainId}.b2clogin.com/{clientOptions.TenantId}/{tokenOptions.InvitationPolicy}/oauth2/v2.0/authorize?client_id={tokenOptions.ClientId}&login_hint={email}&nonce=defaultNonce&redirect_uri={HttpUtility.UrlEncode(replyUrl)}/home/membersignin&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
+            var url = $"https://{domainId}.b2clogin.com/{clientOptions.TenantId}/{tokenOptions.InvitationPolicy}/oauth2/v2.0/authorize?client_id={tokenOptions.ClientId}&login_hint={email}&nonce=defaultNonce&redirect_uri={HttpUtility.UrlEncode(replyUrl)}&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
             return url;
         }
+        IHttpContextAccessor _httpContext;
         IOptionsMonitor<InvitationTokenOptions> _tokenOptions;
         IOptionsMonitor<ConfidentialClientApplicationOptions> _clientOptions;
         public string CreateJWTToken(string email, IDictionary<string, string> userClaims = null)

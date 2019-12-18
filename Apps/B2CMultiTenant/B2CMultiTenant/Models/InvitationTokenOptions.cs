@@ -13,7 +13,7 @@ namespace B2CMultiTenant.Models
         public string Audience { get; set; }
         public string SigningKey { get; set; }
         public int ValidityHours { get; set; }
-        public string RedirectUri { get; set; }
+        public string RedirectPath { get; set; }
         public string ClientId { get; set; }
 
     }
