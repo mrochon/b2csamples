@@ -56,6 +56,7 @@ namespace B2CMultiTenant
                         options.AccessDeniedPath = "/Account/Forbidden/";
                     })
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
+                    .AddOpenIdConnect("mtsusi2", options => OptionsFor(options, "mtsusi2"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
             services.Configure<ConfidentialClientApplicationOptions>(options => Configuration.Bind("AzureAD", options));
             services.Configure<InvitationTokenOptions>(options => Configuration.Bind("Invitation", options));
@@ -105,7 +106,7 @@ namespace B2CMultiTenant
             {
                 if (ctx.Properties.Parameters.ContainsKey("tenant"))
                 {
-                    var tenantName = ((StringValues) ctx.Properties.Parameters["tenant"]).First();
+                    var tenantName = (string)ctx.Properties.Parameters["tenant"];
                     ctx.ProtocolMessage.Parameters.Add("tenant", tenantName);
                 }
                 await Task.FromResult(0);

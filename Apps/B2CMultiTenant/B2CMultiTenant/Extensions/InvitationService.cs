@@ -34,7 +34,7 @@ namespace B2CMultiTenant.Extensions
             var req = _httpContext.HttpContext.Request;
             var replyUrl = $"{req.Scheme}://{req.Host}{_tokenOptions.CurrentValue.RedirectPath}";
             var jwt = CreateJWTToken(email, userClaims);
-            var url = $"https://{domainId}.b2clogin.com/{clientOptions.TenantId}/{tokenOptions.InvitationPolicy}/oauth2/v2.0/authorize?client_id={tokenOptions.ClientId}&login_hint={email}&nonce=defaultNonce&redirect_uri={HttpUtility.UrlEncode(replyUrl)}&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
+            var url = $"https://{domainId}.b2clogin.com/{clientOptions.TenantId}/{tokenOptions.InvitationPolicy}/oauth2/v2.0/authorize?client_id={tokenOptions.ClientId}&login_hint={email}&response_mode=form_post&nonce=defaultNonce&redirect_uri={HttpUtility.UrlEncode(replyUrl)}&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
             return url;
         }
         IHttpContextAccessor _httpContext;

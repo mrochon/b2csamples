@@ -247,6 +247,25 @@ namespace RESTFunctions.Controllers
                 return new JsonResult(new { tenantId, roles = new string[] { "member" }, isNewMember = true });
             }
         }
+        [HttpPost("currmember")]
+        public async Task<IActionResult> ExistingMember([FromBody] TenantMember memb)
+        {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            var tenantName = memb.tenantName.ToUpper();
+            var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
+            if (tenantId == null)
+                return new NotFoundObjectResult(new { userMessage = "Tenant does not exist", status = 404, version = 1.0 });
+            var http = await _graph.GetClientAsync();
+            if (await IsMemberAsync(tenantId, memb.userId, true)) // skip already an admin
+            {
+                return new JsonResult(new { tenantId, name = tenantName, roles = new string[] { "admin", "member" } });
+            }
+            else if (await IsMemberAsync(tenantId, memb.userId, false))
+            {
+                return new JsonResult(new { tenantId, name = tenantName, roles = new string[] { "member" } });
+            }
+            return new NotFoundObjectResult(new { userMessage = "User is not a member of this tenant", status = 404, version = 1.0 });
+        }
 
         [HttpGet("{tenantName}/invite")]
         public IActionResult GetInviteToken(string tenantName, string email)

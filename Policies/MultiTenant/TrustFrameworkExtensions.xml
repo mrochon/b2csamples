@@ -189,7 +189,7 @@
             <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" />
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
           </InputClaims>
           <OutputClaims>
@@ -198,7 +198,30 @@
             <OutputClaim ClaimTypeReferenceId="isNewMember" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>               
+        </TechnicalProfile>   
+        <TechnicalProfile Id="REST-GetTenantForUser">
+          <DisplayName>Get user role</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/currmember</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" />
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>         
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -441,6 +464,65 @@
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>  
+    <!-- Jurney for invited members only. Does not allow UI entry of tenant name -->
+    <UserJourney Id="SUSI2">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />          
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAUTH" />          
+          </ClaimsExchanges>
+        </OrchestrationStep>  
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
+          in the token. -->
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>socialIdpAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetTenantData" TechnicalProfileReferenceId="REST-GetTenantForUser" />
+          </ClaimsExchanges>
+        </OrchestrationStep>  
+        <OrchestrationStep Order="6" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+ 
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>      
 	
 	</UserJourneys>
 

@@ -34,6 +34,7 @@
         {
             <p>You can <a asp-controller="Members" asp-action="Invite">create invitation urls for other users</a> to join your tenant: @User.FindFirst("appTenantName").Value </p>
         }
+        <p>Use this url to return back to same tenant later: <a href=@ViewBag.ReturnUrl>@ViewBag.ReturnUrl</a></p>
     }
     else
     {
@@ -47,7 +48,7 @@
     </p>
     <p>
         In this sample an individual can either <a href="~/home/newtenant">create</a> a new application tenant or <a href="/home/membersignin">
-        sign in</a> to existing tenants. <b>Note:</b> to demonstrate the tenancy feature you should create a tenant using one email address and join
+        sign in/sign up</a> to existing tenants. <b>Note:</b> to demonstrate the tenancy feature you should create a tenant using one email address and join
         the same tenant using other email addresses.
             Each application tenant has a short name and (optional) description. In order to sign in or sign up to existing tenants
             users will need to provide the short name of the application tenant. After signin, the application receives an
@@ -55,6 +56,11 @@
         tenant creators are automatically assigned admin role, everybody else is a member). This data allows the application
         to make the appropriate authorization and data separation decisions. In this app, all the claims recived in the token
             are displayed on this page.
+    </p>
+    <p>
+        Users can join existing tenants either by <a href="/home/membersignin">
+    signing up (requires user knows the name of the tenant)</a> or by being invited by
+    the tenant creator/admin. Once signed up, a user may sign-in again by appending <i>?p=tenantName</i> parameter to the app url.
     </p>
     <p>This <a href="https://b2crestapis.azurewebsites.net/tenant/members?tenantName=TENANT1">API will return a list of all members and their roles</a> given the tenant name.</p>
     <p>Source code for this app may be <a href="https://github.com/mrochon/b2csamples">found on github.</a></p>

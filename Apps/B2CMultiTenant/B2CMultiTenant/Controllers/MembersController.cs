@@ -13,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
 
 namespace B2CMultiTenant.Controllers
 {
@@ -63,6 +64,23 @@ namespace B2CMultiTenant.Controllers
                 //return RedirectToAction(nameof(Invite));
             }
             return View(new Invitee());
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Redeem(string id_token)
+        {
+            // will not validate the token since we will send the user back for signin anyway
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(id_token);
+            var tenant = token.Claims.FirstOrDefault(c => c.Type == "appTenantName");
+            if (tenant != null)
+            {
+                var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+                authParms.Parameters.Add("tenant", tenant.Value);
+                return Challenge(authParms,
+                    new string[] { "mtsusi2" });
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         /*

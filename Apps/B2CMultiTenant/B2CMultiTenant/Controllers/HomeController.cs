@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using B2CMultiTenant.Extensions;
+using System.Security.Claims;
 
 namespace B2CMultiTenant.Controllers
 {
@@ -25,20 +26,33 @@ namespace B2CMultiTenant.Controllers
         TokenService _tokenService;
         public IActionResult Index()
         {
-            if (User.FindFirst(c => c.Type == "isNewMember")?.Value == "true")
+            //if (User.FindFirst(c => c.Type == "isNewMember")?.Value == "true")
+            if (User.Identity.IsAuthenticated)
             {
-                var tenantName = User.FindFirst(c => c.Type == "appTenantName").Value;
-                ViewBag.ReentryUrl = $"{Request.Host}/home/membersignin?tenant={tenantName}";
+                var tenantName = User.FindFirst(c => c.Type == "appTenantName")?.Value;
+                ViewBag.ReturnUrl = $"{Request.Scheme}://{Request.Host}?tenant={tenantName}";
+            }
+            else if (Request.Query.ContainsKey("tenant"))
+            {
+                var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+                if (Request.Query.ContainsKey("tenant"))
+                    authParms.Parameters.Add("tenant", (string) Request.Query["tenant"]);
+                return Challenge(authParms,
+                    new string[] { "mtsusi2" });
             }
             return View(User.Claims);
         }
         public IActionResult MemberSignIn()
         {
-            var p = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+            var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+            var policy = "mtsusi";
             if (Request.Query.ContainsKey("tenant"))
-                p.Parameters.Add("tenant", Request.Query["tenant"]);
-            return Challenge(p,
-                new string[] { "mtsusi" });
+            {
+                authParms.Parameters.Add("tenant", Request.Query["tenant"]);
+                policy = "mtsusi2";
+            }
+            return Challenge(authParms,
+                new string[] { policy });
         }
         public IActionResult NewTenant()
         {
