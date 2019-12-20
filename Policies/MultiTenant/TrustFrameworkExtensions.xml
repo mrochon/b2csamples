@@ -63,6 +63,11 @@
         <DataType>boolean</DataType>
       </ClaimType>                    
     </ClaimsSchema>
+    <ContentDefinitions>
+      <ContentDefinition Id="api.signuporsignin">
+          <LoadUri>https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html</LoadUri>
+      </ContentDefinition>                 
+    </ContentDefinitions>    
   </BuildingBlocks>
 
   <ClaimsProviders>
