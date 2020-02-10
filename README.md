@@ -2,10 +2,10 @@
 
 ## Using B2C to support multi-tenant SaaS apps
 ### Sample
-A sample application using policies referenced here is (https://b2cmultitenant.azurewebsites.net)[available here] with (https://github.com/mrochon/b2csamples/tree/master/Apps/B2CMultiTenant)[source].
+A sample application using policies referenced here is [available here](https://b2cmultitenant.azurewebsites.net) with [source](https://github.com/mrochon/b2csamples/tree/master/Apps/B2CMultiTenant).
 
 ### Source
-(https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)[IEF policies] implementing the two signin/up journeys:
+[IEF policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) implementing the two signin/up journeys:
 - Signin/up AND create a new application tenant
 - Signin/up AND join or continue working with an existing application tenant
-These policies (https://github.com/mrochon/b2csamples/tree/master/REST)[use a number of REST APIs].
+These policies [use a number of REST APIs](https://github.com/mrochon/b2csamples/tree/master/REST).
