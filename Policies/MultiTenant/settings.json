@@ -1,0 +1,12 @@
+{
+    "PolicyPrefix":  "MT",
+    "IdentityExperienceFrameworkAppId":  "0cde5f40-7869-48c3-8484-8dbf90e202b0",
+    "ProxyIdentityExperienceFrameworkAppId":  "a10af015-aefb-46db-8f06-e70d0621690d",
+    "ExtAppId": "2f03ad85-b864-4a88-9de2-670ae094553f",
+    "ExtObjectId": "41191a56-5ab0-4966-a8c8-fa569c485a39",
+    "SUSI_UI":"https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html",
+    "RestTenantCreate": "https://b2crestapis.azurewebsites.net/tenant",
+    "RestGetOrJoinTenant": "https://b2crestapis.azurewebsites.net/tenant/member",
+    "RestGetTenantForUser": "https://b2crestapis.azurewebsites.net/tenant/currmember",
+    "GoogleClientId": "696994352313-1v1ntp02mhbe2eh558v9v6bmd3p269up.apps.googleusercontent.com"
+}

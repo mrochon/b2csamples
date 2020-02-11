@@ -4,12 +4,12 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
-  TenantId="b2cmultitenant.onmicrosoft.com" 
+  TenantId="yourtenant.onmicrosoft.com" 
   PolicyId="B2C_1A_MTExtensions" 
-  PublicPolicyUri="http://b2cmultitenant.onmicrosoft.com/B2C_1A_MTExtensions">
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_MTExtensions">
   
   <BasePolicy>
-    <TenantId>b2cmultitenant.onmicrosoft.com</TenantId>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_MTBase</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
@@ -65,7 +65,7 @@
     </ClaimsSchema>
     <ContentDefinitions>
       <ContentDefinition Id="api.signuporsignin">
-          <LoadUri>https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html</LoadUri>
+          <LoadUri>{SUSI_UI}</LoadUri>
       </ContentDefinition>                 
     </ContentDefinitions>    
   </BuildingBlocks>
@@ -76,12 +76,12 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">a10af015-aefb-46db-8f06-e70d0621690d</Item>
-            <Item Key="IdTokenAudience">0cde5f40-7869-48c3-8484-8dbf90e202b0</Item>
+            <Item Key="client_id">IdentityExperienceFrameworkAppId</Item>
+            <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="a10af015-aefb-46db-8f06-e70d0621690d" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="0cde5f40-7869-48c3-8484-8dbf90e202b0" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="IdentityExperienceFrameworkAppId" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
           </InputClaims>
         </TechnicalProfile>
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
@@ -97,8 +97,8 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="AAD-Common">
           <Metadata>
-            <Item Key="ApplicationObjectId">41191a56-5ab0-4966-a8c8-fa569c485a39</Item>
-            <Item Key="ClientId">2f03ad85-b864-4a88-9de2-670ae094553f</Item>
+            <Item Key="ApplicationObjectId">{ExtObjectId}</Item>
+            <Item Key="ClientId">{ExtAppId}</Item>
           </Metadata>
         </TechnicalProfile>
       </TechnicalProfiles>
@@ -162,7 +162,7 @@
           <DisplayName>Create a new tenant</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant</Item>
+            <Item Key="ServiceUrl">{RestTenantCreate}</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
@@ -185,7 +185,7 @@
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/member</Item>
+            <Item Key="ServiceUrl">{RestGetOrJoinTenant}</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
@@ -208,7 +208,7 @@
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://b2crestapis.azurewebsites.net/tenant/currmember</Item>
+            <Item Key="ServiceUrl">{RestGetTenantForUser}</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
@@ -245,7 +245,7 @@
             <Item Key="scope">email</Item>
             <Item Key="HttpBinding">POST</Item>
             <Item Key="UsePolicyInRedirectUri">0</Item>
-            <Item Key="client_id">696994352313-1v1ntp02mhbe2eh558v9v6bmd3p269up.apps.googleusercontent.com</Item>
+            <Item Key="client_id">{GoogleClientId}</Item>
           </Metadata>
           <CryptographicKeys>
             <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleSecret" />
