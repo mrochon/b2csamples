@@ -12,8 +12,6 @@ A [sample application](https://b2cmultitenant.azurewebsites.net) illustrating su
 - Signin/up AND join or continue working with an existing application tenant
 - Redeem invitation to join a tenant
 
-These policies [use a number of REST APIs]().
-
 [REST functions](https://github.com/mrochon/b2csamples/tree/master/REST) used by the policies: create new application tenant, add members, get member's tenant, create invitation url.
 
 [Sample application](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) source code.
