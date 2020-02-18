@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using RESTFunctions.Services;
@@ -19,9 +20,12 @@ namespace RESTFunctions.Controllers
     [ApiController]
     public class Tenant : ControllerBase
     {
-        public Tenant(Graph graph)
+        private readonly ILogger<Tenant> _logger;
+        public Tenant(Graph graph, ILogger<Tenant> logger)
         {
             _graph = graph;
+            _logger = logger;
+            _logger.LogInformation("Tenant ctor");
         }
         Graph _graph;
 
@@ -220,9 +224,12 @@ namespace RESTFunctions.Controllers
         [HttpPost("member")]
         public async Task<IActionResult> Member([FromBody] TenantMember memb)
         {
+            _logger.LogTrace("Member: {0}", memb.tenantName);
             if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            _logger.LogTrace("Authorized");
             var tenantName = memb.tenantName.ToUpper();
             var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
+            _logger.LogTrace("Tenant id: {0}", tenantId);
             if (tenantId == null)
                 return new NotFoundObjectResult(new { userMessage = "Tenant does not exist", status = 404, version = 1.0 });
             var http = await _graph.GetClientAsync();

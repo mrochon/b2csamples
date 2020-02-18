@@ -27,7 +27,7 @@ namespace RESTFunctions.Services
             } else
                 _app = ConfidentialClientApplicationBuilder
                     .CreateWithApplicationOptions(opts.Value)
-                    .WithClientSecret(thumb)
+                    //.WithClientSecret(thumb)
                     .Build();
         }
         IConfidentialClientApplication _app;
