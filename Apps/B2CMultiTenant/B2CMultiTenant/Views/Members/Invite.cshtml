@@ -9,7 +9,7 @@
 <h4>Member</h4>
 <hr />
 <div class="row">
-    <div-- class="col-md-4">
+    <div class="col-md-4">
         @if (string.IsNullOrEmpty(Model.InvitationUrl))
         {
             <form asp-action="Edit">
@@ -21,10 +21,10 @@
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <!--div class="form-group">
-                    <label asp-for="IsAdmin" class="control-label"></label>
-                    <input asp-for="IsAdmin" class="form-control" />
-                    <span asp-validation-for="IsAdmin" class="text-danger"></span>
-                </div-->
+                <label asp-for="IsAdmin" class="control-label"></label>
+                <input asp-for="IsAdmin" class="form-control" />
+                <span asp-validation-for="IsAdmin" class="text-danger"></span>
+            </div-->
                 <div class="form-group">
                     <input type="submit" value="Invite" class="btn btn-primary" />
                 </div>
@@ -32,31 +32,32 @@
         }
         else
         {
-            <h5>Share the following link with the invited user to signup.</h5>
-            <p>@Model.InvitationUrl</p>
+            <h5>Share the following link with the invited user.</h5>
+            <p contenteditable="true" id="invitationUrl" style="margin-right:30px">@Model.InvitationUrl</p>
+            <!--button onclick="copyToCB('invitationUrl')">Copy</!--button-->
             <!--dl class="row">
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Email)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Email)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.IsAdmin)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.IsAdmin)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.InvitationUrl)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.InvitationUrl)
-                </dd>
-            </dl-->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.IsAdmin)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.IsAdmin)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.InvitationUrl)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.InvitationUrl)
+            </dd>
+        </dl-->
         }
     </div>
-</div>
+ </div>
 
 <div>
     <a asp-action="Invite">Invite another</a>

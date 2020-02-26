@@ -17,6 +17,15 @@
               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
+    <script>
+        function copyToCB(id) {
+              alert("Coping the text");
+              var copyText = document.getElementById(id);
+              copyText.select();
+              copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+              document.execCommand("copy");
+        }
+    </script>
 </head>
 <body>
     <header>
