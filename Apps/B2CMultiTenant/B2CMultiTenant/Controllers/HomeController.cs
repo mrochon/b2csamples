@@ -69,7 +69,12 @@ namespace B2CMultiTenant.Controllers
                 new AuthenticationProperties() { RedirectUri = "/Home/Index" },
                 new string[] { CookieAuthenticationDefaults.AuthenticationScheme, policy });
         }
-
+        public IActionResult PwdReset()
+        {
+            return Challenge(
+                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
+                new string[] { "mtpasswordreset" });
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

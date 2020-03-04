@@ -30,16 +30,21 @@ namespace B2CMultiTenant.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-            var http = await _rest.GetClientAsync();
-            var tenantName = User.FindFirst("appTenantName").Value;
-            var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members?tenantName={tenantName}");
-            var members = JArray.Parse(json).Select(m => new Member
+            var tenantNameClaim = User.FindFirst("appTenantName");
+            if (tenantNameClaim != null)
             {
-                Id = m["userId"].Value<string>(),
-                Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}")),
-                DisplayName = m["name"].Value<string>()
-            }).ToList();
-            return View(members);
+                var http = await _rest.GetClientAsync();
+                var tenantName = tenantNameClaim.Value;
+                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members?tenantName={tenantName}");
+                var members = JArray.Parse(json).Select(m => new Member
+                {
+                    Id = m["userId"].Value<string>(),
+                    Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}")),
+                    DisplayName = m["name"].Value<string>()
+                }).ToList();
+                return View(members);
+            }
+            return View();
         }
 
         [Authorize(Roles ="admin")]
