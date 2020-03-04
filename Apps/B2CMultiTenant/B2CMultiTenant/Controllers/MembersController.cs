@@ -30,7 +30,7 @@ namespace B2CMultiTenant.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-            var tenantNameClaim = User.FindFirst("appTenantName");
+            var tenantNameClaim = User.FindFirst("appTenantName"); // pwd reset does not return it;
             if (tenantNameClaim != null)
             {
                 var http = await _rest.GetClientAsync();
