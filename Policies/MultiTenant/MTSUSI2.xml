@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_MTSusi2"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_MTSusi2">
+  PolicyId="B2C_1A_Susi2"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_Susi2">
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_MTExtensions</PolicyId>
+    <PolicyId>B2C_1A_Extensions</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
