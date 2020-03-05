@@ -30,12 +30,12 @@ namespace B2CMultiTenant.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-            var tenantNameClaim = User.FindFirst("appTenantName"); // pwd reset does not return it;
-            if (tenantNameClaim != null)
+            var tenantIdClaim = User.FindFirst("appTenantId"); // pwd reset does not return it;
+            if (tenantIdClaim != null)
             {
                 var http = await _rest.GetClientAsync();
-                var tenantName = tenantNameClaim.Value;
-                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members?tenantName={tenantName}");
+                var tenantId = tenantIdClaim.Value;
+                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/{tenantId}/members");
                 var members = JArray.Parse(json).Select(m => new Member
                 {
                     Id = m["userId"].Value<string>(),

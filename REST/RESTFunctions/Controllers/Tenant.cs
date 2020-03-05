@@ -183,13 +183,24 @@ namespace RESTFunctions.Controllers
         {
             var tenantId = await GetTenantIdFromNameAsync(tenantName);
             if (tenantId == null) return null;
+            List<Member> result = await GetMembers(tenantId);
+            return new JsonResult(result);
+        }
+        //[Authorize(Roles = "admin")]
+        [HttpGet("{tenantId}/members")]
+        public async Task<List<Member>> GetMembers(string tenantId)
+        {
+            Guid id;
+            if (!Guid.TryParse(tenantId, out id))
+                tenantId = await GetTenantIdFromNameAsync(tenantId);
+            if (tenantId == null) return null;
             var http = await _graph.GetClientAsync();
             var result = new List<Member>();
-            foreach(var role in new string[] { "admin", "member"})
+            foreach (var role in new string[] { "admin", "member" })
             {
                 var entType = (role == "admin") ? "owners" : "members";
                 var json = await http.GetStringAsync($"{Graph.BaseUrl}groups/{tenantId}/{entType}");
-                foreach(var memb in JObject.Parse(json)["value"].Value<JArray>())
+                foreach (var memb in JObject.Parse(json)["value"].Value<JArray>())
                 {
                     var user = result.FirstOrDefault(m => m.userId == memb["id"].Value<string>());
                     if (user != null) // already exists; can only be because already owner; add member role
@@ -208,8 +219,10 @@ namespace RESTFunctions.Controllers
                     }
                 }
             }
-            return new JsonResult(result);
+
+            return result;
         }
+
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
             var http = await _graph.GetClientAsync();
