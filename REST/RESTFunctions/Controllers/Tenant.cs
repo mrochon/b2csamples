@@ -177,18 +177,16 @@ namespace RESTFunctions.Controllers
                 roles = null;
             return roles;
         }
+        [Obsolete("Use GetMembers instead.", false)]
         [Authorize(Roles ="admin")]
         [HttpGet("members")]
         public async Task<IActionResult> Members(string tenantName)
         {
-            var tenantId = await GetTenantIdFromNameAsync(tenantName);
-            if (tenantId == null) return null;
-            List<Member> result = await GetMembers(tenantId);
-            return new JsonResult(result);
+            return await GetMembers(tenantName);
         }
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("{tenantId}/members")]
-        public async Task<List<Member>> GetMembers(string tenantId)
+        public async Task<IActionResult> GetMembers(string tenantId)
         {
             Guid id;
             if (!Guid.TryParse(tenantId, out id))
@@ -219,8 +217,7 @@ namespace RESTFunctions.Controllers
                     }
                 }
             }
-
-            return result;
+            return new JsonResult(result);
         }
 
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
