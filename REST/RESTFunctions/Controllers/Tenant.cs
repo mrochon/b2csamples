@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using RESTFunctions.Services;
@@ -19,9 +20,12 @@ namespace RESTFunctions.Controllers
     [ApiController]
     public class Tenant : ControllerBase
     {
-        public Tenant(Graph graph)
+        private readonly ILogger<Tenant> _logger;
+        public Tenant(Graph graph, ILogger<Tenant> logger)
         {
             _graph = graph;
+            _logger = logger;
+            _logger.LogInformation("Tenant ctor");
         }
         Graph _graph;
 
@@ -173,19 +177,28 @@ namespace RESTFunctions.Controllers
                 roles = null;
             return roles;
         }
+        [Obsolete("Use GetMembers instead.", false)]
         [Authorize(Roles ="admin")]
         [HttpGet("members")]
         public async Task<IActionResult> Members(string tenantName)
         {
-            var tenantId = await GetTenantIdFromNameAsync(tenantName);
+            return await GetMembers(tenantName);
+        }
+        [Authorize(Roles = "admin")]
+        [HttpGet("{tenantId}/members")]
+        public async Task<IActionResult> GetMembers(string tenantId)
+        {
+            Guid id;
+            if (!Guid.TryParse(tenantId, out id))
+                tenantId = await GetTenantIdFromNameAsync(tenantId);
             if (tenantId == null) return null;
             var http = await _graph.GetClientAsync();
             var result = new List<Member>();
-            foreach(var role in new string[] { "admin", "member"})
+            foreach (var role in new string[] { "admin", "member" })
             {
                 var entType = (role == "admin") ? "owners" : "members";
                 var json = await http.GetStringAsync($"{Graph.BaseUrl}groups/{tenantId}/{entType}");
-                foreach(var memb in JObject.Parse(json)["value"].Value<JArray>())
+                foreach (var memb in JObject.Parse(json)["value"].Value<JArray>())
                 {
                     var user = result.FirstOrDefault(m => m.userId == memb["id"].Value<string>());
                     if (user != null) // already exists; can only be because already owner; add member role
@@ -206,6 +219,7 @@ namespace RESTFunctions.Controllers
             }
             return new JsonResult(result);
         }
+
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
             var http = await _graph.GetClientAsync();
@@ -220,9 +234,12 @@ namespace RESTFunctions.Controllers
         [HttpPost("member")]
         public async Task<IActionResult> Member([FromBody] TenantMember memb)
         {
+            _logger.LogTrace("Member: {0}", memb.tenantName);
             if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            _logger.LogTrace("Authorized");
             var tenantName = memb.tenantName.ToUpper();
             var tenantId = await GetTenantIdFromNameAsync(memb.tenantName);
+            _logger.LogTrace("Tenant id: {0}", tenantId);
             if (tenantId == null)
                 return new NotFoundObjectResult(new { userMessage = "Tenant does not exist", status = 404, version = 1.0 });
             var http = await _graph.GetClientAsync();

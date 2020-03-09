@@ -51,13 +51,15 @@ namespace B2CMultiTenant
                 {
                     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 })
-                    .AddCookie(options => {
+                    .AddCookie(options =>
+                    {
                         options.LoginPath = "/Account/Unauthorized/";
                         options.AccessDeniedPath = "/Account/Forbidden/";
                     })
                     .AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusi2", options => OptionsFor(options, "mtsusi2"))
-                    .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"));
+                    .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"))
+                    .AddOpenIdConnect("mtpasswordreset", options => OptionsFor(options, "mtpasswordreset"));
             services.Configure<ConfidentialClientApplicationOptions>(options => Configuration.Bind("AzureAD", options));
             services.Configure<InvitationTokenOptions>(options => Configuration.Bind("Invitation", options));
 
@@ -98,10 +100,15 @@ namespace B2CMultiTenant
             options.CallbackPath = new PathString($"/signin-{policy}"); // otherwise getting 'correlation error'
             options.SignedOutCallbackPath = new PathString($"/signout-{policy}");
             options.SignedOutRedirectUri = "/";
-            options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-            //TODO: Improve, Concat could not be used
-            foreach(var s in RESTService.Scopes)
-                options.Scope.Add(s);
+            if (policy.Contains("susi"))
+            {
+                options.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                //TODO: Improve, Concat could not be used
+                foreach (var s in RESTService.Scopes)
+                    options.Scope.Add(s);
+            }
+            else
+                options.ResponseType =  OpenIdConnectResponseType.IdToken;
             options.Events.OnRedirectToIdentityProvider = async (ctx) =>
             {
                 if (ctx.Properties.Parameters.ContainsKey("tenant"))
@@ -126,6 +133,35 @@ namespace B2CMultiTenant
                     RESTService.Scopes,
                     ctx.ProtocolMessage.Code).ExecuteAsync().ConfigureAwait(false);
                 ctx.HandleCodeRedemption(null, tokens.IdToken);
+            };
+            options.Events.OnRemoteFailure = (ctx) =>
+            {
+                ctx.HandleResponse();
+                if (!String.IsNullOrEmpty(ctx.Failure.Message))
+                {
+                    if (ctx.Failure.Message.Contains("AADB2C90118"))
+                    {
+                        ctx.Response.Redirect("/Home/PwdReset");
+                    }
+                    else if (ctx.Failure.Message.Contains("access_denied"))
+                    {
+                        // If the user canceled the sign in, redirect back to the home page
+                        ctx.Response.Redirect("/");
+                    }
+                }
+                else
+                {
+                    ctx.Response.Redirect("/Home/Error?message=" + ctx.Failure.Message);
+                }
+                ctx.HandleResponse();
+                return Task.FromResult(0);
+            };
+            options.Events.OnTokenValidated = (ctx) =>
+            {
+                var path = ctx.Principal.FindFirst("http://schemas.microsoft.com/claims/authnclassreference").Value;
+                if (!path.Contains("susi")) // need to re-authenticate, may have been pwd reset
+                    ctx.Response.Redirect("/Home/MemberSignIn");
+                return Task.FromResult(0);
             };
         }
 

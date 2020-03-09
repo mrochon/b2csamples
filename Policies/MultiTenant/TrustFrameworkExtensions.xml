@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
   TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_MTExtensions" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_MTExtensions">
+  PolicyId="B2C_1A_Extensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_Extensions">
   
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_MTBase</PolicyId>
+    <PolicyId>B2C_1A_Base</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
@@ -76,11 +76,11 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">IdentityExperienceFrameworkAppId</Item>
+            <Item Key="client_id">ProxyIdentityExperienceFrameworkAppId</Item>
             <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="IdentityExperienceFrameworkAppId" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="ProxyIdentityExperienceFrameworkAppId" />
             <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
           </InputClaims>
         </TechnicalProfile>

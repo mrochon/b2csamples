@@ -5,16 +5,16 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_Susi"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_Susi">
+  PolicyId="B2C_1A_customSUSI"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_customSUSI">
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_Extensions</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions2</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="SUSI" />
+    <DefaultUserJourney ReferenceId="SignUpOrSignInCustomEmail" />
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
@@ -24,13 +24,8 @@
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />        
-        <OutputClaim ClaimTypeReferenceId="appTenantName" />
-        <OutputClaim ClaimTypeReferenceId="appTenantId" />
-        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />       
-        <OutputClaim ClaimTypeReferenceId="isNewMember" />         
-        <!--OutputClaim ClaimTypeReferenceId="appTenants" />
-        <OutputClaim ClaimTypeReferenceId="appTenantIds" /-->        
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

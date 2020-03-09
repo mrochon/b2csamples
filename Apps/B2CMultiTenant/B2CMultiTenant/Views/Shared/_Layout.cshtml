@@ -17,6 +17,15 @@
               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
+    <script>
+        function copyToCB(id) {
+              alert("Coping the text");
+              var copyText = document.getElementById(id);
+              copyText.select();
+              copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+              document.execCommand("copy");
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -27,7 +36,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                @*<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                         <ul class="navbar-nav flex-grow-1">
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -40,7 +49,7 @@
                             }
                         </ul>
                         <partial name="_LoginPartial" />
-                    </div>*@
+                    </div>
             </div>
         </nav>
     </header>
@@ -77,9 +86,9 @@
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <div class="text-center">
+    @*<div class="text-center">
         <p> Sorry, fixing some bugs. Should be back in a few days (+-2/20/2020)</p>
-    </div>
+    </div>*@
 
     @RenderSection("Scripts", required: false)
 </body>

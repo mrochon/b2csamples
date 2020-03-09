@@ -30,16 +30,21 @@ namespace B2CMultiTenant.Controllers
         // GET: Members
         public async Task<IActionResult> Index()
         {
-            var http = await _rest.GetClientAsync();
-            var tenantName = User.FindFirst("appTenantName").Value;
-            var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members?tenantName={tenantName}");
-            var members = JArray.Parse(json).Select(m => new Member
+            var tenantIdClaim = User.FindFirst("appTenantId"); // pwd reset does not return it;
+            if (tenantIdClaim != null)
             {
-                Id = m["userId"].Value<string>(),
-                Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}")),
-                DisplayName = m["name"].Value<string>()
-            }).ToList();
-            return View(members);
+                var http = await _rest.GetClientAsync();
+                var tenantId = tenantIdClaim.Value;
+                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/{tenantId}/members");
+                var members = JArray.Parse(json).Select(m => new Member
+                {
+                    Id = m["userId"].Value<string>(),
+                    Roles = (m["roles"].ToList().Select(t => t.Value<string>()).Aggregate((i, r) => $"{i}, {r}")),
+                    DisplayName = m["name"].Value<string>()
+                }).ToList();
+                return View(members);
+            }
+            return View();
         }
 
         [Authorize(Roles ="admin")]
@@ -67,9 +72,11 @@ namespace B2CMultiTenant.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Redeem(string id_token)
+        public async Task<IActionResult> Redeem(string id_token)
         {
             // will not validate the token since we will send the user back for signin anyway
+            // Occassionally getting B2C error that user does not exists - presumably timing error between session state, which things user exists and b2C data where user not yet created.
+            await Task.Delay(10000); // wait 10s
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.ReadJwtToken(id_token);
             var tenant = token.Claims.FirstOrDefault(c => c.Type == "appTenantName");
