@@ -1,6 +1,6 @@
-# b2csamples
+# My B2C samples
 
-## Using B2C to support multi-tenant SaaS apps
+## Supporting multi-tenant SaaS apps
 ### Sample
 A [sample application](https://b2cmultitenant.azurewebsites.net) illustrating support for multi-tenant SaaS applications using a single B2C Azure AD tenant. All source is in this repo.
 
@@ -24,3 +24,6 @@ To set this multi-tenant SaaS application in your own B2C tenant, you will need 
 3. Modify the [IEF policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) to use your tenant and your REST functions. You can use my (IEF uploader)[https://github.com/mrochon/b2cief-upload] to do it for you. All you need to do is to modify the settings.json file in the Policies folder with your tenant- and app service-specific values.
 4. Deploye the sample multi-tenant app to an Azure service (as above for REST). Update it's configuration to use your B2C tenant. (Here is an example)[https://github.com/Azure-Samples/active-directory-b2c-dotnetcore-webapp] of how to regsiter the app.
 
+## UserName with batch user upload
+
+[Sample policies](https://github.com/mrochon/b2csamples/tree/master/Policies/UserName) with user journeys supporting B2C tenants in which users are/were created using Graph batch upload.
