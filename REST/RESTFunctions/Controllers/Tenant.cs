@@ -185,7 +185,7 @@ namespace RESTFunctions.Controllers
             return await GetMembers(tenantName);
         }
         [Authorize(Roles = "admin")]
-        [HttpGet("{tenantId}/members")]
+        [HttpGet("members/{tenantId}")] //TODO: tenantId may not go first as that would prevent ecluding this path from client cert requirement
         public async Task<IActionResult> GetMembers(string tenantId)
         {
             Guid id;
