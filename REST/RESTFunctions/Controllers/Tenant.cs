@@ -29,12 +29,12 @@ namespace RESTFunctions.Controllers
         }
         Graph _graph;
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
         {
             Guid guid;
             if (!Guid.TryParse(id, out guid))
-                return BadRequest("Invalid user id");
+                return BadRequest("Invalid id");
             var http = await _graph.GetClientAsync();
             try
             {
