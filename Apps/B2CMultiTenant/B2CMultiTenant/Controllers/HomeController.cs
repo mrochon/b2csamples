@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using B2CMultiTenant.Extensions;
 using System.Security.Claims;
+using System.Web;
 
 namespace B2CMultiTenant.Controllers
 {
@@ -44,21 +45,20 @@ namespace B2CMultiTenant.Controllers
         }
         public IActionResult MemberSignIn()
         {
-            var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
-            var policy = "mtsusi";
             if (Request.Query.ContainsKey("tenant"))
             {
-                authParms.Parameters.Add("tenant", Request.Query["tenant"]);
-                policy = "mtsusi2";
-            }
-            return Challenge(authParms,
-                new string[] { policy });
+                var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+                authParms.Parameters.Add("tenant", Request.Query["tenant"][0]);
+                return Challenge(authParms,
+                    new string[] { "mtsusi2" });
+            };
+            return View();
         }
-        public IActionResult NewTenant()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult MemberSignIn(string tenantName)
         {
-            return Challenge(
-                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
-                new string[] { "mtsusint" });
+            return RedirectToAction("MemberSignIn", "Home", new { tenant = tenantName });
         }
         [Authorize]
         public IActionResult SignOut()
@@ -78,7 +78,13 @@ namespace B2CMultiTenant.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (Request.Query.ContainsKey("message"))
+            {
+                var message = Request.Query["message"][0];
+                ViewBag.Message = HttpUtility.UrlDecode(message);
+                return View();
+            } else
+                return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

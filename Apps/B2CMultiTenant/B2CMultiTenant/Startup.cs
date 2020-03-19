@@ -23,6 +23,7 @@ using B2CMultiTenant.Extensions;
 using Microsoft.Identity.Client;
 using System.Security.Claims;
 using Microsoft.Extensions.Primitives;
+using System.Web;
 
 namespace B2CMultiTenant
 {
@@ -148,10 +149,10 @@ namespace B2CMultiTenant
                         // If the user canceled the sign in, redirect back to the home page
                         ctx.Response.Redirect("/");
                     }
-                }
-                else
-                {
-                    ctx.Response.Redirect("/Home/Error?message=" + ctx.Failure.Message);
+                    else
+                    {
+                        ctx.Response.Redirect("/Home/Error?message=" + HttpUtility.UrlEncode(ctx.Failure.Message));
+                    }
                 }
                 ctx.HandleResponse();
                 return Task.FromResult(0);
