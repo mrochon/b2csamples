@@ -60,6 +60,12 @@ namespace B2CMultiTenant.Controllers
         {
             return RedirectToAction("MemberSignIn", "Home", new { tenant = tenantName });
         }
+        public IActionResult NewTenant()
+        {
+            return Challenge(
+                new AuthenticationProperties() { RedirectUri = "/Home/Index" },
+                new string[] { "mtsusint" });
+        }
         [Authorize]
         public IActionResult SignOut()
         {
