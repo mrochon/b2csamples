@@ -48,6 +48,9 @@
                     <Metadata>
                         <Item Key="ContentDefinitionReferenceId">api.selfasserted.profileupdate</Item>
                     </Metadata>
+                    <InputClaimsTransformations>
+                        <InputClaimsTransformation ReferenceId="CreateRandomGuestId" />
+                    </InputClaimsTransformations>                       
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="givenName" />
                         <InputClaim ClaimTypeReferenceId="surname" />
@@ -55,11 +58,11 @@
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="givenName" />
                         <OutputClaim ClaimTypeReferenceId="surname" />
-                        <OutputClaim ClaimTypeReferenceId="guestId" />
+                        <!--OutputClaim ClaimTypeReferenceId="guestId" /-->
                     </OutputClaims>
-                    <OutputClaimsTransformations>
+                    <!--OutputClaimsTransformations>
                         <OutputClaimsTransformation ReferenceId="CreateRandomGuestId" />
-                    </OutputClaimsTransformations>                    
+                    </OutputClaimsTransformations-->                    
                     <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                    
                 </TechnicalProfile>    
             </TechnicalProfiles>
@@ -75,11 +78,11 @@
                         <PersistedClaim ClaimTypeReferenceId="surname" />                    
                         <PersistedClaim ClaimTypeReferenceId="guestId" />                        
                     </PersistedClaims>
-                    <OutputClaims>
+                    <!--OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="givenName" />
                         <OutputClaim ClaimTypeReferenceId="surname" />                    
                         <OutputClaim ClaimTypeReferenceId="guestId" />                        
-                    </OutputClaims>                    
+                    </OutputClaims-->                    
                 </TechnicalProfile>                  
             </TechnicalProfiles>
         </ClaimsProvider>      
