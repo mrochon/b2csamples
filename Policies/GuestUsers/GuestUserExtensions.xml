@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_GuestUserExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_GuestUserExtensions">
+  
+    <BasePolicy>
+        <TenantId>yourtenant.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    </BasePolicy>
+    <BuildingBlocks>
+        <ClaimsSchema>
+            <ClaimType Id="isGuestUser">
+                <DisplayName>Is guest user?</DisplayName>
+                <DataType>boolean</DataType>
+                <UserHelpText>True if user is a guest user (no username/pwd).</UserHelpText>
+            </ClaimType>
+            <ClaimType Id="guestId">
+                <DisplayName>Unique guest id</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Unique id (generated).</UserHelpText>
+            </ClaimType>            
+        </ClaimsSchema>    
+        <ClaimsTransformations>
+            <ClaimsTransformation Id="CreateRandomGuestId" TransformationMethod="CreateRandomString">
+            <InputParameters>
+                <InputParameter Id="randomGeneratorType" DataType="string" Value="GUID" />
+            </InputParameters>
+            <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="guestid" TransformationClaimType="outputClaim" />
+            </OutputClaims>
+            </ClaimsTransformation>
+        </ClaimsTransformations>
+    </BuildingBlocks>
+
+
+    <ClaimsProviders>
+        <ClaimsProvider>
+            <DisplayName>Self Asserted</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="GuestAttributesEntry">
+                    <DisplayName>User attributes</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ContentDefinitionReferenceId">api.selfasserted.profileupdate</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="givenName" />
+                        <InputClaim ClaimTypeReferenceId="surname" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="givenName" />
+                        <OutputClaim ClaimTypeReferenceId="surname" />
+                        <OutputClaim ClaimTypeReferenceId="guestId" />
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="CreateRandomGuestId" />
+                    </OutputClaimsTransformations>                    
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                    
+                </TechnicalProfile>    
+            </TechnicalProfiles>
+        </ClaimsProvider> 
+        <ClaimsProvider>
+            <DisplayName>Session Management</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="SM-Guest">
+                    <DisplayName>Incognito Session Mananagement Provider</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <PersistedClaims>
+                        <PersistedClaim ClaimTypeReferenceId="givenName" />
+                        <PersistedClaim ClaimTypeReferenceId="surname" />                    
+                        <PersistedClaim ClaimTypeReferenceId="guestId" />                        
+                    </PersistedClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="givenName" />
+                        <OutputClaim ClaimTypeReferenceId="surname" />                    
+                        <OutputClaim ClaimTypeReferenceId="guestId" />                        
+                    </OutputClaims>                    
+                </TechnicalProfile>                  
+            </TechnicalProfiles>
+        </ClaimsProvider>      
+    </ClaimsProviders>
+
+    <UserJourneys>
+        <UserJourney Id="GuestSignIn">
+            <OrchestrationSteps>
+                <OrchestrationStep Order="1" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="GuestAttributesEntry" TechnicalProfileReferenceId="GuestAttributesEntry" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>            
+                <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+            </OrchestrationSteps>
+            <ClientDefinition ReferenceId="DefaultWeb" />
+        </UserJourney>
+    </UserJourneys>
+
+</TrustFrameworkPolicy>
