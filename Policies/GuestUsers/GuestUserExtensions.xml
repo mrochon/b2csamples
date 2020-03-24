@@ -6,7 +6,8 @@
   PolicySchemaVersion="0.3.0.0" 
   TenantId="yourtenant.onmicrosoft.com" 
   PolicyId="B2C_1A_GuestUserExtensions" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_GuestUserExtensions">
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_GuestUserExtensions"
+  DeploymentMode="Development">
   
     <BasePolicy>
         <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -58,34 +59,35 @@
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="givenName" />
                         <OutputClaim ClaimTypeReferenceId="surname" />
-                        <!--OutputClaim ClaimTypeReferenceId="guestId" /-->
                     </OutputClaims>
-                    <!--OutputClaimsTransformations>
-                        <OutputClaimsTransformation ReferenceId="CreateRandomGuestId" />
-                    </OutputClaimsTransformations-->                    
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                    
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />                    
                 </TechnicalProfile>    
             </TechnicalProfiles>
         </ClaimsProvider> 
         <ClaimsProvider>
             <DisplayName>Session Management</DisplayName>
             <TechnicalProfiles>
-                <TechnicalProfile Id="SM-Guest">
+                <TechnicalProfile Id="SM-AAD">
                     <DisplayName>Incognito Session Mananagement Provider</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="givenName" />
                         <PersistedClaim ClaimTypeReferenceId="surname" />                    
-                        <PersistedClaim ClaimTypeReferenceId="guestId" />                        
+                        <!--PersistedClaim ClaimTypeReferenceId="guestId" /-->                        
                     </PersistedClaims>
-                    <!--OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="givenName" />
-                        <OutputClaim ClaimTypeReferenceId="surname" />                    
-                        <OutputClaim ClaimTypeReferenceId="guestId" />                        
-                    </OutputClaims-->                    
                 </TechnicalProfile>                  
+            </TechnicalProfiles>            
+        </ClaimsProvider>     
+        <!--ClaimsProvider>
+            <DisplayName>Local Account</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+                    <DisplayName>Email signup</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                       
+                </TechnicalProfile>
             </TechnicalProfiles>
-        </ClaimsProvider>      
+        </ClaimsProvider-->         
     </ClaimsProviders>
 
     <UserJourneys>
