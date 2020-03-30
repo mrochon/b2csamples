@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,9 +9,11 @@ namespace B2CMultiTenant.Extensions
 {
     public class RESTService
     {
-        public RESTService(TokenService tokenService)
+        public RESTService(TokenService tokenService, IConfiguration conf)
         {
             _tokenService = tokenService;
+            _conf = conf;
+            Url = conf["RESTUrl"];
         }
         public static readonly string[] Scopes =
         {
@@ -18,8 +21,13 @@ namespace B2CMultiTenant.Extensions
             "offline_access"
         };
         //public static readonly string Url = "http://localhost:57688";
-        public static readonly string Url = "https://b2crestapis.azurewebsites.net";
+        public static string Url
+        {
+            get;
+            private set;
+        }
         TokenService _tokenService;
+        IConfiguration _conf;
         public async Task<HttpClient> GetClientAsync()
         {
             var client = new HttpClient();

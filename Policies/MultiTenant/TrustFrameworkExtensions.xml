@@ -61,7 +61,7 @@
       <ClaimType Id="isNewMember">
         <DisplayName>User joined an app tenant</DisplayName>
         <DataType>boolean</DataType>
-      </ClaimType>                    
+      </ClaimType>  
     </ClaimsSchema>
     <ContentDefinitions>
       <ContentDefinition Id="api.signuporsignin">
@@ -312,7 +312,8 @@
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
             <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="preferred_username" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" PartnerClaimType="iss" />
+            <!--OutputClaim ClaimTypeReferenceId="identityProvider" PartnerClaimType="iss" /-->
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="commonaad" />
           </OutputClaims>
           <OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName"/>

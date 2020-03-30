@@ -27,7 +27,8 @@
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />        
         <OutputClaim ClaimTypeReferenceId="appTenantName" />
         <OutputClaim ClaimTypeReferenceId="appTenantId" />
-        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />       
+        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" /> 
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />      
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
+using RESTFunctions.Models;
 using RESTFunctions.Services;
 
 namespace RESTFunctions.Controllers
@@ -29,7 +30,8 @@ namespace RESTFunctions.Controllers
         }
         Graph _graph;
 
-        [HttpGet("{id}")]
+        [HttpGet("oauth2/{id}")]
+        [Authorize(Roles ="admin")]
         public async Task<IActionResult> Get(string id)
         {
             Guid guid;
@@ -50,6 +52,7 @@ namespace RESTFunctions.Controllers
                 return NotFound();
             }
         }
+        // Used by IEF
         // POST api/values
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TenantDef tenant)
@@ -98,6 +101,44 @@ namespace RESTFunctions.Controllers
             var id = newGroup["id"].Value<string>();
             // add this group to the user's tenant collection
             return new OkObjectResult(new { id, roles = new string[] { "admin", "member" }, userMessage = "Tenant created" });
+        }
+        // POST api/values
+        [HttpPut("oauth2/{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Put([FromQuery] Guid id, [FromBody] TenantDetails tenant)
+        {
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            if (string.IsNullOrEmpty(tenant.Name))
+                return BadRequest("Invalid parameters");
+
+            var http = await _graph.GetClientAsync();
+            try
+            {
+                var groupUrl = $"{Graph.BaseUrl}groups/{id.ToString("D")}";
+                var groupData = new
+                {
+                    description = tenant.LongName,
+                    mailNickname = tenant.Name,
+                    displayName = tenant.Name.ToUpper()
+                };
+                var req = new HttpRequestMessage(HttpMethod.Patch, groupUrl)
+                {
+                    Content = new StringContent(JObject.FromObject(groupData).ToString(), Encoding.UTF8, "application/json")
+                };
+                await http.SendAsync(req);
+                var group = $"{{\"@odata.type\":\"microsoft.graph.openTypeExtension\",\"extensionName\":\"B2CMultiTenant\",\"isAADTenant\":{tenant.IsAADTenant},\"domain\":\"{tenant.IdPDomainName}\"}}";
+                await http.PostAsync(
+                    $"{groupUrl}/extensions",
+                    new StringContent(
+                        group,
+                        System.Text.Encoding.UTF8,
+                        "application/json"));
+            }
+            catch (HttpRequestException ex)
+            {
+                return BadRequest("Group not found");
+            }
+            return new OkObjectResult(new { id, name = tenant.Name } );
         }
 
         [HttpGet("forUser")]
@@ -230,6 +271,7 @@ namespace RESTFunctions.Controllers
             return (member != null);
         }
 
+        // Used by IEF
         // add or confirm user is member, return roles
         [HttpPost("member")]
         public async Task<IActionResult> Member([FromBody] TenantMember memb)
@@ -264,6 +306,7 @@ namespace RESTFunctions.Controllers
                 return new JsonResult(new { tenantId, roles = new string[] { "member" }, isNewMember = true });
             }
         }
+        // Used by IEF
         [HttpPost("currmember")]
         public async Task<IActionResult> ExistingMember([FromBody] TenantMember memb)
         {

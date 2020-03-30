@@ -73,21 +73,22 @@
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="givenName" />
                         <PersistedClaim ClaimTypeReferenceId="surname" />                    
-                        <!--PersistedClaim ClaimTypeReferenceId="guestId" /-->                        
+                        <PersistedClaim ClaimTypeReferenceId="guestId" />                        
                     </PersistedClaims>
                 </TechnicalProfile>                  
             </TechnicalProfiles>            
         </ClaimsProvider>     
-        <!--ClaimsProvider>
+        <ClaimsProvider>
             <DisplayName>Local Account</DisplayName>
             <TechnicalProfiles>
-                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+                <TechnicalProfile Id="GuestSignUp">
                     <DisplayName>Email signup</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                       
+                    <IncludeTechnicalProfile ReferenceId="LocalAccountSignUpWithLogonEmail"/>                    
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />  
                 </TechnicalProfile>
             </TechnicalProfiles>
-        </ClaimsProvider-->         
+        </ClaimsProvider>         
     </ClaimsProviders>
 
     <UserJourneys>
@@ -102,6 +103,36 @@
             </OrchestrationSteps>
             <ClientDefinition ReferenceId="DefaultWeb" />
         </UserJourney>
+        <UserJourney Id="SignUpOrSignIn">
+            <OrchestrationSteps>
+                <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+                    <ClaimsProviderSelections>
+                        <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+                    </ClaimsProviderSelections>
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="2" Type="ClaimsExchange">
+                    <Preconditions>
+                        <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                        <Value>objectId</Value>
+                        <Action>SkipThisOrchestrationStep</Action>
+                        </Precondition>
+                    </Preconditions>
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="3" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+            </OrchestrationSteps>
+        <ClientDefinition ReferenceId="DefaultWeb" />
+        </UserJourney>        
     </UserJourneys>
 
 </TrustFrameworkPolicy>
