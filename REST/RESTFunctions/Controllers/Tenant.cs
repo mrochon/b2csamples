@@ -105,41 +105,35 @@ namespace RESTFunctions.Controllers
         // POST api/values
         [HttpPut("oauth2/{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Put([FromQuery] Guid id, [FromBody] TenantDetails tenant)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] TenantDetails tenant)
         {
-            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             if (string.IsNullOrEmpty(tenant.Name))
                 return BadRequest("Invalid parameters");
 
             var http = await _graph.GetClientAsync();
-            try
+            var groupUrl = $"{Graph.BaseUrl}groups/{id.ToString("D")}";
+            var groupData = new
             {
-                var groupUrl = $"{Graph.BaseUrl}groups/{id.ToString("D")}";
-                var groupData = new
-                {
-                    description = tenant.LongName,
-                    mailNickname = tenant.Name,
-                    displayName = tenant.Name.ToUpper()
-                };
-                var req = new HttpRequestMessage(HttpMethod.Patch, groupUrl)
-                {
-                    Content = new StringContent(JObject.FromObject(groupData).ToString(), Encoding.UTF8, "application/json")
-                };
-                await http.SendAsync(req);
-                /*
-                var group = $"{{\"@odata.type\":\"microsoft.graph.openTypeExtension\",\"extensionName\":\"B2CMultiTenant\",\"isAADTenant\":{tenant.IsAADTenant},\"domain\":\"{tenant.IdPDomainName}\"}}";
-                await http.PostAsync(
-                    $"{groupUrl}/extensions",
-                    new StringContent(
-                        group,
-                        System.Text.Encoding.UTF8,
-                        "application/json"));
-                        */
-            }
-            catch (HttpRequestException ex)
+                description = tenant.LongName,
+                mailNickname = tenant.Name,
+                displayName = tenant.Name.ToUpper()
+            };
+            var req = new HttpRequestMessage(HttpMethod.Patch, groupUrl)
             {
-                return BadRequest("Group not found");
-            }
+                Content = new StringContent(JObject.FromObject(groupData).ToString(), Encoding.UTF8, "application/json")
+            };
+            var resp = await http.SendAsync(req);
+            /*
+            var group = $"{{\"@odata.type\":\"microsoft.graph.openTypeExtension\",\"extensionName\":\"B2CMultiTenant\",\"isAADTenant\":{tenant.IsAADTenant},\"domain\":\"{tenant.IdPDomainName}\"}}";
+            await http.PostAsync(
+                $"{groupUrl}/extensions",
+                new StringContent(
+                    group,
+                    System.Text.Encoding.UTF8,
+                    "application/json"));
+                    */
+            if (!resp.IsSuccessStatusCode)
+                return BadRequest("Update failed");
             return new OkObjectResult(new { id, name = tenant.Name } );
         }
 

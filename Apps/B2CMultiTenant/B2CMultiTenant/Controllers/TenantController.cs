@@ -54,9 +54,9 @@ namespace B2CMultiTenant.Controllers
                         new StringContent(JObject.FromObject(tenant).ToString(), Encoding.UTF8, "application/json"));
                     return RedirectToAction(nameof(Edit));
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    throw;
                 }
             }
             return View();
