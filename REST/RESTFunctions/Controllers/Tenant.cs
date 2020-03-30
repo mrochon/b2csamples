@@ -126,6 +126,7 @@ namespace RESTFunctions.Controllers
                     Content = new StringContent(JObject.FromObject(groupData).ToString(), Encoding.UTF8, "application/json")
                 };
                 await http.SendAsync(req);
+                /*
                 var group = $"{{\"@odata.type\":\"microsoft.graph.openTypeExtension\",\"extensionName\":\"B2CMultiTenant\",\"isAADTenant\":{tenant.IsAADTenant},\"domain\":\"{tenant.IdPDomainName}\"}}";
                 await http.PostAsync(
                     $"{groupUrl}/extensions",
@@ -133,6 +134,7 @@ namespace RESTFunctions.Controllers
                         group,
                         System.Text.Encoding.UTF8,
                         "application/json"));
+                        */
             }
             catch (HttpRequestException ex)
             {
