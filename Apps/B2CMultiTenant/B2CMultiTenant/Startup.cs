@@ -117,6 +117,11 @@ namespace B2CMultiTenant
                     var tenantName = (string)ctx.Properties.Parameters["tenant"];
                     ctx.ProtocolMessage.Parameters.Add("tenant", tenantName);
                 }
+                if (ctx.Properties.Parameters.ContainsKey("domain"))
+                {
+                    var domainName = (string)ctx.Properties.Parameters["domain"];
+                    ctx.ProtocolMessage.DomainHint = domainName;
+                }
                 await Task.FromResult(0);
             };
             options.Events.OnAuthorizationCodeReceived = async (ctx) =>

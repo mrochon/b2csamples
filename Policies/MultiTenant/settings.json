@@ -5,5 +5,6 @@
     "RestTenantCreate": "https://b2crestapis.azurewebsites.net/tenant",
     "RestGetOrJoinTenant": "https://b2crestapis.azurewebsites.net/tenant/member",
     "RestGetTenantForUser": "https://b2crestapis.azurewebsites.net/tenant/currmember",
-    "GoogleClientId": "696994352313-1v1ntp02mhbe2eh558v9v6bmd3p269up.apps.googleusercontent.com"
+    "GoogleClientId": "696994352313-1v1ntp02mhbe2eh558v9v6bmd3p269up.apps.googleusercontent.com",
+    "AADSecret": "B2C_1A_MeraridomSecret"
 }
