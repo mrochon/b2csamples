@@ -35,7 +35,7 @@ namespace B2CMultiTenant.Controllers
             {
                 var http = await _rest.GetClientAsync();
                 var tenantId = tenantIdClaim.Value;
-                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/members/{tenantId}");
+                var json = await http.GetStringAsync($"{RESTService.Url}/tenant/oauth2/{tenantId}/members");
                 var members = JArray.Parse(json).Select(m => new Member
                 {
                     Id = m["userId"].Value<string>(),

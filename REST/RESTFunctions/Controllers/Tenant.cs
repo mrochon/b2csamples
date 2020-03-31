@@ -31,7 +31,7 @@ namespace RESTFunctions.Controllers
         Graph _graph;
 
         [HttpGet("oauth2/{id}")]
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Get(string id)
         {
             Guid guid;
@@ -134,7 +134,7 @@ namespace RESTFunctions.Controllers
                     */
             if (!resp.IsSuccessStatusCode)
                 return BadRequest("Update failed");
-            return new OkObjectResult(new { id, name = tenant.Name } );
+            return new OkObjectResult(new { id, name = tenant.Name });
         }
 
         [HttpGet("forUser")]
@@ -215,14 +215,15 @@ namespace RESTFunctions.Controllers
             return roles;
         }
         [Obsolete("Use GetMembers instead.", false)]
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("members")]
         public async Task<IActionResult> Members(string tenantName)
         {
             return await GetMembers(tenantName);
         }
         [Authorize(Roles = "admin")]
-        [HttpGet("members/{tenantId}")] //TODO: tenantId may not go first as that would prevent ecluding this path from client cert requirement
+        //[HttpGet("members/{tenantId}")] //TODO: tenantId may not go first as that would prevent ecluding this path from client cert requirement
+        [HttpGet("oauth2/{tenantId}/members")]
         public async Task<IActionResult> GetMembers(string tenantId)
         {
             Guid id;
@@ -248,7 +249,7 @@ namespace RESTFunctions.Controllers
                             userId = memb["id"].Value<string>(),
                             roles = new List<string>() { role }
                         };
-                        var userJson = await http.GetStringAsync($"{Graph.BaseUrl}users/{user.userId}?$select=displayName");
+                        var userJson = await http.GetStringAsync($"{Graph.BaseUrl}users/{user.userId}?$select=displayName,identities");
                         user.name = JObject.Parse(userJson)["displayName"].Value<string>();
                         result.Add(user);
                     }
