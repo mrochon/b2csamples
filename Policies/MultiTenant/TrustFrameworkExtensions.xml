@@ -289,7 +289,7 @@
           <Metadata>
             <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
-            <Item Key="client_id">e2af792e-4f63-4ef0-91fc-54be58f8f5d1</Item>
+            <Item Key="client_id">{AAD-Client-App}</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
             <Item Key="response_mode">form_post</Item>
