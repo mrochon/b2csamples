@@ -41,6 +41,36 @@
 
     <ClaimsProviders>
         <ClaimsProvider>
+            <DisplayName>Session Management</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="SM-Guest">
+                    <DisplayName>Incognito Session Mananagement Provider</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <PersistedClaims>
+                        <!--PersistedClaim ClaimTypeReferenceId="givenName" /-->
+                        <PersistedClaim ClaimTypeReferenceId="surname" />                    
+                        <PersistedClaim ClaimTypeReferenceId="guestId" />   
+                    </PersistedClaims>
+                </TechnicalProfile>                  
+            </TechnicalProfiles>            
+        </ClaimsProvider>   
+        <ClaimsProvider>
+            <DisplayName>Local Account</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="GuestSignUp">
+                    <DisplayName>Email signup</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <IncludeTechnicalProfile ReferenceId="LocalAccountSignUpWithLogonEmail"/>                    
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />  
+                </TechnicalProfile>
+                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+                    <DisplayName>Email signup</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" /> 
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>             
+        <ClaimsProvider>
             <DisplayName>Self Asserted</DisplayName>
             <TechnicalProfiles>
                 <TechnicalProfile Id="GuestAttributesEntry">
@@ -53,42 +83,17 @@
                         <InputClaimsTransformation ReferenceId="CreateRandomGuestId" />
                     </InputClaimsTransformations>                       
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="givenName" />
+                        <InputClaim ClaimTypeReferenceId="givenName" Required="true" />
                         <InputClaim ClaimTypeReferenceId="surname" />
                     </InputClaims>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="givenName" />
+                        <OutputClaim ClaimTypeReferenceId="givenName"  Required="true"/>
                         <OutputClaim ClaimTypeReferenceId="surname" />
                     </OutputClaims>
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />                    
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Guest" />                    
                 </TechnicalProfile>    
             </TechnicalProfiles>
         </ClaimsProvider> 
-        <ClaimsProvider>
-            <DisplayName>Session Management</DisplayName>
-            <TechnicalProfiles>
-                <TechnicalProfile Id="SM-AAD">
-                    <DisplayName>Incognito Session Mananagement Provider</DisplayName>
-                    <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.DefaultSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <PersistedClaims>
-                        <PersistedClaim ClaimTypeReferenceId="givenName" />
-                        <PersistedClaim ClaimTypeReferenceId="surname" />                    
-                        <PersistedClaim ClaimTypeReferenceId="guestId" />                        
-                    </PersistedClaims>
-                </TechnicalProfile>                  
-            </TechnicalProfiles>            
-        </ClaimsProvider>     
-        <ClaimsProvider>
-            <DisplayName>Local Account</DisplayName>
-            <TechnicalProfiles>
-                <TechnicalProfile Id="GuestSignUp">
-                    <DisplayName>Email signup</DisplayName>
-                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <IncludeTechnicalProfile ReferenceId="LocalAccountSignUpWithLogonEmail"/>                    
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />  
-                </TechnicalProfile>
-            </TechnicalProfiles>
-        </ClaimsProvider>         
     </ClaimsProviders>
 
     <UserJourneys>
@@ -113,6 +118,17 @@
                         <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
+                <!--OrchestrationStep Order="2" Type="ClaimsExchange">
+                    <Preconditions>
+                        <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                        <Value>objectId</Value>
+                        <Action>SkipThisOrchestrationStep</Action>
+                        </Precondition>
+                    </Preconditions>                
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="GuestAttributesEntry" TechnicalProfileReferenceId="GuestAttributesEntry" />
+                    </ClaimsExchanges>
+                </OrchestrationStep-->                 
                 <OrchestrationStep Order="2" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
