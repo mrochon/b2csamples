@@ -5,9 +5,11 @@
     <li class="navbar-text">Hello @User.Identity.Name!</li>
     @if (User.HasClaim(c => c.Type == "appTenants"))
     {
+        var tenant = User.FindFirst(c => c.Type == "appTenantName").Value; 
         <li class="navbar-text">
             <select id="tenants" onchange="selectTenant();">
-                @foreach (var t in User.FindAll(c => c.Type == "appTenants").Select(c => c.Value))
+                <option value="@tenant">@tenant</option>
+                @foreach (var t in User.FindAll(c => (c.Type == "appTenants") && (c.Value != tenant)).Select(c => c.Value))
                 {
                     <option value="@t">@t</option>
                 }
