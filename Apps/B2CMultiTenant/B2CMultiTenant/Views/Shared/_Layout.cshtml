@@ -17,13 +17,19 @@
               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
-    <script>
+    <script type="text/javascript">
         function copyToCB(id) {
               alert("Coping the text");
               var copyText = document.getElementById(id);
               copyText.select();
               copyText.setSelectionRange(0, 99999); /*For mobile devices*/
               document.execCommand("copy");
+        }
+        function selectTenant() {
+            var selectBox = document.getElementById("tenants");
+            var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+            //alert('/home/index?tenant='+ selectedValue);
+            window.location.href = '/home/index?tenant=' + selectedValue;
         }
     </script>
 </head>

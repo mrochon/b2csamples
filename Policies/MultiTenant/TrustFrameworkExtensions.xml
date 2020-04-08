@@ -189,11 +189,11 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
-        <TechnicalProfile Id="REST-GetSingleTenant">
-          <DisplayName>Get tenant for a user member of exactly one tenant</DisplayName>
+        <TechnicalProfile Id="REST-GetFirstTenant">
+          <DisplayName>Get first tenant for a user member</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">{RestGetSingleTenant}</Item>
+            <Item Key="ServiceUrl">{RestGetFirstTenant}</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">QueryString</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
@@ -206,8 +206,9 @@
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
-            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />            
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />            
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+            <OutputClaim ClaimTypeReferenceId="appTenants" PartnerClaimType="allTenants" />              
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>   
@@ -231,6 +232,7 @@
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
             <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="appTenants" PartnerClaimType="allTenants" />            
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>         
@@ -641,7 +643,7 @@
         </OrchestrationStep>
         <OrchestrationStep Order="4" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="REST-GetSingleTenant" />
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="REST-GetFirstTenant" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />

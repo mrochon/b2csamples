@@ -28,34 +28,38 @@ namespace B2CMultiTenant.Controllers
         public IActionResult Index()
         {
             //if (User.FindFirst(c => c.Type == "isNewMember")?.Value == "true")
-            if (User.Identity.IsAuthenticated)
+            if (Request.Query.ContainsKey("tenant"))
+            {
+                var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+                authParms.Parameters.Add("tenant", (string)Request.Query["tenant"]);
+                if (Request.Query.ContainsKey("domain"))
+                    authParms.Parameters.Add("domain", (string)Request.Query["domain"]);
+                return Challenge(authParms,
+                    new string[] { "mtsusi2" });
+            } else if (User.Identity.IsAuthenticated)
             {
                 var tenantName = User.FindFirst(c => c.Type == "appTenantName")?.Value;
                 ViewBag.ReturnUrl = $"{Request.Scheme}://{Request.Host}?tenant={tenantName}";
                 if (User.HasClaim(c => c.Type == "http://schemas.microsoft.com/identity/claims/identityprovider"))
                     ViewBag.ReturnUrl += $"&domain={User.FindFirstValue("http://schemas.microsoft.com/identity/claims/identityprovider")}";
             }
-            else if (Request.Query.ContainsKey("tenant"))
-            {
-                var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
-                authParms.Parameters.Add("tenant", (string) Request.Query["tenant"]);
-                if (Request.Query.ContainsKey("domain"))
-                    authParms.Parameters.Add("domain", (string)Request.Query["domain"]);
-                return Challenge(authParms,
-                    new string[] { "mtsusi2" });
-            }
             return View(User.Claims);
         }
         public IActionResult MemberSignIn()
         {
-            if (Request.Query.ContainsKey("tenant"))
+            var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
+            if (Request.Query.ContainsKey("domain"))
+                authParms.Parameters.Add("domain", (string)Request.Query["domain"]);
+            return Challenge(authParms,
+                new string[] { "mtsusi-firsttenant" });
+            /*if (Request.Query.ContainsKey("tenant"))
             {
                 var authParms = new AuthenticationProperties() { RedirectUri = "/Home/Index" };
                 authParms.Parameters.Add("tenant", Request.Query["tenant"][0]);
                 return Challenge(authParms,
                     new string[] { "mtsusi2" });
             };
-            return View();
+            return View();*/
         }
         [HttpPost]
         [ValidateAntiForgeryToken]

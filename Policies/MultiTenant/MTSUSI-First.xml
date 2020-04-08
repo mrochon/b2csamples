@@ -28,6 +28,7 @@
         <OutputClaim ClaimTypeReferenceId="appTenantName" />
         <OutputClaim ClaimTypeReferenceId="appTenantId" />
         <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" /> 
+        <OutputClaim ClaimTypeReferenceId="appTenants" />         
         <OutputClaim ClaimTypeReferenceId="identityProvider" />      
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />

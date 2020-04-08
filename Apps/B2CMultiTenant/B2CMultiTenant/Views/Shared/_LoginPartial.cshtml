@@ -3,6 +3,17 @@
 {
 <ul class="nav navbar-nav navbar-right">
     <li class="navbar-text">Hello @User.Identity.Name!</li>
+    @if (User.HasClaim(c => c.Type == "appTenants"))
+    {
+        <li class="navbar-text">
+            <select id="tenants" onchange="selectTenant();">
+                @foreach (var t in User.FindAll(c => c.Type == "appTenants").Select(c => c.Value))
+                {
+                    <option value="@t">@t</option>
+                }
+            </select>
+        </li>
+    }
     @*<li><a asp-area="AzureAD" asp-controller="Account" asp-action="SignOut">Sign out</a></li>*@
     <li class="navbar-text"><a asp-area="" asp-controller="Home" asp-action="SignOut">Sign out</a></li>
 </ul>
@@ -11,6 +22,6 @@ else
 {
 <ul class="nav navbar-nav navbar-right">
     <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="NewTenant">Create new tenant</a></li>
-    <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="MemberSignIn">Member sign-in</a></li>
+    <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="MemberSignIn">Sign-in</a></li>
 </ul>
 }

@@ -60,6 +60,7 @@ namespace B2CMultiTenant
                     //.AddOpenIdConnect("mtsusi", options => OptionsFor(options, "mtsusi"))
                     .AddOpenIdConnect("mtsusi2", options => OptionsFor(options, "mtsusi2"))
                     .AddOpenIdConnect("mtsusint", options => OptionsFor(options, "mtsusint"))
+                    .AddOpenIdConnect("mtsusi-firsttenant", options => OptionsFor(options, "mtsusi-firsttenant"))
                     .AddOpenIdConnect("mtpasswordreset", options => OptionsFor(options, "mtpasswordreset"));
             services.Configure<ConfidentialClientApplicationOptions>(options => Configuration.Bind("AzureAD", options));
             services.Configure<InvitationTokenOptions>(options => Configuration.Bind("Invitation", options));
