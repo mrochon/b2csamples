@@ -1,10 +1,17 @@
 # My B2C samples
 
+# This repo is being split up
+
+**In order to provide better setup support for samples in this repo (currently just the Multi-tenancy demo) I am moving each constituent project to its own repo. Here, I will only keep the custom policy xml files and PowerShell scripts and othe rinstructions for deploying complete applications.**
+
 ## Supporting multi-tenant SaaS apps
-### Sample
+
+### Description
 A [sample application](https://b2cmultitenant.azurewebsites.net) illustrating support for multi-tenant SaaS applications using a single B2C Azure AD tenant. All source is in this repo.
 
 **Note:** this sample is **NOT** about [using AAD multi-tenancy](https://docs.microsoft.com/en-us/azure/dotnet-develop-multitenant-applications) to support an application. AAD multi-tenancy is ideal for medium-to-large enterprises who own and manage their own identity infrastructure. This sample is for small enteprises, usually without their own identity infrastructure. It provides support for an application that needs to group it's users into discrete groups, each representing an *application tenant* - a group of people sharing common data in the application. Azure AD B2C allows create their own logins, possibly use some external identity providers (social or work). Using the code provided in this repo, B2C will maintain association between users and *application tenants* and provide that data to your applications when users sign in.
+
+
 
 ### Source
 [IEF policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) implementing the two signin/up journeys:
