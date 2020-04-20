@@ -1,7 +1,26 @@
 ﻿# once only: Install-Module -Name MSAL.PS, AzureAD-preview
 
-$conf = ".\appsettings.json"
+$conf = ".\setupSettings.json"
 $settings = Get-Content -Path $conf -ErrorAction Stop | Out-String | ConvertFrom-Json
+
+$iefConfPath = ".\conf.json"
+
+if (Test-Path -Path $iefConfPath) {
+    $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json    
+} else {
+    $iefConf = @{
+        Prefix = "MT"
+        SUSI_UI = "https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html"
+        SignInOnly_UI = "https://b2cdatastore.blob.core.windows.net/uix/SignInOnly.html"
+    }
+}
+if ([string]::IsNullOrEmpty($iefConf.ExtAppId)) {
+    $extensionApp = get-azureadapplication -filter "displayName eq 'b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.'"
+    $iefConf.ExtAppId = $extensionApp.AppId
+    $iefConf.ExtObjectId = $extensionApp.ObjectId
+    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+}
+
 
 # Add check whether the app names are stil available
 
@@ -15,81 +34,100 @@ $headers = @{
 
 ############### Register apps in B2C ###########################
 $url = "https://graph.microsoft.com/beta/applications"
-$body = @{
-    "displayName" = $settings.webApp.name;
-    "isFallbackPublicClient" = $false;
-    "web" = @{
-        "redirectUris" = foreach($p in @("mtsusi-firsttenant", "mtsusi2", "redeem", "mtsusint")){ "https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p };
-        "implicitGrantSettings" = @{
-          "enableAccessTokenIssuance" = $false;
-          "enableIdTokenIssuance" = $false
-        }
-    };
-    "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
+$webAppReg = Invoke-RestMethod -Uri ("{0}?`$filter=displayName eq '{1}'" -f $url, $settings.webApp.name) -Method Get -Headers $headers 
+if ($webAppReg.value.Count -eq 0) {
+    $body = @{
+        "displayName" = $settings.webApp.name;
+        "isFallbackPublicClient" = $false;
+        "web" = @{
+            "redirectUris" = foreach($p in @("mtsusi-firsttenant", "mtsusi2", "redeem", "mtsusint")){ "https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p };
+            "implicitGrantSettings" = @{
+              "enableAccessTokenIssuance" = $true;
+              "enableIdTokenIssuance" = $true
+            }
+        };
+        "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
+    }
+    $webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 }
-$webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
-$body.displayName = $settings.webAPI.name
-$body.web.redirectUris = @(("https://{0}.com" -f $settings.webAPI.name))
-$body.identifierUris = @(("https://{0}/b2crestapi" -f $settings.b2cTenant))
-$webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+$webAPIReg = Invoke-RestMethod -Uri ("{0}?`$filter=displayName eq '{1}'" -f $url, $settings.webAPI.name) -Method Get -Headers $headers 
+if ($webAPIReg.value.Count -eq 0) {
+    $body = @{
+        "displayName" = $settings.webAPI.name;
+        "isFallbackPublicClient" = $false;
+        "web" = @{
+            "redirectUris" =  @(("https://{0}.com" -f $settings.webAPI.name))
+            "implicitGrantSettings" = @{
+              "enableAccessTokenIssuance" = $false;
+              "enableIdTokenIssuance" = $false
+            }
+        };
+        "identifierUris" = @(("https://{0}/b2crestapi" -f $settings.b2cTenant))
+    }
+    $webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+    #################### Add scopes #########################
+    $body = @{
+        "api" = @{
+            "requestedAccessTokenVersion" = 2;
+            "oauth2PermissionScopes" = @(
+                @{
+                    "adminConsentDescription" = "Allow reading all members";
+                    "adminConsentDisplayName" = "Read members";
+                    "id" = (New-Guid);
+                    "isEnabled" = $true;
+                    "type" = "User";
+                    "userConsentDescription" = "Allow reading all members";
+                    "userConsentDisplayName" = "Read members";
+                    "value" = "Members.ReadAll"
+                });
+        }
+    }
+    $url = "https://graph.microsoft.com/beta/applications/{0}" -f $webAPIReg.id
+    $settings.script.scopes = Invoke-RestMethod -Uri $url  -Method Patch -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+}
 
 ################## Register ServicePrincipals SP #########################
-$body = @{
-  "appId" = $webAppReg.appId;
-  "displayName" = $webAppReg.displayName
-}
-$webAppSP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-$body = @{
-  "appId" = $webAPIReg.appId;
-  "displayName" = $webAPIReg.displayName
-}
-$webAPISP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-
-$url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=publisherName eq 'Microsoft Graph' or (displayName eq 'Microsoft Graph' or startswith(displayName,'Microsoft Graph'))"
-$graphSP = Invoke-RestMethod -Uri $url -Method Get -Headers $headers
-$today = Get-Date
-$body = @{
-  "clientId" = $webAppSP.id;
-  "consentType" = "AllPrincipals";
-  "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
-  "principalId" = $null;
-  "resourceId" = ($graphSP.value[0].id)
-  "scope" = "openid offline_access"
-}
-Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-
-#################### Add scopes #########################
-$body = @{
-    "api" = @{
-        "requestedAccessTokenVersion" = 2;
-        "oauth2PermissionScopes" = @(
-            @{
-                "adminConsentDescription" = "Allow reading all members";
-                "adminConsentDisplayName" = "Read members";
-                "id" = (New-Guid);
-                "isEnabled" = $true;
-                "type" = "User";
-                "userConsentDescription" = "Allow reading all members";
-                "userConsentDisplayName" = "Read members";
-                "value" = "Members.ReadAll"
-            });
+$url = "https://graph.microsoft.com/beta/serviceprincipals"
+$webAPISP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
+if ($webAPISP.value.Count -eq 0) {
+    $body = @{
+      "appId" = $webAPIReg.appId;
+      "displayName" = $webAPIReg.displayName
     }
+    $webAPISP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
-$url = "https://graph.microsoft.com/beta/applications/{0}" -f $webAPIReg.id
-$settings.script.scopes = Invoke-RestMethod -Uri $url  -Method Patch -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
-
-##################### Grant permission for web app to call the API #########################
-$body = @{
-  "clientId" = $webAppSP.id;
-  "consentType" = "AllPrincipals";
-  "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
-  "principalId" = $null;
-  "resourceId" = $webAPISP.id
-  "scope" = "Members.ReadAll"
+$webAppSP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
+if ($webAppSP.value.Count -eq 0) {
+    $body = @{
+      "appId" = $webAppReg.appId;
+      "displayName" = $webAppReg.displayName
+    }
+    $webAppSP = Invoke-RestMethod -Uri $url  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=publisherName eq 'Microsoft Graph' or (displayName eq 'Microsoft Graph' or startswith(displayName,'Microsoft Graph'))"
+    $graphSP = Invoke-RestMethod -Uri $url -Method Get -Headers $headers
+    $today = Get-Date
+    $body = @{
+      "clientId" = $webAppSP.id;
+      "consentType" = "AllPrincipals";
+      "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
+      "principalId" = $null;
+      "resourceId" = ($graphSP.value[0].id)
+      "scope" = "openid offline_access"
+    }
+    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    ##################### Grant permission for web app to call the API #########################
+    $body = @{
+      "clientId" = $webAppSP.id;
+      "consentType" = "AllPrincipals";
+      "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
+      "principalId" = $null;
+      "resourceId" = $webAPISP.id
+      "scope" = "Members.ReadAll"
+    }
+    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
-Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 
-################### Add secret key ###################################
+################### Add secret key to web app ###################################
 $body = @{
     "passwordCredentials" = @(
     @{
@@ -107,11 +145,13 @@ $rijndael = new-Object System.Security.Cryptography.RijndaelManaged
 $rijndael.GenerateKey()
 $secret = ([Convert]::ToBase64String($rijndael.Key))
 $rijndael.Dispose()
-### store in B2C
+$body = @{
+    
+}
 
 
 ################### Login to AAD and Az ##################################
-Write-Host ("Login to Azure with an account with sufficeint privilege to create a resource group and web apps")
+Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
 Connect-AzAccount -ErrorAction Stop
 Write-Host ("Login to your B2C directory with an account with sufficient privileges to register applications")
 Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
@@ -139,13 +179,13 @@ $userRead = New-Object -TypeName Microsoft.Open.AzureAD.Model.ResourceAccess
 $userRead.Id = "df021288-bdef-4463-88db-98f22de89214"
 $userRead.Type = "Role"
 $access.ResourceAccess = @($groupRW, $userRead)
-$apiApp = New-AzureADApplication `
+$ccredsApp = New-AzureADApplication `
     -IdentifierUris ("app://{0}" -f $settings.webAPI.name) `
     -DisplayName ("{0}-clientcreds" -f $settings.webAPI.name) `
     -RequiredResourceAccess $access `
     -Oauth2AllowImplicitFlow $false 
-$apiPwd = New-AzureADApplicationPasswordCredential -ObjectId $apiApp.objectId -CustomKeyIdentifier "PS Generated"
-$appSP = New-AzureADServicePrincipal -AppId $apiApp.appId -AccountEnabled $true
+$ccredPwd = New-AzureADApplicationPasswordCredential -ObjectId $ccredsApp.objectId -CustomKeyIdentifier "PS Generated"
+$ccredsSP = New-AzureADServicePrincipal -AppId $ccredsApp.appId -AccountEnabled $true
 
 
 ##################### Create web app svc for the Web App #############################
@@ -179,23 +219,26 @@ Set-AzWebApp -Name $webAppSvc `
     #"Invitation:SigningKey" = $settings.InvitationKey;
 
 ####################### Create X509 cert for authn to REST #######################################
-Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
-Write-Host ("   Certificate id=CN=b2cmtrest")
-$cert = New-SelfSignedCertificate `
-    -KeyExportPolicy Exportable `
-    -Subject "CN=b2cmtrest" `
-    -KeyAlgorithm RSA `
-    -KeyLength 2048 `
-    -KeyUsage DigitalSignature `
-    -NotAfter (Get-Date).AddMonths(12) `
-    -CertStoreLocation "Cert:\CurrentUser\My"
-$certPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
-Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath .\b2cmtrest.pfx -Password $certPwd
-Export-Certificate -Cert $cert -FilePath .\b2cmtrest.cer
+$certPath = ".\{0}.cer" -f $settings.webAPI.name
+if (Test-Path -Path $certPath) {
+    $cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+    $cer.Import($certPath)
+} else {
+    Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
+    $cert = New-SelfSignedCertificate `
+        -KeyExportPolicy Exportable `
+        -Subject ("CN={0}" -f $settings.webApi.name) `
+        -KeyAlgorithm RSA `
+        -KeyLength 2048 `
+        -KeyUsage DigitalSignature `
+        -NotAfter (Get-Date).AddMonths(12) `
+        -CertStoreLocation "Cert:\CurrentUser\My"
+    $certPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
+    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath (".\{0}.pfx" -f $settings.webAPI.name) -Password $certPwd
+    Export-Certificate -Cert $cert -FilePath $certPath
+}
 
-##########################  Create Azure Web Apps for demo app and REST API app ##############################
-$apiApp = New-AzureADApplication -DisplayName $settings.WebApi.name
-
+##########################  Create Azure Web Apps services for REST API app ##############################
 $api = New-AzWebApp -Name $webAPISvc `
     -location $settings.location `
     -AppServicePlan $svcPlan `
@@ -212,8 +255,8 @@ $props = @{
     "B2C:Policy" = "b2c_1a_mtsusi2";
     "ClientCreds:Instance" = "https://login.microsoftonline.com/";
     "ClientCreds:TenantId" = $b2c.TenantId.ToString();
-    "ClientCreds:ClientId" = $apiApp.appId;
-    "ClientCreds:ClientSecret" = $apiPwd.Value;
+    "ClientCreds:ClientId" = $ccredsApp.appId;
+    "ClientCreds:ClientSecret" = $ccredPwd.Value;
     AllowedHosts = "*";
     WEBSITE_LOAD_CERTIFICATES = $cert.Thumbprint;
     WEBSITE_NODE_DEFAULT_VERSION = "6.9.1";
@@ -221,16 +264,49 @@ $props = @{
 Set-AzWebApp -Name $webAPISvc `
     -ResourceGroupName $settings.resourceGroup `
     -AppSettings $props
+$iefConf.RestTenantCreate = "https://{0}/tenant" -f $api.DefaultHostName
+$iefConf.RestGetOrJoinTenant = "https://{0}/tenant/member" -f $api.DefaultHostName
+$iefConf.RestGetTenantForUser = "https://{0}/tenant/currmember" -f $api.DefaultHostName
+$iefConf.RestGetFirstTenant = "https://{0}/tenant/first" -f $api.DefaultHostName
+out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 ###
 ###  Add clientcertificatesenabled and which path to skip
 ###
 
-# Deploy code
+########################## Create AADCommon for work accounts signin ##################
+Write-Host ("Registering AAD Common app to support signin with work address using AD multi-tenant support")
+if ([string]::IsNullOrEmpty($iefConf.AADCommonAppId)) {
+    $access = New-Object -TypeName Microsoft.Open.AzureAD.Model.RequiredResourceAccess
+    $access.ResourceAppId = "00000003-0000-0000-c000-000000000000"
+    $openId = New-Object -TypeName Microsoft.Open.AzureAD.Model.ResourceAccess
+    $openId.Id = "37f7f235-527c-4136-accd-4a02d197296e"
+    $openId.Type = "Scope"
+    $offline = New-Object -TypeName Microsoft.Open.AzureAD.Model.ResourceAccess
+    $offline.Id = "7427e0e9-2fba-42fe-b0c0-848c9e6a8182"
+    $offline.Type = "Scope"
+    $access.ResourceAccess = @($openId, $offline)
+    $aadCommon = New-AzureADApplication `
+        -DisplayName "AADCommon" `
+        -RequiredResourceAccess $access `
+        -Oauth2AllowImplicitFlow $false `
+        -AvailableToOtherTenants $true `
+        -ReplyUrls @( ("https://{0}.b2clogin.com/{1}/oauth2/authresp" -f $b2c.TenantDomain.Split('.')[0], $b2c.TenantDomain))
+
+    $aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.objectId -CustomKeyIdentifier "PS Generated"
+    $appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
+    $iefConf.AADCommonAppId = $aadCommon.appId
+    $iefConf.AADCommonSecret = "B2C_1A_AADCommonSecret"
+    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+    ### Upload secret to IEF
+}
+
+############################### Deploy code ############################################
 $props = @{
     token = $settings.webApp.gitToken;
 }
 Set-AzResource -PropertyObject $props `
 -ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
+Start-sleep -s 30
 
 # Configure GitHub deployment from your GitHub repo and deploy once.
 # Web App
@@ -252,4 +328,4 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAPISvc) `
     -ApiVersion 2015-08-01 -Force
 
-# Get consent for REST API
+"Please use the Azure portal grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
