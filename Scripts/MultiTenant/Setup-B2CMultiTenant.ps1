@@ -6,23 +6,45 @@ $settings = Get-Content -Path $conf -ErrorAction Stop | Out-String | ConvertFrom
 $iefConfPath = ".\conf.json"
 
 if (Test-Path -Path $iefConfPath) {
-    $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json    
+    $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
 } else {
-    $iefConf = @{
+    $iefConf = [PSCustomObject]@{
         Prefix = "MT"
         SUSI_UI = "https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html"
         SignInOnly_UI = "https://b2cdatastore.blob.core.windows.net/uix/SignInOnly.html"
     }
 }
+
+################### Are the web app urls available?  #####################
+try {
+    invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webApp.name)
+    "{0} already exists. Please try a different name" -f $settings.webApp.name
+    return
+} catch {
+}
+try {
+    invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webAPI.name)
+    "{0} already exists. Please try a different name" -f $settings.webAPI.name
+    return
+} catch {
+}
+
+################### Login to AAD and Az ##################################
+Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
+Connect-AzAccount -ErrorAction Stop
+Write-Host ("Login to your B2C directory with an account with sufficient privileges to register applications")
+Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
+$b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
+$azure = Get-AzContext -ErrorAction stop
+
+
+##################  Get AAD B2C extension app ############################
 if ([string]::IsNullOrEmpty($iefConf.ExtAppId)) {
     $extensionApp = get-azureadapplication -filter "displayName eq 'b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.'"
     $iefConf.ExtAppId = $extensionApp.AppId
     $iefConf.ExtObjectId = $extensionApp.ObjectId
     out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 }
-
-
-# Add check whether the app names are stil available
 
 ###############################Get Graph REST token ##############################################
 $token = Get-MsalToken -clientId $settings.script.clientId -redirectUri $settings.script.redirectUri -Tenant $settings.b2cTenant -Scopes $settings.script.scopes
@@ -42,8 +64,8 @@ if ($webAppReg.value.Count -eq 0) {
         "web" = @{
             "redirectUris" = foreach($p in @("mtsusi-firsttenant", "mtsusi2", "redeem", "mtsusint")){ "https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p };
             "implicitGrantSettings" = @{
-              "enableAccessTokenIssuance" = $true;
-              "enableIdTokenIssuance" = $true
+              "enableAccessTokenIssuance" = $false;
+              "enableIdTokenIssuance" = $false
             }
         };
         "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
@@ -149,15 +171,6 @@ $body = @{
     
 }
 
-
-################### Login to AAD and Az ##################################
-Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
-Connect-AzAccount -ErrorAction Stop
-Write-Host ("Login to your B2C directory with an account with sufficient privileges to register applications")
-Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
-$b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
-$azure = Get-AzContext -ErrorAction stop
-
 ##########################################################################
 
 $svcPlan = $settings.webApp.name
@@ -234,8 +247,27 @@ if (Test-Path -Path $certPath) {
         -NotAfter (Get-Date).AddMonths(12) `
         -CertStoreLocation "Cert:\CurrentUser\My"
     $certPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
-    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath (".\{0}.pfx" -f $settings.webAPI.name) -Password $certPwd
     Export-Certificate -Cert $cert -FilePath $certPath
+    $certPath = (".\{0}.pfx" -f $settings.webAPI.name)
+    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $certPath -Password $certPwd
+    $pfx = Get-Content -Path $certPath | Out-String
+    $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
+
+    $keysetName = "B2C_1A_RESTClientCert"
+    try {
+        $key = Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName) -Method Delete -Headers $headers
+    } catch { // ok if does not exist
+    }
+    $body = @{
+        id = $keysetName
+    }
+    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadPkcs12" -f $keysetName)
+    $body = @{
+        key = $pkcs12
+        password = $settings.X509KeyPassword
+    }
+    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
 
 ##########################  Create Azure Web Apps services for REST API app ##############################
@@ -264,10 +296,10 @@ $props = @{
 Set-AzWebApp -Name $webAPISvc `
     -ResourceGroupName $settings.resourceGroup `
     -AppSettings $props
-$iefConf.RestTenantCreate = "https://{0}/tenant" -f $api.DefaultHostName
-$iefConf.RestGetOrJoinTenant = "https://{0}/tenant/member" -f $api.DefaultHostName
-$iefConf.RestGetTenantForUser = "https://{0}/tenant/currmember" -f $api.DefaultHostName
-$iefConf.RestGetFirstTenant = "https://{0}/tenant/first" -f $api.DefaultHostName
+$iefConf | Add-Member -MemberType NoteProperty -Name 'RestTenantCreate' -Value ("https://{0}/tenant" -f $api.DefaultHostName)
+$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetOrJoinTenant' -Value ("https://{0}/tenant/member" -f $api.DefaultHostName)
+$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetTenantForUser' -Value ("https://{0}/tenant/currmember" -f $api.DefaultHostName)
+$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetFirstTenant' -Value ("https://{0}/tenant/first" -f $api.DefaultHostName)
 out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 ###
 ###  Add clientcertificatesenabled and which path to skip
@@ -294,10 +326,28 @@ if ([string]::IsNullOrEmpty($iefConf.AADCommonAppId)) {
 
     $aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.objectId -CustomKeyIdentifier "PS Generated"
     $appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
-    $iefConf.AADCommonAppId = $aadCommon.appId
-    $iefConf.AADCommonSecret = "B2C_1A_AADCommonSecret"
-    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+
     ### Upload secret to IEF
+    $keysetName = "B2C_1A_AADCommonSecret"
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName)
+    try {
+        Invoke-RestMethod -Uri $url -Method Delete -Headers $headers -ErrorAction Ignore
+    } catch {
+        $err = $_
+    }
+    $body = @{
+        id = $keysetName
+    }
+    $keyset = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadSecret" -f $keysetName)
+    $body = @{
+        use = "sig"
+        k = $aadCommonPwd.Value
+    }
+    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body
+    $iefConf | Add-Member -MemberType NoteProperty -Name 'AADCommonAppId' -Value ("https://{0}/tenant" -f $aadCommon.appId)
+    $iefConf | Add-Member -MemberType NoteProperty -Name 'AADCommonSecret' -Value ("https://{0}/tenant" -f $keysetName)
+    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 }
 
 ############################### Deploy code ############################################
