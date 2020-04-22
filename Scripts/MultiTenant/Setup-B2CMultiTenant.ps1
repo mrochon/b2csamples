@@ -17,13 +17,13 @@ if (Test-Path -Path $iefConfPath) {
 
 ################### Are the web app urls available?  #####################
 try {
-    invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webApp.name)
+    $page = invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webApp.name)
     "{0} already exists. Please try a different name" -f $settings.webApp.name
     return
 } catch {
 }
 try {
-    invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webAPI.name)
+    $page = invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webAPI.name)
     "{0} already exists. Please try a different name" -f $settings.webAPI.name
     return
 } catch {
@@ -240,23 +240,24 @@ if (Test-Path -Path $certPath) {
     Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
     $cert = New-SelfSignedCertificate `
         -KeyExportPolicy Exportable `
-        -Subject ("CN={0}" -f $settings.webApi.name) `
+        -Subject ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain) `
         -KeyAlgorithm RSA `
         -KeyLength 2048 `
         -KeyUsage DigitalSignature `
         -NotAfter (Get-Date).AddMonths(12) `
         -CertStoreLocation "Cert:\CurrentUser\My"
-    $certPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
+    $pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
     Export-Certificate -Cert $cert -FilePath $certPath
-    $certPath = (".\{0}.pfx" -f $settings.webAPI.name)
-    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $certPath -Password $certPwd
-    $pfx = Get-Content -Path $certPath | Out-String
+    $pfxPath = (".\{0}.pfx" -f $settings.webAPI.name)
+    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
+    $pfx = Get-Content -Path $pfxPath
     $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
 
     $keysetName = "B2C_1A_RESTClientCert"
     try {
         $key = Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName) -Method Delete -Headers $headers
-    } catch { // ok if does not exist
+    } catch { 
+        # ok if does not exist
     }
     $body = @{
         id = $keysetName
@@ -293,17 +294,24 @@ $props = @{
     WEBSITE_LOAD_CERTIFICATES = $cert.Thumbprint;
     WEBSITE_NODE_DEFAULT_VERSION = "6.9.1";
 }
-Set-AzWebApp -Name $webAPISvc `
-    -ResourceGroupName $settings.resourceGroup `
-    -AppSettings $props
+$api = Set-AzWebApp -Name $webAPISvc `
+        -ResourceGroupName $settings.resourceGroup `
+        -AppSettings $props
+$api.ClientCertEnabled = $true
+$api.ClientCertExclusionPaths = "/tenant/oauth2"
+$api = Set-AzWebApp -WebApp $api
+
+New-AzWebAppSSLBinding -WebAppName $webAPISvc `
+        -ResourceGroupName $settings.resourceGroup `
+        -Name 'IEFRest' `
+        -CertificateFilePath $certPath
+pwd
 $iefConf | Add-Member -MemberType NoteProperty -Name 'RestTenantCreate' -Value ("https://{0}/tenant" -f $api.DefaultHostName)
 $iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetOrJoinTenant' -Value ("https://{0}/tenant/member" -f $api.DefaultHostName)
 $iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetTenantForUser' -Value ("https://{0}/tenant/currmember" -f $api.DefaultHostName)
 $iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetFirstTenant' -Value ("https://{0}/tenant/first" -f $api.DefaultHostName)
 out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
-###
-###  Add clientcertificatesenabled and which path to skip
-###
+
 
 ########################## Create AADCommon for work accounts signin ##################
 Write-Host ("Registering AAD Common app to support signin with work address using AD multi-tenant support")
