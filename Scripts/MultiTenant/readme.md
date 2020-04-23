@@ -13,17 +13,28 @@ The source code used for this deployment resides in several github repositories 
 The PowerShell script provided in this repo performs most of the setup functions needed to deploy all the components of this application into your own B2C tenant.
 
 Some of the setup steps cannot be currently performed with a PowerShell script. These are listed separately.
+## Setup summary
 
-## Setup steps
+The provided PowerShell scripts will 
+
+## Detailed instructions
 
 ### B2C setup
 In order to deploy the [custom policies](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-overview) used by this sample, your B2C directory requires some [additional setup](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-get-started?tabs=applications). You can follow the above reference or use a [custom web app](https://b2ciefsetup.azurewebsites.net/) to execute these operations.
 
-### B2C application registrations
+### Download scripts
+### Prepare setup folder
 
-Currently, B2C does not support programmatic registration of OAuth2 apps. Please register the two applications as follows.
+Copy policies
+Edit appsettings.json
+Make sure you have an account that allows you login to B2C as admin and to an Azure subscription to create webapps
+Open Powershell, load script
+Change to directory with the policies
+Run script - ignore warning re AzureRM - not used
+Manually upload the pfx to B2C
+Be sure to grant admin consent to ...ignore error 'no reply url is registered'...
+Add MS Graph offline_access, ..., grant consent
 
-**Note:** use the B2C App Registration blade (not preview).
 
 1. REST API app (use same values as shown below and copy the Application ID to the appsettings.json webApi/appId value)
 ![App details](assets/apireg1.jpg)

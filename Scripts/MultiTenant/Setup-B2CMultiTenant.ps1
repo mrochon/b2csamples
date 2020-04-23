@@ -1,18 +1,34 @@
-﻿# once only: Install-Module -Name MSAL.PS, AzureAD-preview
+﻿# once only: 
+# Install-Module -Name MSAL.PS -RequiredVersion 2.5.0.1
+# AzureAD-preview
+# Install-Module -Name Az -AllowClobber
+# 
 
-$conf = ".\setupSettings.json"
-$settings = Get-Content -Path $conf -ErrorAction Stop | Out-String | ConvertFrom-Json
+$settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
 
 $iefConfPath = ".\conf.json"
 
-if (Test-Path -Path $iefConfPath) {
-    $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
-} else {
-    $iefConf = [PSCustomObject]@{
-        Prefix = "MT"
-        SUSI_UI = "https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html"
-        SignInOnly_UI = "https://b2cdatastore.blob.core.windows.net/uix/SignInOnly.html"
+$iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
+
+################### Functions ######################################
+function UploadIEFSymKey([string]$keysetName, [string]$value)
+{
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName)
+    try {
+        Invoke-RestMethod -Uri $url -Method Delete -Headers $headers -ErrorAction Ignore
+    } catch {
+        $err = $_
     }
+    $body = @{
+        id = $keysetName
+    }
+    $keyset = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/B2C_1A_{0}/uploadSecret" -f $keysetName)
+    $body = @{
+        use = "sig"
+        k = $value
+    }
+    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
 
 ################### Are the web app urls available?  #####################
@@ -58,17 +74,22 @@ $headers = @{
 $url = "https://graph.microsoft.com/beta/applications"
 $webAppReg = Invoke-RestMethod -Uri ("{0}?`$filter=displayName eq '{1}'" -f $url, $settings.webApp.name) -Method Get -Headers $headers 
 if ($webAppReg.value.Count -eq 0) {
+    $replyUrls = @(
+        ("{0}susi-firsttenant" -f $settings.policyPrefix),
+        ("{0}susi2" -f $settings.policyPrefix),
+        "redeem", 
+        ("{0}susint" -f $settings.policyPrefix))
     $body = @{
-        "displayName" = $settings.webApp.name;
-        "isFallbackPublicClient" = $false;
-        "web" = @{
-            "redirectUris" = foreach($p in @("mtsusi-firsttenant", "mtsusi2", "redeem", "mtsusint")){ "https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p };
-            "implicitGrantSettings" = @{
-              "enableAccessTokenIssuance" = $false;
-              "enableIdTokenIssuance" = $false
+        displayName = $settings.webApp.name;
+        isFallbackPublicClient = $false;
+        web = @{
+            redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p) };
+            implicitGrantSettings = @{
+                enableAccessTokenIssuance = $false;
+                enableIdTokenIssuance = $false
             }
         };
-        "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
+        identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
     }
     $webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 }
@@ -110,7 +131,7 @@ if ($webAPIReg.value.Count -eq 0) {
 
 ################## Register ServicePrincipals SP #########################
 $url = "https://graph.microsoft.com/beta/serviceprincipals"
-$webAPISP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
+$webAPISP = Invoke-RestMethod -Uri ("{0}?$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
 if ($webAPISP.value.Count -eq 0) {
     $body = @{
       "appId" = $webAPIReg.appId;
@@ -118,7 +139,7 @@ if ($webAPISP.value.Count -eq 0) {
     }
     $webAPISP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
-$webAppSP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
+$webAppSP = Invoke-RestMethod -Uri ("{0}?$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
 if ($webAppSP.value.Count -eq 0) {
     $body = @{
       "appId" = $webAppReg.appId;
@@ -153,26 +174,17 @@ if ($webAppSP.value.Count -eq 0) {
 $body = @{
     "passwordCredentials" = @(
     @{
-      "customKeyIdentifier" = "ScriptRequest";
-      "endDateTime" = "2299-12-31T00:00:00";
+        displayName = "PS Generated"
+        customKeyIdentifier = "ScriptRequest";
+        endDateTime = "2299-12-31T00:00:00";
     })
 }
 $url = "https://graph.microsoft.com/beta/applications/{0}/addPassword" -f $webAppReg.id
 $webAppCreds = Invoke-RestMethod -Uri $url  -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 
-################### Create signing key for invitations #################
-Add-Type -AssemblyName System.Security
-[Reflection.Assembly]::LoadWithPartialName("System.Security")
-$rijndael = new-Object System.Security.Cryptography.RijndaelManaged
-$rijndael.GenerateKey()
-$secret = ([Convert]::ToBase64String($rijndael.Key))
-$rijndael.Dispose()
-$body = @{
-    
-}
+############### DONE updating B2C ########################################
 
 ##########################################################################
-
 $svcPlan = $settings.webApp.name
 #$webAppSvc = "{0}$(Get-Random)" -f ($settings.webApp.name)
 #$webAPISvc = "{0}$(Get-Random)" -f ($settings.webAPI.name)
@@ -210,26 +222,32 @@ $app = New-AzWebApp -Name $webAppSvc `
     -location $settings.location `
     -AppServicePlan $svcPlan `
     -ResourceGroupName $settings.resourceGroup
+Add-Type -AssemblyName System.Security
+[Reflection.Assembly]::LoadWithPartialName("System.Security")
+$rijndael = new-Object System.Security.Cryptography.RijndaelManaged
+$rijndael.GenerateKey()
+$invitationSecret = ([Convert]::ToBase64String($rijndael.Key))
+$rijndael.Dispose()
 $props = @{
     "AzureAD:TenantId" = $b2c.TenantId.ToString();
     "AzureAD:ClientId" = $webAppReg.appId.ToString();
     "AzureAD:ClientSecret" = $webAppCreds.secretText;
     "AzureAD:Domain" = $b2c.TenantDomain;
+    "Invitation:Domain" = $b2c.TenantDomain;
+    "Invitation:ClientId" = $webAppReg.appId.ToString();
+    "Invitation:InvitationPolicy" = ("B2C_1A_{0}Invitation" -f $settings.policyPrefix);
+    "Invitation:Issuer" = "b2cmultitenant";
+    "Invitation:Audience" = "b2cmultitenant";
+    "Invitation:ValidityHours" = "72";
+    "Invitation:RedirectPath" = "members/redeem";
+    "Invitation:SigningKey" = $invitationSecret;   
     RestUrl = "https://{0}.azurewebsites.net" -f $webAPISvc;
     AllowedHosts = "*";
 }
 Set-AzWebApp -Name $webAppSvc `
     -ResourceGroupName $settings.resourceGroup `
     -AppSettings $props
-
-        #"Invitation:Domain" = $b2c.TenantDomain;
-    #"Invitation:ClientId" = $webAppReg.appId.ToString();
-    #"Invitation:InvitationPolicy" = "B2C_1A_MTInvitation";
-    #"Invitation:Issuer" = "b2cmultitenant";
-    #"Invitation:Audience" = "b2cmultitenant";
-    #"Invitation:ValidityHours" = "72";
-    #"Invitation:RedirectPath" = "members/redeem";
-    #"Invitation:SigningKey" = $settings.InvitationKey;
+UploadIEFSymKey -keysetName "InvitationTokenSigningKey" -value $invitationSecret
 
 ####################### Create X509 cert for authn to REST #######################################
 $certPath = ".\{0}.cer" -f $settings.webAPI.name
@@ -238,9 +256,10 @@ if (Test-Path -Path $certPath) {
     $cer.Import($certPath)
 } else {
     Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
+    $certSubject = ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain)
     $cert = New-SelfSignedCertificate `
         -KeyExportPolicy Exportable `
-        -Subject ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain) `
+        -Subject ($certSubject) `
         -KeyAlgorithm RSA `
         -KeyLength 2048 `
         -KeyUsage DigitalSignature `
@@ -254,7 +273,8 @@ if (Test-Path -Path $certPath) {
     $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
 
     $keysetName = "B2C_1A_RESTClientCert"
-    try {
+    #---- Uploading cert seems not work - will need to do it manually
+    <#try {
         $key = Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName) -Method Delete -Headers $headers
     } catch { 
         # ok if does not exist
@@ -268,7 +288,7 @@ if (Test-Path -Path $certPath) {
         key = $pkcs12
         password = $settings.X509KeyPassword
     }
-    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body) #>
 }
 
 ##########################  Create Azure Web Apps services for REST API app ##############################
@@ -280,12 +300,12 @@ $api = New-AzWebApp -Name $webAPISvc `
 
 $props = @{
     "AuthCert:thumbprint" = $cert.Thumbprint;
-    "AuthCert:issuer" = $cert.Issuer;
-    "AuthCert:subject" = $cert.Subject;
+    "AuthCert:issuer" = $certSubject;
+    "AuthCert:subject" = $certSubject;
     "B2C:Instance" = "https://{0}" -f $b2c.TenantDomain;
     "B2C:TenantId" = $b2c.TenantId.ToString();
     "B2C:ClientId" = $webAPIReg.appId.ToString();
-    "B2C:Policy" = "b2c_1a_mtsusi2";
+    "B2C:Policy" = ("b2c_1a_{0}susi2" -f $settings.policyPrefix);
     "ClientCreds:Instance" = "https://login.microsoftonline.com/";
     "ClientCreds:TenantId" = $b2c.TenantId.ToString();
     "ClientCreds:ClientId" = $ccredsApp.appId;
@@ -301,15 +321,16 @@ $api.ClientCertEnabled = $true
 $api.ClientCertExclusionPaths = "/tenant/oauth2"
 $api = Set-AzWebApp -WebApp $api
 
-New-AzWebAppSSLBinding -WebAppName $webAPISvc `
-        -ResourceGroupName $settings.resourceGroup `
-        -Name 'IEFRest' `
-        -CertificateFilePath $certPath
-pwd
-$iefConf | Add-Member -MemberType NoteProperty -Name 'RestTenantCreate' -Value ("https://{0}/tenant" -f $api.DefaultHostName)
-$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetOrJoinTenant' -Value ("https://{0}/tenant/member" -f $api.DefaultHostName)
-$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetTenantForUser' -Value ("https://{0}/tenant/currmember" -f $api.DefaultHostName)
-$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetFirstTenant' -Value ("https://{0}/tenant/first" -f $api.DefaultHostName)
+#New-AzWebAppSSLBinding -WebAppName $webAPISvc `
+#        -ResourceGroupName $settings.resourceGroup `
+#        -Name 'IEFRest' `
+#        -CertificateFilePath $certPath
+
+$iefConf.RestTenantCreate = ("https://{0}/tenant" -f $api.DefaultHostName)
+$iefConf.RestGetOrJoinTenant = ("https://{0}/tenant/member" -f $api.DefaultHostName)
+$iefConf.RestGetTenantForUser = ("https://{0}/tenant/currmember" -f $api.DefaultHostName)
+$iefConf.RestGetFirstTenant = ("https://{0}/tenant/first" -f $api.DefaultHostName)
+#$iefConf | Add-Member -MemberType NoteProperty -Name 'RestGetFirstTenant' -Value ("https://{0}/tenant/first" -f $api.DefaultHostName)
 out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
 
@@ -335,26 +356,9 @@ if ([string]::IsNullOrEmpty($iefConf.AADCommonAppId)) {
     $aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.objectId -CustomKeyIdentifier "PS Generated"
     $appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
 
-    ### Upload secret to IEF
-    $keysetName = "B2C_1A_AADCommonSecret"
-    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName)
-    try {
-        Invoke-RestMethod -Uri $url -Method Delete -Headers $headers -ErrorAction Ignore
-    } catch {
-        $err = $_
-    }
-    $body = @{
-        id = $keysetName
-    }
-    $keyset = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadSecret" -f $keysetName)
-    $body = @{
-        use = "sig"
-        k = $aadCommonPwd.Value
-    }
-    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body
-    $iefConf | Add-Member -MemberType NoteProperty -Name 'AADCommonAppId' -Value ("https://{0}/tenant" -f $aadCommon.appId)
-    $iefConf | Add-Member -MemberType NoteProperty -Name 'AADCommonSecret' -Value ("https://{0}/tenant" -f $keysetName)
+    UploadIEFSymKey -keysetName "B2C_1A_AADCommonSecret" -value $aadCommonPwd.Value
+    $iefConf.AADCommonAppId = ("https://{0}/tenant" -f $aadCommon.appId)
+    $iefConf.AADCommonSecret = $keysetName
     out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 }
 
@@ -386,4 +390,6 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAPISvc) `
     -ApiVersion 2015-08-01 -Force
 
-"Please use the Azure portal grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
+"Please use the Azure portal or the following url to grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
+"https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId
+
