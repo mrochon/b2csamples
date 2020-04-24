@@ -85,8 +85,8 @@ if ($webAppReg.value.Count -eq 0) {
         web = @{
             redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p) };
             implicitGrantSettings = @{
-                enableAccessTokenIssuance = $false;
-                enableIdTokenIssuance = $false
+                enableAccessTokenIssuance = $true;
+                enableIdTokenIssuance = $true
             }
         };
         identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
@@ -102,7 +102,7 @@ if ($webAPIReg.value.Count -eq 0) {
             "redirectUris" =  @(("https://{0}.com" -f $settings.webAPI.name))
             "implicitGrantSettings" = @{
               "enableAccessTokenIssuance" = $false;
-              "enableIdTokenIssuance" = $false
+              "enableIdTokenIssuance" = $true
             }
         };
         "identifierUris" = @(("https://{0}/b2crestapi" -f $settings.b2cTenant))
@@ -131,7 +131,7 @@ if ($webAPIReg.value.Count -eq 0) {
 
 ################## Register ServicePrincipals SP #########################
 $url = "https://graph.microsoft.com/beta/serviceprincipals"
-$webAPISP = Invoke-RestMethod -Uri ("{0}?$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
+$webAPISP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
 if ($webAPISP.value.Count -eq 0) {
     $body = @{
       "appId" = $webAPIReg.appId;
@@ -139,7 +139,7 @@ if ($webAPISP.value.Count -eq 0) {
     }
     $webAPISP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
-$webAppSP = Invoke-RestMethod -Uri ("{0}?$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
+$webAppSP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
 if ($webAppSP.value.Count -eq 0) {
     $body = @{
       "appId" = $webAppReg.appId;
@@ -242,6 +242,7 @@ $props = @{
     "Invitation:RedirectPath" = "members/redeem";
     "Invitation:SigningKey" = $invitationSecret;   
     RestUrl = "https://{0}.azurewebsites.net" -f $webAPISvc;
+    RestApp = $settings.webAPI.name;
     AllowedHosts = "*";
 }
 Set-AzWebApp -Name $webAppSvc `
@@ -250,7 +251,7 @@ Set-AzWebApp -Name $webAppSvc `
 UploadIEFSymKey -keysetName "InvitationTokenSigningKey" -value $invitationSecret
 
 ####################### Create X509 cert for authn to REST #######################################
-$certPath = ".\{0}.cer" -f $settings.webAPI.name
+$certPath = ".\RESTClientCert.cer" -f $settings.webAPI.name
 if (Test-Path -Path $certPath) {
     $cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
     $cer.Import($certPath)
@@ -267,7 +268,7 @@ if (Test-Path -Path $certPath) {
         -CertStoreLocation "Cert:\CurrentUser\My"
     $pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
     Export-Certificate -Cert $cert -FilePath $certPath
-    $pfxPath = (".\{0}.pfx" -f $settings.webAPI.name)
+    $pfxPath = (".\RESTClientCert.pfx" -f $settings.webAPI.name)
     Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
     $pfx = Get-Content -Path $pfxPath
     $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
@@ -336,7 +337,8 @@ out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
 ########################## Create AADCommon for work accounts signin ##################
 Write-Host ("Registering AAD Common app to support signin with work address using AD multi-tenant support")
-if ([string]::IsNullOrEmpty($iefConf.AADCommonAppId)) {
+$aadCommon = Get-AzureADApplication -filter "displayName eq 'AADCommon'"
+if ($aadCommon.Count -eq 0) {
     $access = New-Object -TypeName Microsoft.Open.AzureAD.Model.RequiredResourceAccess
     $access.ResourceAppId = "00000003-0000-0000-c000-000000000000"
     $openId = New-Object -TypeName Microsoft.Open.AzureAD.Model.ResourceAccess
@@ -352,15 +354,18 @@ if ([string]::IsNullOrEmpty($iefConf.AADCommonAppId)) {
         -Oauth2AllowImplicitFlow $false `
         -AvailableToOtherTenants $true `
         -ReplyUrls @( ("https://{0}.b2clogin.com/{1}/oauth2/authresp" -f $b2c.TenantDomain.Split('.')[0], $b2c.TenantDomain))
-
-    $aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.objectId -CustomKeyIdentifier "PS Generated"
-    $appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
-
-    UploadIEFSymKey -keysetName "B2C_1A_AADCommonSecret" -value $aadCommonPwd.Value
-    $iefConf.AADCommonAppId = ("https://{0}/tenant" -f $aadCommon.appId)
-    $iefConf.AADCommonSecret = $keysetName
-    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+} else {
+    # in case there is more than one
+    $aadCommon = $aadCommon[0]
 }
+$aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.objectId -CustomKeyIdentifier "PS Generated"
+$appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
+
+UploadIEFSymKey -keysetName "AADCommonSecret" -value $aadCommonPwd.Value
+$iefConf.AADCommonAppId = ("https://{0}/tenant" -f $aadCommon.appId)
+$iefConf.AADCommonSecret = "B2C_1A_AADCommonSecret"
+out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+
 
 ############################### Deploy code ############################################
 $props = @{
@@ -368,6 +373,7 @@ $props = @{
 }
 Set-AzResource -PropertyObject $props `
 -ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
+# Do not update too soon
 Start-sleep -s 30
 
 # Configure GitHub deployment from your GitHub repo and deploy once.
@@ -390,6 +396,11 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAPISvc) `
     -ApiVersion 2015-08-01 -Force
 
+"Upload RESTClientCert.pfx from the current folder to your B2C policy keys store as RESTClientCert key"
 "Please use the Azure portal or the following url to grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
 "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId
-
+"Upload the RestClientCert.pfx to B2C policy keys store"
+"Use the App Registration (Preview) B2C blade to modify the demo app registration to include Microsoft Graph openid and offline_access permissions"
+$InternetExplorer=new-object -com internetexplorer.application
+$InternetExplorer.navigate2(("https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId))
+$InternetExplorer.visible=$true

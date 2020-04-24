@@ -321,7 +321,7 @@
           <Metadata>
             <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
             <!-- Update the Client ID below to the Application ID -->
-            <Item Key="client_id">{AAD-Client-App}</Item>
+            <Item Key="client_id">{AADCommonAppId}</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
             <Item Key="response_mode">form_post</Item>
@@ -334,7 +334,7 @@
             <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="{AADSecret}"/>
+            <Key Id="client_secret" StorageReferenceId="{AADCommonSecret}"/>
           </CryptographicKeys>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid"/>

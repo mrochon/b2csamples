@@ -1,6 +1,6 @@
 ﻿# Remove MT
 
-$settings = Get-Content -Path $conf -ErrorAction Stop | Out-String | ConvertFrom-Json
+$settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
 
 ################### Functions ######################################
 function RemoveIEFSymKey([string]$keysetName)
@@ -9,7 +9,9 @@ function RemoveIEFSymKey([string]$keysetName)
     try {
         Invoke-RestMethod -Uri $url -Method Delete -Headers $headers -ErrorAction Ignore
     } catch {
-        $err = $_
+        ("Deletion of keyset {0} failed" -f $keysetName)
+        $_
+        return
     }
     ("Keyset {0} deleted" -f $keysetName)
 }
@@ -20,16 +22,24 @@ function RemoveAADApp([string] $appName)
     if ($app -ne $null) {
         Remove-AzureADApplication -ObjectId $app.objectId
         ("App {0} deleted" -f $appName)
+    } else {
+        ("App {0} not found" -f $appName)
     }
 }
 
 ################### Login to AAD and Az ##################################
-Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
+Write-Host (("Login to Azure with an account with sufficient privilege to delete the {0} resource group" -f $settings.resourceGroup))
 Connect-AzAccount -ErrorAction Stop
-Write-Host ("Login to your B2C directory with an account with sufficient privileges to register applications")
+Write-Host ("Login to your B2C directory with an account with sufficient privileges to delete applications & policy keys")
 Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
 $b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
 $azure = Get-AzContext -ErrorAction stop
+###############################Get Graph REST token ##############################################
+$token = Get-MsalToken -clientId $settings.script.clientId -redirectUri $settings.script.redirectUri -Tenant $settings.b2cTenant -Scopes $settings.script.scopes
+$headers = @{
+   'Content-Type' = 'application/json';
+   'Authorization' = ("Bearer {0}" -f $token.AccessToken);
+}
 #########################################################################
 
 RemoveAADApp -appName $settings.webApp.name
@@ -43,4 +53,5 @@ RemoveIEFSymKey -keysetName "B2C_1A_RESTClientCert"
 
 Remove-AzResourceGroup($settings.resourceGroup)
 
-Remove-Item ('.\{0}.*' -f $settings.webApp.name)
+Remove-Item '.\RESTClientCert.cer'
+Remove-Item '.\RESTClientCert.pfx'
