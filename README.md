@@ -14,6 +14,9 @@ A [sample application](https://b2cmultitenant.azurewebsites.net) illustrating su
 
 
 ### Source
+
+**Note: both the sample app and the REST functions app source code contained in this repo is the one currently deployed. Source code referenced below is used by the new setup script and not fully debugged.**
+
 [IEF policies](https://github.com/mrochon/b2c-mt-rest) implementing several user journeys:
 - Signin/up AND create a new application tenant
 - Signin/up in AND redeem invitation to become a member of an existing tenant
