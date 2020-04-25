@@ -99,10 +99,10 @@ if ($webAPIReg.value.Count -eq 0) {
         "displayName" = $settings.webAPI.name;
         "isFallbackPublicClient" = $false;
         "web" = @{
-            "redirectUris" =  @(("https://{0}.com" -f $settings.webAPI.name))
+            "redirectUris" =  @(("https://{0}.azurewebsites.net" -f $settings.webAPI.name))
             "implicitGrantSettings" = @{
               "enableAccessTokenIssuance" = $false;
-              "enableIdTokenIssuance" = $true
+              "enableIdTokenIssuance" = $false
             }
         };
         "identifierUris" = @(("https://{0}/b2crestapi" -f $settings.b2cTenant))
@@ -311,6 +311,7 @@ $props = @{
     "ClientCreds:TenantId" = $b2c.TenantId.ToString();
     "ClientCreds:ClientId" = $ccredsApp.appId;
     "ClientCreds:ClientSecret" = $ccredPwd.Value;
+    "ClientCreds:RedirectUri" = ("https://{0}.azurewebsites.com" -f $settings.webAPI.name)
     AllowedHosts = "*";
     WEBSITE_LOAD_CERTIFICATES = $cert.Thumbprint;
     WEBSITE_NODE_DEFAULT_VERSION = "6.9.1";
