@@ -400,7 +400,6 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
 "Upload RESTClientCert.pfx from the current folder to your B2C policy keys store as RESTClientCert key"
 "Please use the Azure portal or the following url to grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
 "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId
-"Upload the RestClientCert.pfx to B2C policy keys store"
 "Use the App Registration (Preview) B2C blade to modify the demo app registration to include Microsoft Graph openid and offline_access permissions"
 $InternetExplorer=new-object -com internetexplorer.application
 $InternetExplorer.navigate2(("https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId))

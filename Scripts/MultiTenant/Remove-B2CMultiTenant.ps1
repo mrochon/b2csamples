@@ -45,7 +45,7 @@ $headers = @{
 RemoveAADApp -appName $settings.webApp.name
 RemoveAADApp -appName $settings.webAPI.name
 RemoveAADApp -appName ("{0}-clientcreds" -f $settings.webAPI.name)
-RemoveAADApp -appName "AADCommon"
+RemoveAADApp -appName $settings.AADCommonAppName
 
 RemoveIEFSymKey -keysetName "B2C_1A_InvitationTokenSigningKey"
 RemoveIEFSymKey -keysetName "B2C_1A_AADCommonSecret"
