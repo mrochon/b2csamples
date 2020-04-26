@@ -105,7 +105,7 @@ if ($webAPIReg.value.Count -eq 0) {
               "enableIdTokenIssuance" = $false
             }
         };
-        "identifierUris" = @(("https://{0}/b2crestapi" -f $settings.b2cTenant))
+        "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webAPI.name))
     }
     $webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
     #################### Add scopes #########################
@@ -369,11 +369,12 @@ out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
 
 ############################### Deploy code ############################################
-$props = @{
-    token = $settings.webApp.gitToken;
-}
-Set-AzResource -PropertyObject $props `
--ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
+#$props = @{
+#    token = $settings.webApp.gitToken;
+#}
+#Set-AzResource -PropertyObject $props `
+#-ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
+
 # Do not update too soon
 Start-sleep -s 30
 
@@ -382,7 +383,7 @@ Start-sleep -s 30
 $props = @{
     repoUrl = $settings.webApp.gitRepo;
     branch = "master";
-    build = "kudu";
+    isManualIntegration = "true";
 }
 Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup `
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAppSvc) `
@@ -391,7 +392,8 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
 $props = @{
     repoUrl = $settings.webAPI.gitRepo;
     branch = "master";
-    build = "kudu";
+    isManualIntegration = "true";
+    #build = "kudu";
 }
 Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup `
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAPISvc) `
