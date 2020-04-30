@@ -72,103 +72,100 @@ $headers = @{
 
 ############### Register apps in B2C ###########################
 $url = "https://graph.microsoft.com/beta/applications"
-$webAppReg = Invoke-RestMethod -Uri ("{0}?`$filter=displayName eq '{1}'" -f $url, $settings.webApp.name) -Method Get -Headers $headers 
-if ($webAppReg.value.Count -eq 0) {
-    $replyUrls = @(
-        ("{0}susi-firsttenant" -f $settings.policyPrefix),
-        ("{0}susi2" -f $settings.policyPrefix),
-        "redeem", 
-        ("{0}susint" -f $settings.policyPrefix))
-    $body = @{
-        displayName = $settings.webApp.name;
-        isFallbackPublicClient = $false;
-        web = @{
-            redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p) };
-            implicitGrantSettings = @{
-                enableAccessTokenIssuance = $true;
-                enableIdTokenIssuance = $true
-            }
-        };
-        identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
-    }
-    $webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
-}
-$webAPIReg = Invoke-RestMethod -Uri ("{0}?`$filter=displayName eq '{1}'" -f $url, $settings.webAPI.name) -Method Get -Headers $headers 
-if ($webAPIReg.value.Count -eq 0) {
-    $body = @{
-        "displayName" = $settings.webAPI.name;
-        "isFallbackPublicClient" = $false;
-        "web" = @{
-            "redirectUris" =  @(("https://{0}.azurewebsites.net" -f $settings.webAPI.name))
-            "implicitGrantSettings" = @{
-              "enableAccessTokenIssuance" = $false;
-              "enableIdTokenIssuance" = $false
-            }
-        };
-        "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webAPI.name))
-    }
-    $webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
-    #################### Add scopes #########################
-    $body = @{
-        "api" = @{
-            "requestedAccessTokenVersion" = 2;
-            "oauth2PermissionScopes" = @(
-                @{
-                    "adminConsentDescription" = "Allow reading all members";
-                    "adminConsentDisplayName" = "Read members";
-                    "id" = (New-Guid);
-                    "isEnabled" = $true;
-                    "type" = "User";
-                    "userConsentDescription" = "Allow reading all members";
-                    "userConsentDisplayName" = "Read members";
-                    "value" = "Members.ReadAll"
-                });
+$replyUrls = @(
+    ("{0}susi-firsttenant" -f $settings.policyPrefix),
+    ("{0}susi2" -f $settings.policyPrefix),
+    "redeem", 
+    ("{0}susint" -f $settings.policyPrefix))
+$body = @{
+    displayName = $settings.webApp.name;
+    isFallbackPublicClient = $false;
+    web = @{
+        redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p) };
+        implicitGrantSettings = @{
+            enableAccessTokenIssuance = $true;
+            enableIdTokenIssuance = $true
         }
-    }
-    $url = "https://graph.microsoft.com/beta/applications/{0}" -f $webAPIReg.id
-    $settings.script.scopes = Invoke-RestMethod -Uri $url  -Method Patch -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+    };
+    identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
 }
+$webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+$body = @{
+    "displayName" = $settings.webAPI.name;
+    "isFallbackPublicClient" = $false;
+    "web" = @{
+        "redirectUris" =  @(("https://{0}.azurewebsites.net" -f $settings.webAPI.name))
+        "implicitGrantSettings" = @{
+            "enableAccessTokenIssuance" = $false;
+            "enableIdTokenIssuance" = $false
+        }
+    };
+    "identifierUris" = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webAPI.name))
+}
+$webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+#################### Add scopes #########################
+$body = @{
+    "api" = @{
+        "requestedAccessTokenVersion" = 2;
+        "oauth2PermissionScopes" = @(
+            @{
+                "adminConsentDescription" = "Allow reading all members";
+                "adminConsentDisplayName" = "Read members";
+                "id" = (New-Guid);
+                "isEnabled" = $true;
+                "type" = "User";
+                "userConsentDescription" = "Allow reading all members";
+                "userConsentDisplayName" = "Read members";
+                "value" = "Members.ReadAll"
+            });
+    }
+}
+$url = "https://graph.microsoft.com/beta/applications/{0}" -f $webAPIReg.id
+Invoke-RestMethod -Uri $url  -Method Patch -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 
 ################## Register ServicePrincipals SP #########################
 $url = "https://graph.microsoft.com/beta/serviceprincipals"
-$webAPISP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAPIReg.appId) -Method Get -Headers $headers 
-if ($webAPISP.value.Count -eq 0) {
-    $body = @{
-      "appId" = $webAPIReg.appId;
-      "displayName" = $webAPIReg.displayName
-    }
-    $webAPISP = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/serviceprincipals"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+$body = @{
+    "appId" = $webAPIReg.appId;
+    "displayName" = $webAPIReg.displayName
 }
-$webAppSP = Invoke-RestMethod -Uri ("{0}?`$filter=appId eq '{1}'" -f $url, $webAppReg.appId) -Method Get -Headers $headers 
-if ($webAppSP.value.Count -eq 0) {
-    $body = @{
-      "appId" = $webAppReg.appId;
-      "displayName" = $webAppReg.displayName
-    }
-    $webAppSP = Invoke-RestMethod -Uri $url  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-    $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=publisherName eq 'Microsoft Graph' or (displayName eq 'Microsoft Graph' or startswith(displayName,'Microsoft Graph'))"
-    $graphSP = Invoke-RestMethod -Uri $url -Method Get -Headers $headers
-    $today = Get-Date
-    $body = @{
-      "clientId" = $webAppSP.id;
-      "consentType" = "AllPrincipals";
-      "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
-      "principalId" = $null;
-      "resourceId" = ($graphSP.value[0].id)
-      "scope" = "openid offline_access"
-    }
-    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-    ##################### Grant permission for web app to call the API #########################
-    $body = @{
-      "clientId" = $webAppSP.id;
-      "consentType" = "AllPrincipals";
-      "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
-      "principalId" = $null;
-      "resourceId" = $webAPISP.id
-      "scope" = "Members.ReadAll"
-    }
-    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+$webAPISP = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+$body = @{
+    "appId" = $webAppReg.appId;
+    "displayName" = $webAppReg.displayName
 }
+$webAppSP = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+# The following call was returning all grants. Therefore using PS instead
+# $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=publisherName eq 'Microsoft Graph' and (displayName eq 'Microsoft Graph' or startswith(displayName,'Microsoft Graph'))"
+# $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=displayName eq 'Microsoft Graph'"
+# $graphSP = Invoke-RestMethod -Uri $url -Method Get -Headers $headers
+$sps = Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/servicePrincipals" -Method Get -Headers $headers
+foreach($sp in $sps.value){ 
+    if ($sp.appDisplayName -eq 'Microsoft Graph') {
+        $graphSP = $sp
+        break
+    }
+}
+$today = Get-Date
+$body = @{
+    "clientId" = $webAppSP.id;
+    "consentType" = "AllPrincipals";
+    "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
+    "principalId" = $null;
+    "resourceId" = $graphSP.id
+    "scope" = "openid offline_access"
+}
+Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+##################### Grant permission for web app to call the API #########################
+$body = @{
+    "clientId" = $webAppSP.id;
+    "consentType" = "AllPrincipals";
+    "expiryTime" = (Get-Date -Year ($today.Year + 3) -Format o);
+    "principalId" = $null;
+    "resourceId" = $webAPISP.id
+    "scope" = "Members.ReadAll"
+}
+Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 
 ################### Add secret key to web app ###################################
 $body = @{
@@ -303,7 +300,7 @@ $props = @{
     "AuthCert:thumbprint" = $cert.Thumbprint;
     "AuthCert:issuer" = $certSubject;
     "AuthCert:subject" = $certSubject;
-    "B2C:Instance" = "https://{0}" -f $b2c.TenantDomain;
+    "B2C:TenantName" = $b2c.TenantDomain.Split('.')[0];
     "B2C:TenantId" = $b2c.TenantId.ToString();
     "B2C:ClientId" = $webAPIReg.appId.ToString();
     "B2C:Policy" = ("b2c_1a_{0}susi2" -f $settings.policyPrefix);
@@ -400,9 +397,10 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
     -ApiVersion 2015-08-01 -Force
 
 "Upload RESTClientCert.pfx from the current folder to your B2C policy keys store as RESTClientCert key"
+# "Use the App Registration (Preview) B2C blade to modify the demo app registration to include Microsoft Graph openid and offline_access permissions"
 "Please use the Azure portal or the following url to grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
 "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId
-"Use the App Registration (Preview) B2C blade to modify the demo app registration to include Microsoft Graph openid and offline_access permissions"
+
 $InternetExplorer=new-object -com internetexplorer.application
 $InternetExplorer.navigate2(("https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId))
 $InternetExplorer.visible=$true

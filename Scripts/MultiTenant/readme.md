@@ -62,7 +62,6 @@ In order to deploy the [custom policies](https://docs.microsoft.com/en-us/azure/
 
 #### Complete Setup
 - Upload the RestClientCert.pfx to B2C's policy key store. It's name **must** be RESTClientCert (B2C will add a prefix to that).
-- Use the App Registration (Preview) blade to find your new demo app (see webApp.name above). Modify its API permissions to include Microsoft Graph openid and offline_access permissions. Grant admin consent for its use. 
 
 #### Upload custom policies
 

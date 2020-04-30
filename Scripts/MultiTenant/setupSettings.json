@@ -11,13 +11,11 @@
     "appServicePlan": "B1",
     "webApp": {
         "name": "b2cmtapp",
-        "gitRepo": "https://github.com/mrochon/b2c-mt-webapp/",
-        "gitToken": "ac9a546d39ce4fb492295cd404c319ce03319c07"        
+        "gitRepo": "https://github.com/mrochon/b2c-mt-webapp/"
     },
     "webAPI": {
         "name": "b2cmtapi",
-        "gitRepo": "https://github.com/mrochon/b2c-mt-rest/",
-        "gitToken": "ac9a546d39ce4fb492295cd404c319ce03319c07"  
+        "gitRepo": "https://github.com/mrochon/b2c-mt-rest/"
     },
     "X509KeyPassword": "password",
 	"AADCommonAppName": "AADCommon"
