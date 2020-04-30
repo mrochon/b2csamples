@@ -1,0 +1,1 @@
+This project has been moved to [a separate repo](https://github.com/mrochon/b2c-mt-webapp) to enable use of [scripts](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant) for deploying it to any Azure subscription.
