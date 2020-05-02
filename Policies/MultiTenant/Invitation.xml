@@ -19,7 +19,7 @@
       </CryptographicKeys>
       <InputClaims>
         <InputClaim ClaimTypeReferenceId="invitedEmail" PartnerClaimType="email" Required="true" />
-        <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenant" Required="true" />
+        <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="appTenantId" Required="true" />
       </InputClaims>
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />
