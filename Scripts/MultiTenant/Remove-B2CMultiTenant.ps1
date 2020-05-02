@@ -20,7 +20,15 @@ function RemoveAADApp([string] $appName)
     $app = Get-AzureADApplication -filter ("displayName eq '{0}'" -f $appName)
     # $app could be a list of apps!!!
     if ($app -ne $null) {
-        Remove-AzureADApplication -ObjectId $app.objectId
+        try {
+            Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/applications/{0}" -f $app.objectId) `
+                -Method Delete -Headers $headers -ErrorAction Ignore
+            #Remove-AzureADApplication -ObjectId $app.objectId
+        } catch {
+            ("App {0} failed to delete" -f $appName)
+            _$
+            return
+        }
         ("App {0} deleted" -f $appName)
     } else {
         ("App {0} not found" -f $appName)
