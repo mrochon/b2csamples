@@ -4,7 +4,7 @@
     "SUSI_UI":"https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html",
     "SignInOnly_UI":"https://b2cdatastore.blob.core.windows.net/uix/SignInOnly.html",    
     "RestTenantCreate": "https://b2crestapis.azurewebsites.net/tenant",
-    "RestGetOrJoinTenant": "https://b2crestapis.azurewebsites.net/tenant/member",
+    "RestJoinTenant": "https://b2crestapis.azurewebsites.net/tenant/member",
     "RestGetTenantForUser": "https://b2crestapis.azurewebsites.net/tenant/currmember",
     "RestGetFirstTenant": "https://b2crestapis.azurewebsites.net/tenant/first",
     "GoogleClientId": "696994352313-1v1ntp02mhbe2eh558v9v6bmd3p269up.apps.googleusercontent.com",

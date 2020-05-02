@@ -5,9 +5,7 @@
 # 
 
 $settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
-
 $iefConfPath = ".\conf.json"
-
 $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
 
 ################### Functions ######################################
@@ -26,7 +24,7 @@ function UploadIEFSymKey([string]$keysetName, [string]$value)
     $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/B2C_1A_{0}/uploadSecret" -f $keysetName)
     $body = @{
         use = "sig"
-        k = $value
+        kty = "OCT"
     }
     $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
@@ -75,7 +73,7 @@ $url = "https://graph.microsoft.com/beta/applications"
 $replyUrls = @(
     ("{0}susi-firsttenant" -f $settings.policyPrefix),
     ("{0}susi2" -f $settings.policyPrefix),
-    "redeem", 
+    "members/redeem", 
     ("{0}susint" -f $settings.policyPrefix))
 $body = @{
     displayName = $settings.webApp.name;
@@ -86,6 +84,7 @@ $body = @{
             enableAccessTokenIssuance = $true;
             enableIdTokenIssuance = $true
         }
+        logoutUrl = "https://{0}.azurewebsites.net/home/signout" -f $settings.webApp.name
     };
     identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
 }
@@ -219,33 +218,20 @@ $app = New-AzWebApp -Name $webAppSvc `
     -location $settings.location `
     -AppServicePlan $svcPlan `
     -ResourceGroupName $settings.resourceGroup
-Add-Type -AssemblyName System.Security
-[Reflection.Assembly]::LoadWithPartialName("System.Security")
-$rijndael = new-Object System.Security.Cryptography.RijndaelManaged
-$rijndael.GenerateKey()
-$invitationSecret = ([Convert]::ToBase64String($rijndael.Key))
-$rijndael.Dispose()
+
 $props = @{
     "AzureAD:TenantId" = $b2c.TenantId.ToString();
     "AzureAD:ClientId" = $webAppReg.appId.ToString();
     "AzureAD:ClientSecret" = $webAppCreds.secretText;
     "AzureAD:Domain" = $b2c.TenantDomain;
-    "Invitation:Domain" = $b2c.TenantDomain;
-    "Invitation:ClientId" = $webAppReg.appId.ToString();
-    "Invitation:InvitationPolicy" = ("B2C_1A_{0}Invitation" -f $settings.policyPrefix);
-    "Invitation:Issuer" = "b2cmultitenant";
-    "Invitation:Audience" = "b2cmultitenant";
-    "Invitation:ValidityHours" = "72";
-    "Invitation:RedirectPath" = "members/redeem";
-    "Invitation:SigningKey" = $invitationSecret;   
     RestUrl = "https://{0}.azurewebsites.net" -f $webAPISvc;
     RestApp = $settings.webAPI.name;
     AllowedHosts = "*";
+    PolicyPrefix = $settings.policyPrefix
 }
 Set-AzWebApp -Name $webAppSvc `
     -ResourceGroupName $settings.resourceGroup `
     -AppSettings $props
-UploadIEFSymKey -keysetName "InvitationTokenSigningKey" -value $invitationSecret
 
 ####################### Create X509 cert for authn to REST #######################################
 $certPath = ".\RESTClientCert.cer" -f $settings.webAPI.name
@@ -295,7 +281,14 @@ $api = New-AzWebApp -Name $webAPISvc `
     -AppServicePlan $svcPlan `
     -ResourceGroupName $settings.resourceGroup  `
     -ErrorAction stop
-
+Add-Type -AssemblyName System.Security
+# TODO: use B2C to generate a key rather
+[Reflection.Assembly]::LoadWithPartialName("System.Security")
+$rijndael = new-Object System.Security.Cryptography.RijndaelManaged
+$rijndael.GenerateKey()
+$invitationSecret = ([Convert]::ToBase64String($rijndael.Key))
+$rijndael.Dispose()
+UploadIEFSymKey -keysetName "InvitationTokenSigningKey" -value $invitationSecret
 $props = @{
     "AuthCert:thumbprint" = $cert.Thumbprint;
     "AuthCert:issuer" = $certSubject;
@@ -309,6 +302,10 @@ $props = @{
     "ClientCreds:ClientId" = $ccredsApp.appId;
     "ClientCreds:ClientSecret" = $ccredPwd.Value;
     "ClientCreds:RedirectUri" = ("https://{0}.azurewebsites.com" -f $settings.webAPI.name)
+    "Invitation:InvitationPolicy" = ("B2C_1A_{0}Invitation" -f $settings.policyPrefix);
+    "Invitation:ValidityMinutes" = "360";
+    "Invitation:RedeemReplyUrl" = "members/redeem";
+    "Invitation:SigningKey" = $invitationSecret; 
     AllowedHosts = "*";
     WEBSITE_LOAD_CERTIFICATES = $cert.Thumbprint;
     WEBSITE_NODE_DEFAULT_VERSION = "6.9.1";
