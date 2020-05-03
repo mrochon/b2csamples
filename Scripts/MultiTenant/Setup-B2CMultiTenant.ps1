@@ -3,15 +3,21 @@
 # AzureAD-preview
 # Install-Module -Name Az -AllowClobber
 # 
+$creds = get-credential
 
 $settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
 $iefConfPath = ".\conf.json"
 $iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
 
+"Update conf with current prefix"
+$iefConf.Prefix = $settings.policyPrefix
+out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+
 ################### Functions ######################################
 function UploadIEFSymKey([string]$keysetName, [string]$value)
 {
-    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName)
+    "Uploading {0} keyset" -f $keySetName
+    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/B2C_1A_{0}" -f $keysetName)
     try {
         Invoke-RestMethod -Uri $url -Method Delete -Headers $headers -ErrorAction Ignore
     } catch {
@@ -25,6 +31,7 @@ function UploadIEFSymKey([string]$keysetName, [string]$value)
     $body = @{
         use = "sig"
         kty = "OCT"
+        k = $value
     }
     $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 }
@@ -45,20 +52,20 @@ try {
 
 ################### Login to AAD and Az ##################################
 Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
-Connect-AzAccount -ErrorAction Stop
-Write-Host ("Login to your B2C directory with an account with sufficient privileges to register applications")
-Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
+Connect-AzAccount -Credential $creds -ErrorAction Stop
+Write-Host ("Login to your B2C directory with an account with sufficient privileges to register B2C applications in the B2C tenant")
+Connect-AzureAD -TenantId $settings.b2cTenant -Credential $creds -ErrorAction Stop
 $b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
 $azure = Get-AzContext -ErrorAction stop
 
 
 ##################  Get AAD B2C extension app ############################
-if ([string]::IsNullOrEmpty($iefConf.ExtAppId)) {
-    $extensionApp = get-azureadapplication -filter "displayName eq 'b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.'"
-    $iefConf.ExtAppId = $extensionApp.AppId
-    $iefConf.ExtObjectId = $extensionApp.ObjectId
-    out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
-}
+"Get AAD B2C extensions app"
+$extensionApp = get-azureadapplication -filter "displayName eq 'b2c-extensions-app. Do not modify. Used by AADB2C for storing user data.'"
+$iefConf.ExtAppId = $extensionApp.AppId
+$iefConf.ExtObjectId = $extensionApp.ObjectId
+out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
+
 
 ###############################Get Graph REST token ##############################################
 $token = Get-MsalToken -clientId $settings.script.clientId -redirectUri $settings.script.redirectUri -Tenant $settings.b2cTenant -Scopes $settings.script.scopes
@@ -69,6 +76,7 @@ $headers = @{
 }
 
 ############### Register apps in B2C ###########################
+"Registering {0} webapp" -f $settings.webApp.name
 $url = "https://graph.microsoft.com/beta/applications"
 $replyUrls = @(
     ("{0}susi-firsttenant" -f $settings.policyPrefix),
@@ -89,6 +97,7 @@ $body = @{
     identifierUris = @(("https://{0}/{1}" -f $settings.b2cTenant, $settings.webApp.name));
 }
 $webAppReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
+"Registering {0} API app" -f $settings.webAPI.name
 $body = @{
     "displayName" = $settings.webAPI.name;
     "isFallbackPublicClient" = $false;
@@ -103,6 +112,7 @@ $body = @{
 }
 $webAPIReg = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 #################### Add scopes #########################
+"Adding scopes to registered apps"
 $body = @{
     "api" = @{
         "requestedAccessTokenVersion" = 2;
@@ -123,17 +133,20 @@ $url = "https://graph.microsoft.com/beta/applications/{0}" -f $webAPIReg.id
 Invoke-RestMethod -Uri $url  -Method Patch -Headers $headers -Body (ConvertTo-Json -Depth 3 $body)
 
 ################## Register ServicePrincipals SP #########################
+"Register {0} API SP" -f $webAPIReg.displayName
 $url = "https://graph.microsoft.com/beta/serviceprincipals"
 $body = @{
     "appId" = $webAPIReg.appId;
     "displayName" = $webAPIReg.displayName
 }
 $webAPISP = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+"Register {0} web app SP" -f $webAppReg.displayName
 $body = @{
     "appId" = $webAppReg.appId;
     "displayName" = $webAppReg.displayName
 }
 $webAppSP = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+"Find Graph SP and add openid, etc. scopes to the web app"
 # The following call was returning all grants. Therefore using PS instead
 # $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=publisherName eq 'Microsoft Graph' and (displayName eq 'Microsoft Graph' or startswith(displayName,'Microsoft Graph'))"
 # $url = "https://graph.microsoft.com/beta/servicePrincipals?$filter=displayName eq 'Microsoft Graph'"
@@ -156,6 +169,7 @@ $body = @{
 }
 Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 ##################### Grant permission for web app to call the API #########################
+"Add API permissions to the web app"
 $body = @{
     "clientId" = $webAppSP.id;
     "consentType" = "AllPrincipals";
@@ -167,6 +181,7 @@ $body = @{
 Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/oauth2PermissionGrants"  -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 
 ################### Add secret key to web app ###################################
+"Add secret key to web app"
 $body = @{
     "passwordCredentials" = @(
     @{
@@ -186,11 +201,11 @@ $svcPlan = $settings.webApp.name
 #$webAPISvc = "{0}$(Get-Random)" -f ($settings.webAPI.name)
 $webAppSvc = $settings.webApp.name
 $webAPISvc = $settings.webAPI.name
-Write-Host ("Deploying apps to {0}" -f $azure.Name)
-Write-Host ("Configuring {0} B2C tenant" -f $b2c.TenantDomain)
+"Deploying apps to {0}" -f $azure.Name
+"Configuring {0} B2C tenant" -f $b2c.TenantDomain
 
 #########################################################################
-Write-Host ("Registering AAD (client credentials) REST API app and service principal")
+"Registering AAD (client credentials) REST API app and service principal"
 $access = New-Object -TypeName Microsoft.Open.AzureAD.Model.RequiredResourceAccess
 $access.ResourceAppId = "00000003-0000-0000-c000-000000000000"
 $groupRW = New-Object -TypeName Microsoft.Open.AzureAD.Model.ResourceAccess
@@ -210,7 +225,7 @@ $ccredsSP = New-AzureADServicePrincipal -AppId $ccredsApp.appId -AccountEnabled 
 
 
 ##################### Create web app svc for the Web App #############################
-Write-Host ("Creating Azure Resource Group, Service Plan and Web Apps (REST and UI)")
+"Creating Azure Resource Group, Service Plan and Web Apps (REST and UI)"
 New-AzResourceGroup -Name $settings.resourceGroup -location $settings.location
 New-AzAppServicePlan -Name $svcPlan -location $settings.location -ResourceGroupName $settings.resourceGroup -Tier B1
 # Web APP and Web API
@@ -234,6 +249,7 @@ Set-AzWebApp -Name $webAppSvc `
     -AppSettings $props
 
 ####################### Create X509 cert for authn to REST #######################################
+"Creating X509 cert for IEF to Oauth2 autz"
 $certPath = ".\RESTClientCert.cer" -f $settings.webAPI.name
 if (Test-Path -Path $certPath) {
     $cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
@@ -276,6 +292,7 @@ if (Test-Path -Path $certPath) {
 }
 
 ##########################  Create Azure Web Apps services for REST API app ##############################
+"Creating Azure Web Apps services for REST API app"
 $api = New-AzWebApp -Name $webAPISvc `
     -location $settings.location `
     -AppServicePlan $svcPlan `
@@ -331,7 +348,7 @@ out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
 
 ########################## Create AADCommon for work accounts signin ##################
-Write-Host ("Registering AAD Common app to support signin with work address using AD multi-tenant support")
+"Registering AAD Common app to support signin with work address using AD multi-tenant support"
 $aadCommon = Get-AzureADApplication -filter "displayName eq 'AADCommon'"
 if ($aadCommon.Count -eq 0) {
     $access = New-Object -TypeName Microsoft.Open.AzureAD.Model.RequiredResourceAccess
@@ -370,6 +387,7 @@ out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 #-ResourceId /providers/Microsoft.Web/sourcecontrols/GitHub -ApiVersion 2015-08-01 -Force
 
 # Do not update too soon
+"Deploying apps from github"
 Start-sleep -s 30
 
 # Configure GitHub deployment from your GitHub repo and deploy once.
