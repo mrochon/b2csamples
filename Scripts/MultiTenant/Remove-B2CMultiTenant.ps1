@@ -2,6 +2,8 @@
 
 $settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
 
+$creds = Get-Credential
+
 ################### Functions ######################################
 function RemoveIEFSymKey([string]$keysetName)
 {
@@ -37,9 +39,9 @@ function RemoveAADApp([string] $appName)
 
 ################### Login to AAD and Az ##################################
 Write-Host (("Login to Azure with an account with sufficient privilege to delete the {0} resource group" -f $settings.resourceGroup))
-Connect-AzAccount -ErrorAction Stop
+Connect-AzAccount -Credential $creds -ErrorAction Stop
 Write-Host ("Login to your B2C directory with an account with sufficient privileges to delete applications & policy keys")
-Connect-AzureAD -TenantId $settings.b2cTenant -ErrorAction Stop
+Connect-AzureAD -TenantId $settings.b2cTenant -Credential $creds -ErrorAction Stop
 $b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
 $azure = Get-AzContext -ErrorAction stop
 ###############################Get Graph REST token ##############################################

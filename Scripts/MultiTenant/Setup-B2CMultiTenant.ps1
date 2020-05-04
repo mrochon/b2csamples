@@ -79,15 +79,15 @@ $headers = @{
 "Registering {0} webapp" -f $settings.webApp.name
 $url = "https://graph.microsoft.com/beta/applications"
 $replyUrls = @(
-    ("{0}susi-firsttenant" -f $settings.policyPrefix),
-    ("{0}susi2" -f $settings.policyPrefix),
+    ("signin-{0}susi-firsttenant" -f $settings.policyPrefix),
+    ("signin-{0}susi2" -f $settings.policyPrefix),
     "members/redeem", 
-    ("{0}susint" -f $settings.policyPrefix))
+    ("signin-{0}susint" -f $settings.policyPrefix))
 $body = @{
     displayName = $settings.webApp.name;
     isFallbackPublicClient = $false;
     web = @{
-        redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/signin-{1}" -f $settings.webApp.name, $p) };
+        redirectUris = foreach($p in $replyUrls){ ("https://{0}.azurewebsites.net/{1}" -f $settings.webApp.name, $p) };
         implicitGrantSettings = @{
             enableAccessTokenIssuance = $true;
             enableIdTokenIssuance = $true

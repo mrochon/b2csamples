@@ -240,7 +240,7 @@
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">{RestJoinTenant}</Item>
+            <Item Key="ServiceUrl">{RestGetOrJoinTenant}</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
