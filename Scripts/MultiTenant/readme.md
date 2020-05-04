@@ -65,5 +65,5 @@ In order to deploy the [custom policies](https://docs.microsoft.com/en-us/azure/
 
 #### Upload custom policies
 
-Use the [Upload-IEFPolicies tool](https://github.com/mrochon/b2cief-upload) to upload [the polices](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant). Use the conf.json file updated by the Setup-B2CMultiTenant script to provide the required values.
+Use the [Upload-IEFPolicies tool](https://github.com/mrochon/b2cief-upload) to upload [the polices](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant). Use the conf.json file updated by the Setup-B2CMultiTenant script to provide the required values. **Note: the Upload-IEFPolicies repo includes some sample policies. Do not upload these. Rather use the policies contained in [this repo](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant).**
 

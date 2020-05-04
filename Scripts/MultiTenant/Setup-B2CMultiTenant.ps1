@@ -267,7 +267,7 @@ if (Test-Path -Path $certPath) {
         -CertStoreLocation "Cert:\CurrentUser\My"
     $pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
     Export-Certificate -Cert $cert -FilePath $certPath
-    $pfxPath = (".\RESTClientCert.pfx" -f $settings.webAPI.name)
+    $pfxPath = ".\RESTClientCert.pfx"
     Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
     $pfx = Get-Content -Path $pfxPath
     $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
