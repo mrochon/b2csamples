@@ -255,7 +255,7 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
-            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="appTenantName" />            
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />            
             <OutputClaim ClaimTypeReferenceId="isNewMember" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
