@@ -406,7 +406,7 @@ Set-AzResource -PropertyObject $props -ResourceGroupName $settings.resourceGroup
     -ResourceType Microsoft.Web/sites/sourcecontrols -ResourceName ("{0}/web" -f $webAPISvc) `
     -ApiVersion 2015-08-01 -Force
 
-"Upload RESTClientCert.pfx from the current folder to your B2C policy keys store as RESTClientCert key"
+
 # "Use the App Registration (Preview) B2C blade to modify the demo app registration to include Microsoft Graph openid and offline_access permissions"
 "Please use the Azure portal or the following url to grant admin consent to permissions needed by the {0}-clientcreds application in your N2C tenant" -f $webAppSvc
 "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&scope=openid%20offline_access&response_type=code&response_mode=form_post&nonce=123" -f $b2c.TenantDomain, $ccredsApp.appId
