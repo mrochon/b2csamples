@@ -250,46 +250,41 @@ Set-AzWebApp -Name $webAppSvc `
 
 ####################### Create X509 cert for authn to REST #######################################
 "Creating X509 cert for IEF to Oauth2 autz"
-$certPath = ".\RESTClientCert.cer" -f $settings.webAPI.name
-if (Test-Path -Path $certPath) {
-    $cer = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-    $cer.Import($certPath)
-} else {
-    Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
-    $certSubject = ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain)
-    $cert = New-SelfSignedCertificate `
-        -KeyExportPolicy Exportable `
-        -Subject ($certSubject) `
-        -KeyAlgorithm RSA `
-        -KeyLength 2048 `
-        -KeyUsage DigitalSignature `
-        -NotAfter (Get-Date).AddMonths(12) `
-        -CertStoreLocation "Cert:\CurrentUser\My"
-    $pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
-    Export-Certificate -Cert $cert -FilePath $certPath
-    $pfxPath = ".\RESTClientCert.pfx"
-    Get-ChildItem -Path ("cert:\CurrentUser\My\{0}" -f $cert.Thumbprint) | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
-    $pfx = Get-Content -Path $pfxPath
-    $pkcs12=[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($pfx))
+$certSubject = ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain)
+Write-Host ("Creating X509 cert for IEF policy authentication to allow REST calls")
 
-    $keysetName = "B2C_1A_RESTClientCert"
-    #---- Uploading cert seems not work - will need to do it manually
-    <#try {
-        $key = Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName) -Method Delete -Headers $headers
-    } catch { 
-        # ok if does not exist
-    }
-    $body = @{
-        id = $keysetName
-    }
-    Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
-    $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadPkcs12" -f $keysetName)
-    $body = @{
-        key = $pkcs12
-        password = $settings.X509KeyPassword
-    }
-    $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body) #>
+$certSubject = ("CN={0}.{1}" -f $settings.webApi.name, $b2c.TenantDomain)
+
+$cert = New-SelfSignedCertificate `
+    -KeyExportPolicy Exportable `
+    -Subject ($certSubject) `
+    -KeyAlgorithm RSA `
+    -KeyLength 2048 `
+    -KeyUsage DigitalSignature `
+    -NotAfter (Get-Date).AddMonths(12) `
+    -CertStoreLocation "Cert:\CurrentUser\My"
+$pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
+#Export-Certificate -Cert $cert -FilePath $certPath
+$pfxPath = ".\RESTClientCert.pfx"
+$cert | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
+$pkcs12=[Convert]::ToBase64String([System.IO.File]::ReadAllBytes((get-childitem -path $pfxPath).FullName))
+$keysetName = "B2C_1A_RESTClientCert"
+try {
+    $key = Invoke-RestMethod -Uri ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}" -f $keysetName) -Method Delete -Headers $headers
+} catch { 
+    # ok if does not exist
 }
+$body = @{
+    id = $keysetName
+}
+Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets" -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+$url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadPkcs12" -f $keysetName)
+$body = @{
+    key = $pkcs12
+    password = $settings.X509KeyPassword
+}
+$key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+
 
 ##########################  Create Azure Web Apps services for REST API app ##############################
 "Creating Azure Web Apps services for REST API app"
