@@ -1,22 +1,21 @@
 {
     "b2cTenant": "mrochonb2cprod.onmicrosoft.com",
-    "policyPrefix": "MT",
+    "policyPrefix": "MT1",
     "script": {
         "clientId": "cbc09241-eb05-4178-afe1-03dc67ffa1b7",
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
         "scopes": [ "Directory.AccessAsUser.All", "TrustFrameworkKeySet.ReadWrite.All" ]
     },
-    "resourceGroup": "b2cmultitenant",
+    "resourceGroup": "b2cmultitenant1",
     "location": "westus",
     "appServicePlan": "B1",
     "webApp": {
-        "name": "b2cmtapp",
+        "name": "b2cmtapp2",
         "gitRepo": "https://github.com/mrochon/b2c-mt-webapp/"
     },
     "webAPI": {
-        "name": "b2cmtapi",
+        "name": "b2cmtapi2",
         "gitRepo": "https://github.com/mrochon/b2c-mt-rest/"
     },
-    "X509KeyPassword": "password",
 	"AADCommonAppName": "AADCommon"
 }

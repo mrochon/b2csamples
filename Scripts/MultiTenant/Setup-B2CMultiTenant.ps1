@@ -3,6 +3,15 @@
 # AzureAD-preview
 # Install-Module -Name Az -AllowClobber
 # 
+
+foreach($moduleName in @("AzureADPreview", "Az")) {
+    $m = Get-Module -ListAvailable -Name AzureADPreview
+    if ($m -eq $null) {
+        "Please install-module {0} before running this command" -f $moduleName
+        return
+    }
+}
+"Provide enter your AAD email address and (optionally) password"
 $creds = get-credential
 
 $settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
@@ -34,6 +43,56 @@ function UploadIEFSymKey([string]$keysetName, [string]$value)
         k = $value
     }
     $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
+}
+
+function Upload-IEFPolicies {
+    # get current tenant data
+    $b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop   
+    $iefRes = Get-AzureADApplication -Filter "DisplayName eq 'IdentityExperienceFramework'"
+    $iefProxy = Get-AzureADApplication -Filter "DisplayName eq 'ProxyIdentityExperienceFramework'"
+
+    # load originals
+    $policies = @(
+        "TrustFrameworkBase.xml",
+        "TrustFrameworkExtensions.xml",
+        "InvitationExtensions.xml",
+        "PasswordReset.xml",
+        "MTSUSINT.xml"
+        "MTSUSI2.xml",
+        "MTSUSI-First.xml",
+        "Invitation.xml"
+    )
+    $wc = New-Object System.Net.WebClient
+    foreach($policyName in $policies) {
+        try {
+            $url = "https://raw.githubusercontent.com/mrochon/b2csamples/master/Policies/MultiTenant/{0}" -f $policyName
+            $p = $wc.DownloadString($url)
+        } catch {
+            "{0} failed to download" -f $policyName
+            return
+        }
+        $msg = "{0}: uploading" -f $policyName
+        Write-Host $msg  -ForegroundColor Green 
+        $policy = $p.Replace('yourtenant.onmicrosoft.com', $b2c.TenantDomain)
+        $policy = $policy.Replace('ProxyIdentityExperienceFrameworkAppId', $iefProxy.AppId)
+        $policy = $policy.Replace('IdentityExperienceFrameworkAppId', $iefRes.AppId)
+        $policy = $policy.Replace('PolicyId="B2C_1A_', 'PolicyId="B2C_1A_{0}' -f $settings.policyPrefix)
+        $policy = $policy.Replace('/B2C_1A_', '/B2C_1A_{0}' -f $settings.policyPrefix)
+        $policy = $policy.Replace('<PolicyId>B2C_1A_', '<PolicyId>B2C_1A_{0}' -f $settings.policyPrefix)
+
+        # replace other placeholders, e.g. {MyRest} with http://restfunc.com. Note replacement string must be in {}
+        $special = @('IdentityExperienceFrameworkAppId', 'ProxyIdentityExperienceFrameworkAppId', 'PolicyPrefix')
+        foreach($memb in Get-Member -InputObject $iefConf -MemberType NoteProperty) {
+            if ($memb.MemberType -eq 'NoteProperty') {
+                if ($special.Contains($memb.Name)) { continue }
+                $repl = "{{{0}}}" -f $memb.Name
+                $policy = $policy.Replace($repl, $memb.Definition.Split('=')[1])
+            }
+        }
+        $xml = [xml] $policy
+        $Id = $xml.TrustFrameworkPolicy.PolicyId
+        Set-AzureADMSTrustFrameworkPolicy -Content ($policy | Out-String) -Id $Id -ErrorAction Stop | Out-Null
+    }
 }
 
 ################### Are the web app urls available?  #####################
@@ -263,7 +322,8 @@ $cert = New-SelfSignedCertificate `
     -KeyUsage DigitalSignature `
     -NotAfter (Get-Date).AddMonths(12) `
     -CertStoreLocation "Cert:\CurrentUser\My"
-$pfxPwd = ConvertTo-SecureString -String $settings.X509KeyPassword -Force -AsPlainText
+$pfxPwdPlain = "password"
+$pfxPwd = ConvertTo-SecureString -String $pfxPwdPlain -Force -AsPlainText
 #Export-Certificate -Cert $cert -FilePath $certPath
 $pfxPath = ".\RESTClientCert.pfx"
 $cert | Export-PfxCertificate -FilePath $pfxPath -Password $pfxPwd
@@ -281,7 +341,7 @@ Invoke-RestMethod -Uri "https://graph.microsoft.com/beta/trustFramework/keySets"
 $url = ("https://graph.microsoft.com/beta/trustFramework/keySets/{0}/uploadPkcs12" -f $keysetName)
 $body = @{
     key = $pkcs12
-    password = $settings.X509KeyPassword
+    password = $pfxPwdPlain
 }
 $key = Invoke-RestMethod -Uri $url -Method Post -Headers $headers -Body (ConvertTo-Json $body)
 
@@ -375,6 +435,9 @@ out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
 
 ############################### Deploy code ############################################
+
+Upload-IEFPolicies
+
 #$props = @{
 #    token = $settings.webApp.gitToken;
 #}

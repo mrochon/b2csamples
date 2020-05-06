@@ -4,6 +4,12 @@
 
 **In order to provide better setup support for samples in this repo (currently just the Multi-tenancy demo) I am moving each constituent project to its own repo. Here, I will only keep the custom policy xml files and PowerShell scripts and othe rinstructions for deploying complete applications. This is still work in progress.**
 
+## Changes
+
+| Date  | Description  |
+|---|---|
+| May 5th, 2020  | Provided full [deployment script](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant) for the multi-tenant sample |
+
 ## Supporting multi-tenant SaaS apps
 
 ### Description
