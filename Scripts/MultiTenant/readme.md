@@ -17,9 +17,9 @@ The PowerShell scripts provided in this folder deploy or remove the WebApp, REST
 | Step  | Purpose  | Tool  |
 |---|---|---|
 | 1  | Create a B2C tenant and [set it up for IEF custom policy](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-get-started?tabs=applications) use. This is once only task. |  [B2C IEF setup](https://b2ciefsetup.azurewebsites.net/) |
-| 2  | Create all required B2C and Azure web artifacts.</br>Generate conf.json file used to upload custom IEF policies.  |  Setup-B2CMultiTenant.ps1 |
-| 3  | Complete setup of items requiring manual intervention  | Manual  |
-| 4 | Upload custom IEF policies |  [IEF upload tool](https://github.com/mrochon/b2cief-upload) |
+| 2  | Create all required B2C and Azure web artifacts.  |  [Setup-B2CMultiTenant.ps1](https://github.com/mrochon/b2csamples/blob/master/Scripts/MultiTenant/Setup-B2CMultiTenant.ps1) |
+| 3  | Provide admin consent to the REST API to call Graph  | Manual  |
+| 4 | Modify and upload custom IEF policies (optional) |  [IEF upload tool](https://github.com/mrochon/b2cief-upload) |
 
 You can use the Remove-B2CMultiTenant.ps1 in this folder to remove items created in step 2.
 
@@ -27,7 +27,7 @@ You can use the Remove-B2CMultiTenant.ps1 in this folder to remove items created
 ## Detailed instructions
 
 ### B2C setup
-In order to deploy any [IEF custom policies](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-overview), your B2C directory requires some [additional setup](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-get-started?tabs=applications). You can follow the above reference or use a [custom web app](https://b2ciefsetup.azurewebsites.net/) to execute these operations.
+In order to deploy any [IEF custom policies](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-overview), your B2C directory requires some [additional setup](https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-get-started?tabs=applications). You can either follow the above reference or use a [custom web app](https://b2ciefsetup.azurewebsites.net/) to perform the setup.
 
 
 ### Install required PowerShell modules
@@ -61,5 +61,5 @@ In order to deploy any [IEF custom policies](https://docs.microsoft.com/en-us/az
 
 ### Upload custom policies
 
-The above will upload the current [IEF multitenant policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant), after updating them with your setup and tenant data. If you need to modify them for some reason (e.g. change or add a user journey), use the [Upload-IEFPolicies tool](https://github.com/mrochon/b2cief-upload) to upload [the polices](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant). Use the conf.json file updated by the Setup-B2CMultiTenant script to provide the required values. **Note: the Upload-IEFPolicies repo includes some sample policies. Do not upload these. Rather use the policies contained in [this repo](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant).**
+The above script will upload the current [IEF multitenant policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant), after updating them with your setup and tenant data. If you need to modify them further for some reason (e.g. change or add a user journey, add MFA or another IdP), use the [Upload-IEFPolicies tool](https://github.com/mrochon/b2cief-upload) to upload them. Use the conf.json file updated by the Setup-B2CMultiTenant script to provide the required values. **Note: the Upload-IEFPolicies repo includes some sample policies. Do not upload these. Rather use the policies contained in [this repo](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant).**
 
