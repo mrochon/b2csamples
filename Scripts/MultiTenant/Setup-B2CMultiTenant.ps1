@@ -420,7 +420,7 @@ if ($aadCommon.Count -eq 0) {
         -RequiredResourceAccess $access `
         -Oauth2AllowImplicitFlow $false `
         -AvailableToOtherTenants $true `
-        -ReplyUrls @( ("https://{0}.b2clogin.com/{1}/oauth2/authresp" -f $b2c.TenantDomain.Split('.')[0], $b2c.TenantDomain))
+        -ReplyUrls @( ("https://{0}.b2clogin.com/{1}/oauth2/authresp" -f $b2c.TenantDomain.Split('.')[0], $b2c.TenantId))
 } else {
     # in case there is more than one
     $aadCommon = $aadCommon[0]
