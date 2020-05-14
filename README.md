@@ -9,6 +9,7 @@
 | Date  | Description  |
 |---|---|
 | May 5th, 2020  | Provided full [deployment script](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant) for the multi-tenant sample |
+| May 13th, 2020  | Added support for per tenant MFA required option |
 
 ## Supporting multi-tenant SaaS apps
 
