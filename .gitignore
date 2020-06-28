@@ -11,6 +11,7 @@
 *.cer
 *.pfx
 *.bak
+*.local.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

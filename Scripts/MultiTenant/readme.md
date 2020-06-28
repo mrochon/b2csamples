@@ -32,7 +32,7 @@ In order to deploy any [IEF custom policies](https://docs.microsoft.com/en-us/az
 
 ### Install required PowerShell modules
 - Install-Module -Name MSAL.PS -RequiredVersion 2.5.0.1
-- Install-Module -Name AzureAD-Preview
+- Install-Module -Name AzureADPreview
 - Install-Module -Name Az
 
 ### Create deployment data
