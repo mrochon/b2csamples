@@ -38,3 +38,8 @@ Use instructions and scripts provided [here](https://github.com/mrochon/b2csampl
 ## UserName with batch user upload
 
 [Sample policies](https://github.com/mrochon/b2csamples/tree/master/Policies/UserName) with user journeys supporting B2C tenants in which users are/were created using Graph batch upload.
+
+## Email and user id user signup/in
+[Custom journeys allowing a local user to use an email address and a user id](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId) to sign in. At signup, the user verifies an email address and enters 
+a user id. At signin, the user can use either (with same password). Useful for applications which do not want to disclose users emails to others 
+accessing the app, yet identify user specific data by a unique identifier created by the user. Chat or blogging sites are examples of these applications.
