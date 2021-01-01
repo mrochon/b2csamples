@@ -45,6 +45,7 @@ In order to deploy any [IEF custom policies](https://docs.microsoft.com/en-us/az
 - Update the setupSettings.json script.clientId property with the application id from the step above
 - Update other properties in the setupSettings.json file:
     1. *b2cTenant*: your B2C tenant name 
+	2. *subscription*: Azure subscription id (guid) where the web apps (UI and REST) should be deployed, e.g.: "023bba71-19b2-4f09-891f-432e5d50db5a",
     2. *policyPrefix*: a short string to be used in your policy name to disambiguate them from any other policies you may use
     3. *resourceGroup*: name of the Azure resource group to create for this deployment
     4. *location*: id of the Azure datacenter location to be used for deployment

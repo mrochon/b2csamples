@@ -13,6 +13,7 @@
     <PolicyId>B2C_1A_Extensions</PolicyId>
   </BasePolicy>
 
+  <!-- Create a new tenant -->
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SUSI_FirstTenant" />
     <TechnicalProfile Id="PolicyProfile">
@@ -35,4 +36,3 @@
     </TechnicalProfile>
   </RelyingParty>
 </TrustFrameworkPolicy>
-

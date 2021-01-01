@@ -4,24 +4,6 @@
 # Install-Module -Name Az -AllowClobber
 # 
 
-foreach($moduleName in @("AzureADPreview", "Az")) {
-    $m = Get-Module -ListAvailable -Name AzureADPreview
-    if ($m -eq $null) {
-        "Please install-module {0} before running this command" -f $moduleName
-        return
-    }
-}
-"Provide enter your AAD email address and (optionally) password"
-$creds = get-credential
-
-$settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
-$iefConfPath = ".\conf.json"
-$iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
-
-"Update conf with current prefix"
-$iefConf.Prefix = $settings.policyPrefix
-out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
-
 ################### Functions ######################################
 function UploadIEFSymKey([string]$keysetName, [string]$value)
 {
@@ -95,6 +77,22 @@ function Upload-IEFPolicies {
     }
 }
 
+##########################################################################
+###################     Execution starts here ############################
+foreach($moduleName in @("AzureADPreview", "Az")) {
+    $m = Get-Module -ListAvailable -Name AzureADPreview
+    if ($m -eq $null) {
+        "Please install-module {0} before running this command" -f $moduleName
+        return
+    }
+}
+$settings = Get-Content -Path ".\setupSettings.json" -ErrorAction Stop | Out-String | ConvertFrom-Json
+$iefConfPath = ".\conf.json"
+$iefConf = Get-Content -Path $iefConfPath -ErrorAction Continue | Out-String | ConvertFrom-Json
+
+"Update conf with current prefix"
+$iefConf.Prefix = $settings.policyPrefix
+out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 ################### Are the web app urls available?  #####################
 try {
     $page = invoke-webrequest ("https://{0}.azurewebsites.net" -f $settings.webApp.name)
@@ -111,11 +109,11 @@ try {
 
 ################### Login to AAD and Az ##################################
 Write-Host ("Login to Azure with an account with sufficient privilege to create a resource group and web apps")
-Connect-AzAccount -Credential $creds -ErrorAction Stop
+Connect-AzAccount -SubscriptionId $settings.subscription -ErrorAction Stop
 Write-Host ("Login to your B2C directory with an account with sufficient privileges to register B2C applications in the B2C tenant")
-Connect-AzureAD -TenantId $settings.b2cTenant -Credential $creds -ErrorAction Stop
-$b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
 $azure = Get-AzContext -ErrorAction stop
+Connect-AzureAD -TenantId $settings.b2cTenant -AccountId $azure.Account.Id -ErrorAction Stop
+$b2c = Get-AzureADCurrentSessionInfo -ErrorAction stop
 
 
 ##################  Get AAD B2C extension app ############################

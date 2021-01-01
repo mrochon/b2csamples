@@ -4,18 +4,19 @@
     "script": {
         "clientId": "cbc09241-eb05-4178-afe1-03dc67ffa1b7",
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
-        "scopes": [ "Directory.AccessAsUser.All", "TrustFrameworkKeySet.ReadWrite.All" ]
+        "scopes": ["Directory.AccessAsUser.All", "TrustFrameworkKeySet.ReadWrite.All"]
     },
+    "subscription": "023ffa71-19b2-4f09-891f-432e5d50db5a",
     "resourceGroup": "b2cmultitenant1",
     "location": "westus",
     "appServicePlan": "B1",
     "webApp": {
-        "name": "b2cmtapp2",
+        "name": "b2cmtapp99",
         "gitRepo": "https://github.com/mrochon/b2c-mt-webapp/"
     },
     "webAPI": {
-        "name": "b2cmtapi2",
+        "name": "b2cmtapi99",
         "gitRepo": "https://github.com/mrochon/b2c-mt-rest/"
     },
-	"AADCommonAppName": "AADCommon"
+    "AADCommonAppName": "AADCommon"
 }
