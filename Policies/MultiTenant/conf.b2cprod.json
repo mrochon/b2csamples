@@ -1,0 +1,14 @@
+{
+    "Prefix": "MT",
+    "SUSI_UI": "https://b2cdatastore.blob.core.windows.net/uix/IdPSelect.html",
+    "SignInOnly_UI": "https://b2cdatastore.blob.core.windows.net/uix/SignInOnly.html",
+    "AADCommonAppId": "b4d453c6-369e-4551-8580-177a0043d595",
+    "RestTenantCreate": "https://b2crestapis.azurewebsites.net/tenant",
+    "RestGetOrJoinTenant": "https://b2crestapis.azurewebsites.net/tenant/member",
+    "RestGetTenantForUser": "https://b2crestapis.azurewebsites.net/tenant/currmember",
+    "RestGetFirstTenant": "https://b2crestapis.azurewebsites.net/tenant/first",
+    "AADCommonSecret": "B2C_1A_AADCommonSecret",
+    "ExtAppId": "0428f335-4957-491e-96bb-7ce51b81d46a",
+    "ExtObjectId": "20d75341-a1e5-4ea8-a88f-7e7dfe90b9d8",
+    "GoogleClientId": "577451859436-1uug4iiklhvut6t8ske2c1e2je4i9gsi.apps.googleusercontent.com"
+}
