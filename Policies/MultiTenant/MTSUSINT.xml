@@ -51,7 +51,7 @@
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="appTenantDescription" />
-            <OutputClaim ClaimTypeReferenceId="allowSameIssuerMembers" />          
+            <OutputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" />          
             <OutputClaim ClaimTypeReferenceId="appTenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" />            
           </OutputClaims>

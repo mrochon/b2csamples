@@ -38,7 +38,7 @@
         <UserHelpText>Unique tenant name.</UserHelpText>
         <UserInputType>TextBox</UserInputType>
         <Restriction>
-          <Pattern RegularExpression="^[A-Z_$][A-Z_$0-9]*$" HelpText="Please enter a valid tenant name (upper case alpha and digit)." />
+          <Pattern RegularExpression="^[A-Za-z_$][A-Za-z_$0-9]*$" HelpText="Please enter a valid tenant name (alpha and digits)." />
         </Restriction>         
       </ClaimType> 
       <ClaimType Id="appTenants">
@@ -180,7 +180,7 @@
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="ownerId" />
             <InputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />
             <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" DefaultValue="" />     
-            <InputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" />                   
+            <InputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" DefaultValue="no" />                   
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="id" />
