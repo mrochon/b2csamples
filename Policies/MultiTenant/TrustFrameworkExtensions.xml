@@ -234,6 +234,7 @@
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
             <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="newUser" />            
             <OutputClaim ClaimTypeReferenceId="requireMFA" />
             <OutputClaim ClaimTypeReferenceId="appTenants" PartnerClaimType="allTenants" />            
           </OutputClaims>
@@ -420,9 +421,22 @@
             <ClaimsExchange Id="GetTenantData" TechnicalProfileReferenceId="REST-GetTenantForUser" />
           </ClaimsExchanges>
         </OrchestrationStep> 
+        <!-- If this is an AAD user and the tenant allows uninvited same-directory users, this user may not yet exist in B2C. Create /-->
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+              <Value>newUser</Value>
+              <Value>True</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>        
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
              This step checks whether there's a phone number on record,  for the user. If found, then the user is challenged to verify it. -->
-        <OrchestrationStep Order="6" Type="ClaimsExchange">
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>isActiveMFASession</Value>
@@ -442,7 +456,7 @@
         <!-- Save MFA phone number: The precondition verifies whether the user provided a new number in the 
              previous step. If so, then the phone number is stored in the directory for future authentication 
              requests. -->
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
+        <OrchestrationStep Order="8" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>newPhoneNumberEntered</Value>
@@ -453,7 +467,7 @@
             <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>          
-        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
  
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
