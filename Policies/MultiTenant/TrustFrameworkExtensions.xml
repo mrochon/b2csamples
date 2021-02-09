@@ -127,6 +127,12 @@
             <Item Key="ClientId">{ExtAppId}</Item>
           </Metadata>
         </TechnicalProfile>
+        <TechnicalProfile Id="AAD-UserWriteUsingAlternativeSecurityId-NoError">
+          <Metadata>
+            <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+          </Metadata>
+          <IncludeTechnicalProfile ReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+        </TechnicalProfile>         
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -425,13 +431,13 @@
         <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
-              <Value>newUser</Value>
-              <Value>True</Value>              
+              <Value>identityProvider</Value>
+              <Value>commonaad</Value>              
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId-NoError" />
           </ClaimsExchanges>
         </OrchestrationStep>        
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
