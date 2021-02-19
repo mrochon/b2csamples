@@ -53,9 +53,9 @@
           <OutputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="outputClaim"/>
         </OutputClaims>
       </ClaimsTransformation>
-      <ClaimsTransformation Id="CopyEmailToEmail" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopySignInToEmail" TransformationMethod="CopyClaim">
         <InputClaims>
-          <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
+          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim"/>
         </InputClaims>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim"/>
@@ -219,7 +219,7 @@
           <Metadata>
             <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item>
             <Item Key="setting.operatingMode">Email</Item>
-            <Item Key="setting.showSignupLink">false</Item>
+            <!--Item Key="setting.showSignupLink">false</Item-->
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
           </Metadata>
           <IncludeInSso>false</IncludeInSso>
@@ -238,7 +238,7 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>  
         <!-- Cannot use the one in the base since DisplayControl does not seem to obey email being readonly -->
-        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail2">
           <DisplayName>Email signup</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
@@ -250,7 +250,7 @@
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
           <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyEmailToEmail" />
+            <InputClaimsTransformation ReferenceId="CopySignInToEmail" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="email" />
@@ -316,7 +316,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail2" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
