@@ -43,7 +43,7 @@
           <Protocol Name="None" />
           <Metadata>
             <!-- Replace with your endpoint location -->
-            <Item Key="METADATA">{OIDC-Config}</Item>
+            <Item Key="METADATA">https://yourtenant.b2clogin.com/yourtenant.onmicrosoft.com/{SUSI}/v2.0/.well-known/openid-configuration</Item>
             <!--Item Key="IdTokenAudience">your_optional_audience</Item> -->
             <!-- <Item Key="issuer">your_optional_token_issuer_override</Item> -->
           </Metadata>
