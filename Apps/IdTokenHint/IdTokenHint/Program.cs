@@ -27,7 +27,7 @@ namespace IdTokenHint
                 .WithB2CAuthority($"{AuthBase}B2C_1A_IDHINTsignup_signin")
                 .WithRedirectUri("http://localhost")
                 .Build();
-            var tokens = await Client.AcquireTokenInteractive(new string[] { }).ExecuteAsync();
+            var tokens = await Client.AcquireTokenInteractive(new string[] { "offline_access" }).ExecuteAsync();
             return tokens.IdToken;
         }
         private async Task<string> Refresh()
