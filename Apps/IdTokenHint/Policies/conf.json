@@ -1,4 +1,0 @@
-{
-    "Prefix": "IDHINT",
-    "OIDC-Config": "https://mrochonb2cprod.b2clogin.com/mrochonb2cprod.onmicrosoft.com/B2C_1A_IDHINTsignup_signin/v2.0/.well-known/openid-configuration"
-}
