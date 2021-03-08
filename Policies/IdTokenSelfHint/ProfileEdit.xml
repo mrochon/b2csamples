@@ -15,20 +15,32 @@
 
   <UserJourneys>
 
+    <!-- Using ProfileEdit as id would have compounded this journey with the one defined in base and resulted in load errors: two claims exchanges in step 4 -->
     <UserJourney Id="ProfileEdit2">
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="GetClaims" CpimIssuerTechnicalProfileReferenceId="IdTokenHint_ExtractClaims" />  
         <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                  <Value>objectId</Value>
+                  <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>
+            </Preconditions>                  
+            <ClaimsExchanges>
+                <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+            </ClaimsExchanges>
+        </OrchestrationStep>        
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>    
