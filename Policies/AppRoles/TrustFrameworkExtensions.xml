@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_TrustFrameworkExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+      <ClaimsSchema>
+        <ClaimType Id="roles">
+          <DisplayName>Roles</DisplayName>
+          <DataType>stringCollection</DataType>
+          <UserHelpText/>
+        </ClaimType>
+        <ClaimType Id="appId">
+          <DisplayName>Application id</DisplayName>
+          <DataType>string</DataType>
+          <UserHelpText/>
+        </ClaimType>        
+      </ClaimsSchema>
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Local Account SignIn</DisplayName>
+      <TechnicalProfiles>
+         <TechnicalProfile Id="login-NonInteractive">
+          <Metadata>
+            <Item Key="client_id">ProxyIdentityExperienceFrameworkAppId</Item>
+            <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="ProxyIdentityExperienceFrameworkAppId" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+    <ClaimsProvider>
+      <DisplayName>Custom REST API</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="REST-GetRoles">
+          <DisplayName>Get user roles</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{GetRoles}</Item>
+            <Item Key="AuthenticationType">Basic</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>            
+            <Item Key="SendClaimsIn">QueryString</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RESTUserId" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RESTSecret" />
+          </CryptographicKeys>  
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
+            <InputClaim ClaimTypeReferenceId="appId" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="roles" PartnerClaimType="roles" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignIn">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetRoles" TechnicalProfileReferenceId="REST-GetRoles" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>	
+	</UserJourneys>
+
+</TrustFrameworkPolicy>

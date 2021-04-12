@@ -1,0 +1,4 @@
+{
+    "Prefix": "RBAC",
+    "GetRoles": "https://b2crestapis.azurewebsites.net/user/roles"
+}
