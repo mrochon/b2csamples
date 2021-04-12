@@ -1,8 +1,10 @@
 # My B2C samples
 
-## This repo has been split up
+## The B2C Multi-tenant sample code has been split into several repos
 
-**In order to provide better setup support for samples in this repo (currently just the Multi-tenancy demo) I am moving each constituent project to its own repo. Here, I will only keep the custom policy xml files and PowerShell scripts and othe rinstructions for deploying complete applications. This is still work in progress.**
+**In order to provide scripted deployment of (just) the [B2C multi-tenant demo](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) I have moved
+the VS projects related to this demo (UI and reST APIs) to separate repos. This repo will still contain the related
+IEF policies as well as policies for other samples and REST functions related to them.**
 
 ## Changes
 
@@ -11,36 +13,17 @@
 | May 5th, 2020  | Provided full [deployment script](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant) for the multi-tenant sample |
 | May 13th, 2020  | Added support for per tenant MFA required option |
 | Dec 31st, 2020  | Modified MultiTenant setup PS script to allow choice of Azure subscription |
+| April 11, 2021  | Moving all REST VS.NET project to the REST folder (all APIs ecept thos for multi-tenant) |
+| April 11, 2021  | Adding sample to support Application Roles |
 
-## Supporting multi-tenant SaaS apps
+## Samples list
 
-### Description
-A [sample application](https://b2cmultitenant.azurewebsites.net) illustrating support for multi-tenant SaaS applications using a single B2C Azure AD tenant. All source is in this repo.
-
-**Note:** this sample is **NOT** about [using AAD multi-tenancy](https://docs.microsoft.com/en-us/azure/dotnet-develop-multitenant-applications) to support an application. AAD multi-tenancy is ideal for medium-to-large enterprises who own and manage their own identity infrastructure. This sample is for small enteprises, usually without their own identity infrastructure. It provides support for an application that needs to group it's users into discrete groups, each representing an *application tenant* - a group of people sharing common data in the application. Azure AD B2C allows create their own logins, possibly use some external identity providers (social or work). Using the code provided in this repo, B2C will maintain association between users and *application tenants* and provide that data to your applications when users sign in.
-
-### Source code
-
-The multi-tenant sample consists of three components, each in a separate repo:
-
-1. [IEF policies](https://github.com/mrochon/b2c-mt-rest) implementing several B2C user journeys:
-- Signin/up AND create a new application tenant. User can then invite others to this tenant.
-- Signin/up AND redeem invitation to become a member of an existing tenant
-- Signin as existing member of a tenant.
-
-2. [REST functions](https://github.com/mrochon/b2csamples/tree/master/REST) used by the policies and the sample application: create new application tenant, add members, get member's tenant, create invitation url, get list of tenant members.
-
-3. [Sample multi-tenant application](https://github.com/mrochon/b2c-mt-webapp).
-
-### Setup
-
-Use instructions and scripts provided [here](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant).
-
-## UserName with batch user upload
-
-[Sample policies](https://github.com/mrochon/b2csamples/tree/master/Policies/UserName) with user journeys supporting B2C tenants in which users are/were created using Graph batch upload.
-
-## Email and user id user signup/in
-[Custom journeys allowing a local user to use an email address and a user id](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId) to sign in. At signup, the user verifies an email address and enters 
-a user id. At signin, the user can use either (with same password). Useful for applications which do not want to disclose users emails to others 
-accessing the app, yet identify user specific data by a unique identifier created by the user. Chat or blogging sites are examples of these applications.
+| Name  | Description  |
+|---|---|
+| [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
+| [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
+| [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
+| [ForceADWhenAvaialble](https://github.com/mrochon/b2csamples/tree/master/Policies/ForceAADwhenAvailable)  | Users who signup with an email address supported by an AAD tenant will be automatically redirected there (rather than defining local password in B2C) |
+| [IdTokenSelfHint](https://github.com/mrochon/b2csamples/tree/master/Policies/IdTokenSelfHint)  | Allows long-running native apps to initiate profile edit without needing to re-authenticate user |
+| [ForceADWhenAvaialble](https://github.com/mrochon/b2csamples/tree/master/Policies/ForceAADwhenAvailable)  | Users who signup with an email address supported by an AAD tenant will be automatically redirected there (rather than defining local password in B2C) |
+| [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
