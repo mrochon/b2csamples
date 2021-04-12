@@ -5,7 +5,7 @@ at times through the AAD portal view of B2C.
 ## Setup
 ### Defining roles
 B2C does not expose the UI for adding application roles. To define define them use the manifest view of the application (in App Registrations). To the application's appRooles property add an array of objects with the [following data structure](https://docs.microsoft.com/en-us/graph/api/resources/approle?view=graph-rest-1.0#properties):
-``Json
+```javascript
 {
   "allowedMemberTypes": ["User"],
   "description": "string",
@@ -14,7 +14,7 @@ B2C does not expose the UI for adding application roles. To define define them u
   "isEnabled": true,
   "value": "<value to be returned in user token>"
 }
-``
+```
 ## Assigning roles
 You can open the AAD portal view;s Enterprise Tab to assign users to the defined roles
 
