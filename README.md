@@ -15,6 +15,7 @@ IEF policies as well as policies for other samples and REST functions related to
 | Dec 31st, 2020  | Modified MultiTenant setup PS script to allow choice of Azure subscription |
 | April 11, 2021  | Moving all REST VS.NET project to the REST folder (all APIs ecept thos for multi-tenant) |
 | April 11, 2021  | Adding sample to support Application Roles |
+| April 27, 2021  | Adding sample to prevent employees from creating local accounts (policies and REST API) |
 
 ## Samples list
 
@@ -22,6 +23,7 @@ IEF policies as well as policies for other samples and REST functions related to
 |---|---|
 | [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
+| [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
 | [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
 | [ForceADWhenAvaialble](https://github.com/mrochon/b2csamples/tree/master/Policies/ForceAADwhenAvailable)  | Users who signup with an email address supported by an AAD tenant will be automatically redirected there (rather than defining local password in B2C) |
 | [IdTokenSelfHint](https://github.com/mrochon/b2csamples/tree/master/Policies/IdTokenSelfHint)  | Allows long-running native apps to initiate profile edit without needing to re-authenticate user |
