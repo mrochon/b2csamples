@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using B2CRestApis.Services;
 
 namespace B2CRestApis.Controllers
 {
@@ -35,12 +36,26 @@ namespace B2CRestApis.Controllers
             catch
             {
             }
-            return new JsonResult(new
+            return this.ErrorResponse(409, "Email cannot be resolved to an IdP");
+        }
+        private static string[] FederatedDomains = { "Meraridom.com" };
+        [HttpGet("DeclineWorkEmail")]
+        public ActionResult DeclineWorkAddress([FromQuery] string email)
+        {
+            if (String.IsNullOrEmpty(email))
             {
-                version = "1.0.1",
-                status = 409,
-                userMessage = "Email cannot be resolved to an IdP"
-            });
+                _logger.LogError($"DeclineWorkemail received empty email");
+                return this.ErrorResponse(409, "Missing email address");
+            }
+            var inp = email.ToLowerInvariant();
+            var existing = FederatedDomains.Where(d => inp.Contains(d.ToLowerInvariant())).FirstOrDefault();
+            if (existing != null)
+            {
+                _logger.LogError($"{email} is invalid");
+                return this.ErrorResponse(409, $"Please use the {existing.Split('.').First()} Employee login button");
+            }
+            _logger.LogInformation("DeclineWorkEmail returning OK");
+            return Ok();
         }
     }
 }
