@@ -1,0 +1,4 @@
+{
+    "Prefix": "CheckEmail",
+    "DeclineWorkEmail": "https://b2crestapis.azurewebsites.net/hrd/declineworkemail"
+}
