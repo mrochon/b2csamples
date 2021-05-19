@@ -427,7 +427,7 @@ $aadCommonPwd = New-AzureADApplicationPasswordCredential -ObjectId $aadCommon.ob
 $appCommonSP = New-AzureADServicePrincipal -AppId $aadCommon.appId -AccountEnabled $true
 
 UploadIEFSymKey -keysetName "AADCommonSecret" -value $aadCommonPwd.Value
-$iefConf.AADCommonAppId = ("https://{0}/tenant" -f $aadCommon.appId)
+$iefConf.AADCommonAppId = $aadCommon.appId
 $iefConf.AADCommonSecret = "B2C_1A_AADCommonSecret"
 out-file -FilePath $iefConfPath -inputobject (ConvertTo-Json $iefConf)
 
