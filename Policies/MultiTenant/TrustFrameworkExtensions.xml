@@ -481,7 +481,8 @@
     <!-- Used for sign-in only by existing users, returns first tenant /-->
     <UserJourney Id="SUSI_FirstTenant">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signinonly">
+        <!--OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signinonly"-->
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.idpselections">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />                  
             <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />          
