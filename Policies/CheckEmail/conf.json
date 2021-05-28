@@ -1,4 +1,5 @@
 {
     "Prefix": "CheckEmail",
-    "DeclineWorkEmail": "https://b2crestapis.azurewebsites.net/hrd/declineworkemail"
+    "DeclineWorkEmail": "https://b2crestapis.azurewebsites.net/hrd/declineworkemail",
+    "SAMLIssuer": "https://issuerUriMyAppExpects"
 }

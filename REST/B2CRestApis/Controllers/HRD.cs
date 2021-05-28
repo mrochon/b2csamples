@@ -38,6 +38,25 @@ namespace B2CRestApis.Controllers
             }
             return this.ErrorResponse(409, "Email cannot be resolved to an IdP");
         }
+        private static string[] _IdPDomains = { "gmail.com" };
+        [HttpGet("GetDomainHint2")]
+        public async Task<ActionResult> GetDomainHint2([FromQuery] string email)
+        {
+            var http = new HttpClient();
+            var domain_hint = email.Split('@')[1];
+            if (_IdPDomains.Contains(domain_hint))
+                return new JsonResult(new { email, tp = "other", domain_hint });
+            try
+            {
+                var json = await http.GetStringAsync($"https://login.microsoftonline.com/{domain_hint}/v2.0/.well-known/openid-configuration");
+                JsonDocument.Parse(json).RootElement.GetProperty("token_endpoint");
+                return new JsonResult(new { email, tp = "aad", domain_hint });
+            }
+            catch
+            {
+            }
+            return new JsonResult(new { email, tp = "local",  domain_hint});
+        }
         private static string[] FederatedDomains = { "Meraridom.com" };
         [HttpGet("DeclineWorkEmail")]
         public ActionResult DeclineWorkAddress([FromQuery] string email)
