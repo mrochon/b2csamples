@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
+using System.Net;
+using B2CRestApis.Models;
 
 namespace B2CRestApis.Controllers
 {
@@ -51,6 +53,26 @@ namespace B2CRestApis.Controllers
                 }
             }
             return null;
+        }
+        [HttpGet("find")]
+        public async Task<object> Find([FromQuery] string id, string tenantName)
+        {
+            _logger.LogDebug($"Starting Find({id}");
+            using (var http = _clientFactory.CreateClient("B2C"))
+            {
+                try
+                {
+                    var url = $"https://graph.microsoft.com/v1.0/users?$filter=identities/any(c:c/issuerAssignedId eq '{id}' and c/issuer eq '{tenantName}')&$select=id";
+                    var json = await http.GetStringAsync(url);
+                    var objectId = JObject.Parse(json)["value"].First()["id"].Value<string>();
+                    _logger.LogDebug($"Find({id}) returning {objectId}");
+                    return objectId;
+                } catch
+                {
+                    _logger.LogDebug($"Starting Find({id} returning 'not found'");
+                    return StatusCode(404, new ErrorMsg { status = HttpStatusCode.Unauthorized, userMessage = "User not found" });
+                }
+            }
         }
     }
 }
