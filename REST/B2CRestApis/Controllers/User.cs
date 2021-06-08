@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using B2CRestApis.Models;
 using Microsoft.Identity.Web.Resource;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace B2CRestApis.Controllers
 {
@@ -82,7 +83,7 @@ namespace B2CRestApis.Controllers
         }
         static readonly string[] scopeRequiredByApi = new string[] { "User.Invite" };
         [HttpPost("oauth2/invite")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
         public string Invite([FromBody] InvitationDetails invite)
         {
             HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);

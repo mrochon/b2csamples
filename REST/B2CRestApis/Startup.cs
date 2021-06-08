@@ -36,9 +36,9 @@ namespace B2CRestApis
             services.Configure<InvitationTokenOptions>(Configuration.GetSection("Invitation"));
             services.AddScoped<IBasicAuthenticationService, SymmetricKeyAuthentication>();
             services.AddTransient<Services.InvitationService>();
-            services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme) // JwtBearerDefaults.AuthenticationScheme) //BasicAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme) // JwtBearerDefaults.AuthenticationScheme) 
                 .AddBasicAuthentication()
-                .AddJwtBearer(options =>
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     options.MetadataAddress = "https://mrochonb2cprod.b2clogin.com/mrochonb2cprod.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_BasicSUSI";
                     options.Audience = "5e976aba-65ee-4185-8fdc-d317f7c34959";
@@ -47,7 +47,7 @@ namespace B2CRestApis
                         NameClaimType = "name"
                     };
                 });
-            //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("B2C"));
+            //.AddMicrosoftIdentityWebApi(Configuration.GetSection("B2C"));
             //services.Configure<MicrosoftIdentityOptions>(options =>
             //{
             //    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
