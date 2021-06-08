@@ -26,7 +26,7 @@ Using the access token obtained above as Authorization bearer token, with the fo
 
 You should get a response that looks as follows:
 
-'''
+```
 https://mrochonb2cprod.b2clogin.com/cf6c572c-c72e-4f31-bd0b-75623d040495/B2C_1A_INVITEsignup_invitation/oauth2/v2.0/authorize?client_id=88e4056b-ffce-4660-a3fe-2481e2713197&login_hint=mrochon@microsoft.com&response_mode=form_post&nonce=defaultNonce&redirect_uri=https://oidcdebugger.com/debug&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1yb2Nob25AbWljcm9zb2Z0LmNvbSIsIm5iZiI6MTYyMzE5MjAwMCwiZXhwIjoxNjIzMTk1NjAwLCJpc3MiOiJtcm9jaG9uYjJjcHJvZCIsImF1ZCI6Im1yb2Nob25iMmNwcm9kIn0.9e4BRNbL7rSc5DulCDDJF7fSXGHkSF-XSKSyfbWuNfA
 ```
 
