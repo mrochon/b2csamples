@@ -1,0 +1,6 @@
+{
+    "Prefix": "INVITE",
+    "InvitationAudience": "mrochonb2cprod",
+    "InvitationIssuer": "mrochonb2cprod",
+    "InvitationSigningKey": "B2C_1A_InvitationKey"
+}
