@@ -14,6 +14,9 @@ using Microsoft.Identity.Client;
 using B2CRestApis.Services;
 using System.Net.Http;
 using Microsoft.OpenApi.Models;
+using B2CRestApis.Models;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace B2CRestApis
 {
@@ -29,12 +32,31 @@ namespace B2CRestApis
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<SymetricKeyOptions>(Configuration.GetSection("SymetricKey"));
+            services.Configure<BasicAuthOptions>(Configuration.GetSection("BasicAuth"));
+            services.Configure<InvitationTokenOptions>(Configuration.GetSection("Invitation"));
             services.AddScoped<IBasicAuthenticationService, SymmetricKeyAuthentication>();
-            services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
-                .AddBasicAuthentication();
+            services.AddTransient<Services.InvitationService>();
+            services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme) // JwtBearerDefaults.AuthenticationScheme) //BasicAuthenticationDefaults.AuthenticationScheme)
+                .AddBasicAuthentication()
+                .AddJwtBearer(options =>
+                {
+                    options.MetadataAddress = "https://mrochonb2cprod.b2clogin.com/mrochonb2cprod.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_BasicSUSI";
+                    options.Audience = "5e976aba-65ee-4185-8fdc-d317f7c34959";
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    {
+                        NameClaimType = "name"
+                    };
+                });
+            //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("B2C"));
+            //services.Configure<MicrosoftIdentityOptions>(options =>
+            //{
+            //    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+            //    {
+            //        ValidateIssuer = false
+            //    };
+            //});
 
-            services.AddHttpClient("B2C", (s,c) => SetupGraphClient("AAD", c));
+            services.AddHttpClient("B2C", (s,c) => SetupGraphClient("B2C", c));
             services.AddHttpClient("O365", (s, c) => SetupGraphClient("O365", c));
 
             services.AddControllers();

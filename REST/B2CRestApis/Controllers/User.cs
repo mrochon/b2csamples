@@ -10,6 +10,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using B2CRestApis.Models;
+using Microsoft.Identity.Web.Resource;
 
 namespace B2CRestApis.Controllers
 {
@@ -20,11 +21,16 @@ namespace B2CRestApis.Controllers
     {
         private readonly ILogger<User> _logger;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly InvitationService _inviter;
 
-        public User(IHttpClientFactory clientFactory, ILogger<User> logger)
+        public User(
+            IHttpClientFactory clientFactory, 
+            ILogger<User> logger,
+            InvitationService inviter)
         {
             _logger = logger;
             _clientFactory = clientFactory;
+            _inviter = inviter;
         }
 
         [HttpGet("roles")]
@@ -73,6 +79,14 @@ namespace B2CRestApis.Controllers
                     return StatusCode(404, new ErrorMsg { status = HttpStatusCode.Unauthorized, userMessage = "User not found" });
                 }
             }
+        }
+        static readonly string[] scopeRequiredByApi = new string[] { "User.Invite" };
+        [HttpPost("oauth2/invite")]
+        [Authorize]
+        public string Invite([FromBody] InvitationDetails invite)
+        {
+            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            return _inviter.GetInvitationUrl(User, invite);
         }
     }
 }
