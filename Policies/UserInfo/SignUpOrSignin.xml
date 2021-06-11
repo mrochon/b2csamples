@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="yourtenant.onmicrosoft.com"
+  PolicyId="B2C_1A_signup_signin"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_signup_signin">
+
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Token Issuer</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="UserInfoIssuer">
+          <DisplayName>JSON Issuer</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>JSON</OutputTokenFormat>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <!-- The Below claims are what will be returned on the UserInfo Endpoint if in the Claims Bag-->
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId"/>
+            <InputClaim ClaimTypeReferenceId="givenName"/>
+            <InputClaim ClaimTypeReferenceId="surname"/>
+            <InputClaim ClaimTypeReferenceId="displayName"/>
+            <InputClaim ClaimTypeReferenceId="signInNames.emailAddress"/>
+          </InputClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="UserInfoAuthorization">
+          <DisplayName>UserInfo authorization</DisplayName>
+          <Protocol Name="None" />
+          <InputTokenFormat>JWT</InputTokenFormat>
+          <Metadata>
+            <!-- Update the Issuer and Audience below -->
+            <!-- Audience is optional, Issuer is required-->
+            <Item Key="issuer">https://yourtenant.b2clogin.com/{tenantId}/v2.0/</Item>
+            <!--Item Key="audience">[ "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333" ]</Item-->
+            <Item Key="client_assertion_type">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+            <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email"/>
+            <!-- Optional claims to read from the access token. -->
+            <!-- <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name"/>
+              <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name"/>
+              <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name"/> -->
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="UserInfoJourney" DefaultCpimIssuerTechnicalProfileReferenceId="UserInfoIssuer">
+      <Authorization>
+        <AuthorizationTechnicalProfiles>
+          <AuthorizationTechnicalProfile ReferenceId="UserInfoAuthorization" />
+        </AuthorizationTechnicalProfiles>
+      </Authorization>
+      <OrchestrationSteps >
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges UserIdentity="false">
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="UserInfoIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>  
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
+    <Endpoints>
+      <Endpoint Id="UserInfo" UserJourneyReferenceId="UserInfoJourney" />
+    </Endpoints>    
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

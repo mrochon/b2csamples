@@ -81,7 +81,7 @@
         <DataType>boolean</DataType>
       </ClaimType>             
     </ClaimsSchema>
-    <ContentDefinitions>
+    <!--ContentDefinitions>
       <ContentDefinition Id="api.signuporsignin">
           <LoadUri>{SUSI_UI}</LoadUri>
       </ContentDefinition>   
@@ -93,9 +93,10 @@
             <Item Key="DisplayName">Signin</Item>
           </Metadata>         
       </ContentDefinition>                      
-    </ContentDefinitions>    
+    </ContentDefinitions-->    
   </BuildingBlocks>
 
+  
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>    

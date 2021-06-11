@@ -380,12 +380,12 @@ $props = @{
     WEBSITE_LOAD_CERTIFICATES = $cert.Thumbprint;
     WEBSITE_NODE_DEFAULT_VERSION = "6.9.1";
 }
-$api = Set-AzWebApp -Name $webAPISvc `
+Set-AzWebApp -Name $webAPISvc `
         -ResourceGroupName $settings.resourceGroup `
         -AppSettings $props
 $api.ClientCertEnabled = $true
 $api.ClientCertExclusionPaths = "/tenant/oauth2"
-$api = Set-AzWebApp -WebApp $api
+Set-AzWebApp -WebApp $api
 
 #New-AzWebAppSSLBinding -WebAppName $webAPISvc `
 #        -ResourceGroupName $settings.resourceGroup `

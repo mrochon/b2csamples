@@ -1,8 +1,8 @@
 {
-    "b2cTenant": "mrochonb2cprod.onmicrosoft.com",
+    "b2cTenant": "b2cmultitenant.onmicrosoft.com",
     "policyPrefix": "MT",
     "script": {
-        "clientId": "cbc09241-eb05-4178-afe1-03dc67ffa1b7",
+        "clientId": "07aac345-f71b-45e3-bb3d-44bd12134012",
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
         "scopes": ["Directory.AccessAsUser.All", "TrustFrameworkKeySet.ReadWrite.All"]
     },
