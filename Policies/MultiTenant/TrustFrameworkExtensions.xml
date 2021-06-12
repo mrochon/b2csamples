@@ -110,6 +110,9 @@
             <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="ProxyIdentityExperienceFrameworkAppId" />
             <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
           </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />
+          </OutputClaims>
         </TechnicalProfile>
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
           <InputClaims>
@@ -370,6 +373,7 @@
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
+
 
   <UserJourneys>
     <!-- Jurney for invited members only. Does not allow UI entry of tenant name -->

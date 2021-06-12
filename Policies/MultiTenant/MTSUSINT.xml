@@ -190,6 +190,7 @@
         <OutputClaim ClaimTypeReferenceId="appTenantName" />
         <OutputClaim ClaimTypeReferenceId="appTenantId" />  
         <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />      
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />  
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
