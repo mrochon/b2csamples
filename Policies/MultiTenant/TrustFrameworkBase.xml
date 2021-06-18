@@ -432,7 +432,7 @@
       </ContentDefinition>
 
       <ContentDefinition Id="api.idpselections.signup">
-        <LoadUri>~/tenant/templates/AzureBlue/idpSelector.cshtml</LoadUri>
+        <LoadUri>{SUSI_UI}</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
         <DataUri>urn:com:microsoft:aad:b2c:elements:idpselection:1.0.0</DataUri>
         <Metadata>
@@ -442,7 +442,7 @@
       </ContentDefinition>
 
       <ContentDefinition Id="api.signuporsignin">
-        <LoadUri>~/tenant/templates/AzureBlue/unified.cshtml</LoadUri>
+        <LoadUri>{SignInOnly_UI}</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
         <DataUri>urn:com:microsoft:aad:b2c:elements:unifiedssp:1.0.0</DataUri>
         <Metadata>

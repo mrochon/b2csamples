@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using B2CRestApis.Models;
 using Microsoft.AspNetCore.Http;
@@ -93,6 +94,18 @@ namespace B2CRestApis.Controllers
             }
             else
                 return StatusCode(404, new ErrorMsg { status = HttpStatusCode.Unauthorized, userMessage = "User id or password is invalid" });
+        }
+        private static readonly string emailPattern = @"^((\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*)\s*";
+        private static readonly string ssnPattern = @"^\d{3}-\d{2}-\d{4}$";
+        [HttpGet]
+        public object GetIdType([FromQuery] string id)
+        {
+            if (Regex.IsMatch(id, emailPattern))
+                return new { idType = "email" };
+            if (Regex.IsMatch(id, ssnPattern))
+                return new { idType = "ssn" };
+            return StatusCode(409, new ErrorMsg { status = HttpStatusCode.Conflict, userMessage = "Invalid user id" });
+
         }
     }
 }

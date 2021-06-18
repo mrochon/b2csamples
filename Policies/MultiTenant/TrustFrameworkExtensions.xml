@@ -115,6 +115,9 @@
           </OutputClaims>
         </TechnicalProfile>
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <Metadata>
+            <Item Key="SignUpTarget"></Item>
+          </Metadata>          
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" />
           </InputClaims>
@@ -487,7 +490,7 @@
     <UserJourney Id="SUSI_FirstTenant">
       <OrchestrationSteps>
         <!--OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signinonly"-->
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.idpselections">
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />                  
             <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />          
