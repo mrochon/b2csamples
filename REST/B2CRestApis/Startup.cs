@@ -86,7 +86,7 @@ namespace B2CRestApis
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "REST v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "B2CRestApis v1"));
             }
 
             app.UseHttpsRedirection();
