@@ -16,6 +16,7 @@ IEF policies as well as policies for other samples and REST functions related to
 | April 11, 2021  | Moving all REST VS.NET project to the REST folder (all APIs ecept thos for multi-tenant) |
 | April 11, 2021  | Adding sample to support Application Roles |
 | April 27, 2021  | Adding sample to prevent employees from creating local accounts (policies and REST API) |
+| July 13, 2021  | Added IDTokenSelfHint and RefreshToken samples |
 
 ## Samples list
 
@@ -30,3 +31,4 @@ IEF policies as well as policies for other samples and REST functions related to
 | [IdTokenSelfHint](https://github.com/mrochon/b2csamples/tree/master/Policies/IdTokenSelfHint)  | Allows long-running native apps to initiate profile edit without needing to re-authenticate user |
 | [Invite](https://github.com/mrochon/b2csamples/tree/master/Policies/Invitation)  | Create/use an invitation link using client_assertion request |
 | [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
+| [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |

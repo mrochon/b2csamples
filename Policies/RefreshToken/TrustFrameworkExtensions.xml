@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0"     
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_TrustFrameworkExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="refreshTokenIssuedOnDateTime">
+        <DisplayName>refreshTokenIssuedOnDateTime </DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="refreshTokensValidFromDateTime">
+        <DisplayName>refreshTokenIssuedOnDateTime </DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>      
+      <ClaimType Id="refreshToken">
+        <DisplayName>IDP's refresh token</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>        
+    </ClaimsSchema>
+    <ClaimsTransformations>
+      <ClaimsTransformation Id="AssertRefreshTokenIssuedLaterThanValidFromDate" TransformationMethod="AssertDateTimeIsGreaterThan">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" TransformationClaimType="leftOperand" />
+          <InputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" TransformationClaimType="rightOperand" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="AssertIfEqualTo" DataType="boolean" Value="false" />
+          <InputParameter Id="AssertIfRightOperandIsNotPresent" DataType="boolean" Value="true" />
+           <InputParameter Id="TreatAsEqualIfWithinMillseconds" DataType="int" Value="10000" />
+        </InputParameters>
+      </ClaimsTransformation>
+
+    </ClaimsTransformations>
+
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+
+    <ClaimsProvider>
+      <DisplayName>Facebook</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="Facebook-OAUTH">
+          <Metadata>
+            <Item Key="client_id">facebook_clientid</Item>
+            <Item Key="scope">email public_profile</Item>
+            <Item Key="ClaimsEndpoint">https://graph.facebook.com/me?fields=id,first_name,last_name,name,email</Item>
+          </Metadata>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <Domain>google.com</Domain>
+      <DisplayName>Google</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="Google-OAuth2">
+          <DisplayName>Google</DisplayName>
+          <Protocol Name="OAuth2" />
+          <Metadata>
+            <Item Key="ProviderName">google</Item>
+            <Item Key="authorization_endpoint">https://accounts.google.com/o/oauth2/auth</Item>
+            <Item Key="AccessTokenEndpoint">https://accounts.google.com/o/oauth2/token</Item>
+            <Item Key="ClaimsEndpoint">https://www.googleapis.com/oauth2/v1/userinfo</Item>
+            <Item Key="scope">email profile</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="client_id">{GoogleClientId}</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleSecret2" />
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="id" />
+            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email" />
+            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="google.com" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName" />
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName" />
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId" />
+            <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId" />
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <Domain>Meraridom</Domain>
+      <DisplayName>Login using {AADTenant}</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD{Tenant}-OpenIdConnect">
+          <DisplayName>{AADTenant} Employee</DisplayName>
+          <Description>Login with your {AADTenant}} account</Description>
+          <Protocol Name="OpenIdConnect"/>
+          <Metadata>
+            <Item Key="METADATA">https://login.microsoftonline.com/{AADTenant}.onmicrosoft.com/v2.0/.well-known/openid-configuration</Item>
+            <Item Key="client_id">{AADClientId}</Item>
+            <Item Key="response_types">code</Item>
+            <Item Key="scope">openid profile offline_access</Item>
+            <Item Key="response_mode">form_post</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_{AADTenant}ClientSecret"/>
+          </CryptographicKeys>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid"/>
+            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid"/>
+            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name" />
+            <OutputClaim ClaimTypeReferenceId="surName" PartnerClaimType="family_name" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" PartnerClaimType="iss" />
+            <OutputClaim ClaimTypeReferenceId="refreshToken" DefaultValue="{oauth2:refresh_token}" AlwaysUseDefaultValue="true" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName"/>
+            <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName"/>
+            <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId"/>
+            <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId"/>
+          </OutputClaimsTransformations>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin"/>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>    
+
+    <ClaimsProvider>
+      <DisplayName>Token handler</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="JwtIssuer">
+          <DisplayName>JWT Issuer</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>JWT</OutputTokenFormat>
+          <Metadata>
+            <Item Key="client_id">{service:te}</Item>
+            <Item Key="issuer_refresh_token_user_identity_claim_type">objectId</Item>
+            <Item Key="SendTokenResponseBodyWithJsonNumbers">true</Item>
+            <Item Key="RefreshTokenUserJourneyId">RedeemRefreshTokenV1</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+            <Key Id="issuer_refresh_token_key" StorageReferenceId="B2C_1A_TokenEncryptionKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims />
+          <OutputClaims />
+        </TechnicalProfile>
+        <TechnicalProfile Id="TpEngine_RefreshTokenReadAndSetup">
+          <DisplayName>Trustframework Policy Engine Refresh Token Setup Technical Profile</DisplayName>
+          <Protocol Name="None" />
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" />
+          </OutputClaims>
+        </TechnicalProfile>  
+        <TechnicalProfile Id="AAD-UserReadUsingObjectId-CheckRefreshTokenDate">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" />
+          </OutputClaims>
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="AssertRefreshTokenIssuedLaterThanValidFromDate" />
+          </OutputClaimsTransformations>
+          <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingObjectId" />
+        </TechnicalProfile>
+
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignIn">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="{AADTenant}Exchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAuth2" />
+            <ClaimsExchange Id="{AADTenant}Exchange" TechnicalProfileReferenceId="AAD{Tenant}-OpenIdConnect" />            
+          </ClaimsExchanges>
+        </OrchestrationStep>
+      </OrchestrationSteps>    	
+    </UserJourney>   
+    
+    <UserJourney Id="RedeemRefreshTokenV1">
+      <AssuranceLevel>LOA1</AssuranceLevel>
+      <PreserveOriginalAssertion>false</PreserveOriginalAssertion>
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RefreshTokenSetupExchange" TechnicalProfileReferenceId="TpEngine_RefreshTokenReadAndSetup" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CheckRefreshTokenDateFromAadExchange" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId-CheckRefreshTokenDate" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+
+	</UserJourneys>
+
+</TrustFrameworkPolicy>
