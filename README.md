@@ -6,17 +6,9 @@
 the VS projects related to this demo (UI and reST APIs) to separate repos. This repo will still contain the related
 IEF policies as well as policies for other samples and REST functions related to them.**
 
-## Changes
+## New (Sep 2021)
 
-| Date  | Description  |
-|---|---|
-| May 5th, 2020  | Provided full [deployment script](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant) for the multi-tenant sample |
-| May 13th, 2020  | Added support for per tenant MFA required option |
-| Dec 31st, 2020  | Modified MultiTenant setup PS script to allow choice of Azure subscription |
-| April 11, 2021  | Moving all REST VS.NET project to the REST folder (all APIs ecept thos for multi-tenant) |
-| April 11, 2021  | Adding sample to support Application Roles |
-| April 27, 2021  | Adding sample to prevent employees from creating local accounts (policies and REST API) |
-| July 13, 2021  | Added IDTokenSelfHint and RefreshToken samples |
+Added sample to allow B2C to be used as Federated IdP for external users in Azure AD (B2B).
 
 ## Samples list
 
@@ -32,3 +24,4 @@ IEF policies as well as policies for other samples and REST functions related to
 | [Invite](https://github.com/mrochon/b2csamples/tree/master/Policies/Invitation)  | Create/use an invitation link using client_assertion request |
 | [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
+| [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |

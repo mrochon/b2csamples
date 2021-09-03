@@ -16,12 +16,38 @@
   <UserJourneys>
     <UserJourney Id="SignUpOrSignIn">
       <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />
+          </ClaimsProviderSelections>
+        </OrchestrationStep>
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAUTH2" />
+          </ClaimsExchanges>
+        </OrchestrationStep>  
         <OrchestrationStep Order="7" Type="ClaimsExchange" >
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>socialIdpAuthentication</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>newUser</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>            
+          </Preconditions>          
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CopyEmail" TechnicalProfileReferenceId="SetLocalUsersEmail" />
+          </ClaimsExchanges>         
+        </OrchestrationStep>              
+        <OrchestrationStep Order="8" Type="ClaimsExchange" >
           <ClaimsExchanges>
             <ClaimsExchange Id="FixupEmail" TechnicalProfileReferenceId="EmailFixup" />
           </ClaimsExchanges>         
         </OrchestrationStep>
-        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Saml2AssertionIssuer"/>
+        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="Saml2AssertionIssuer"/>
       </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>    
