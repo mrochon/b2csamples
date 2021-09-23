@@ -40,6 +40,7 @@
           <Metadata>
             <!-- Update the Issuer and Audience below -->
             <!-- Audience is optional, Issuer is required-->
+            <!-- tenantId will be updated automatically by Import-Iefpolicies /-->
             <Item Key="issuer">https://yourtenant.b2clogin.com/{tenantId}/v2.0/</Item>
             <!--Item Key="audience">[ "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333" ]</Item-->
             <Item Key="client_assertion_type">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</Item>
