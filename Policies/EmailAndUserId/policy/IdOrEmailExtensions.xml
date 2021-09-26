@@ -5,8 +5,8 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
   TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_TrustFrameworkExtensions" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  PolicyId="B2C_1A_IdOrEmailExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_IdOrEmailExtensions">
   
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -116,7 +116,7 @@
 
     <UserJourneys>
 
-    <UserJourney Id="SignUpOrSignIn">
+    <UserJourney Id="IdOrEmailSUSI">
       <OrchestrationSteps>
    
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
