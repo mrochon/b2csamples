@@ -115,7 +115,7 @@
           <Protocol Name="OpenIdConnect"/>
           <Metadata>
             <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
-            <Item Key="client_id">b4d453c6-369e-4551-8580-177a0043d595</Item>
+            <Item Key="client_id">{AADMTClientAppId}</Item>
             <Item Key="response_types">code</Item>
             <Item Key="scope">openid profile</Item>
             <Item Key="response_mode">form_post</Item>
