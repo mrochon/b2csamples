@@ -6,8 +6,9 @@
 the VS projects related to this demo (UI and reST APIs) to separate repos. This repo will still contain the related
 IEF policies as well as policies for other samples and REST functions related to them.**
 
-## New (Sep 2021)
+## Changes
 | Date | Change |
+|---|---|
 | Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
 | Sep 2021 | New: JIT Migration |
 | Sep 2021 | Change: Simplified Invitation sample |

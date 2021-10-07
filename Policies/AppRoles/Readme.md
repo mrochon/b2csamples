@@ -20,7 +20,7 @@ You can open the AAD portal view;s Enterprise Tab to assign users to the defined
 these groups to the application roles using the [Graph SDK PowerShell](https://docs.microsoft.com/en-us/graph/powershell/get-started)
  script below and then just assign users to groups using the Azure portal.
 
-``
+`
 $scopes = @("Application.Read.All","Group.Read.All","AppRoleAssignment.ReadWrite.All")
 $appId = "<application id>"
 $groupId = '<group object id>'
@@ -28,7 +28,7 @@ $roleId = "<role id>"
 Connect-MgGraph -TenantId <your tenant name> -scopes $scopes
 $svcPrincipal = Get-MgServiceprincipal -filter "AppId eq '$appId'"
 New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $svcPrincipal.Id -AppRoleId $roleId -PrincipalId $groupId -ResourceId $svcPrincipal.Id 
-``
+`
 
 ## Run-time support
 Using the following IEF policies as sample and the the related [REST API defined here](https://github.com/mrochon/b2csamples/tree/master/REST), will result
