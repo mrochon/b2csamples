@@ -13,6 +13,7 @@ IEF policies as well as policies for other samples and REST functions related to
 | Sep 2021 | New: JIT Migration |
 | Sep 2021 | Change: Simplified Invitation sample |
 | Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
+| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
 
 ## Samples list
 

@@ -9,6 +9,7 @@ namespace CreateInvitation
     public class InvitationDetails
     {
         public string inviteEmail { get; set; }
+        public string domain_hint { get; set; }        
         public Dictionary<string, string> additionalClaims { get; set; }
     }
 }

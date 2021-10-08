@@ -46,7 +46,7 @@ namespace CreateInvitation
             var tokens = app.AcquireTokenInteractive(new string[] { "openid" }).WithUseEmbeddedWebView(true).ExecuteAsync().Result;
             */
 
-            Console.WriteLine(svc.GetInvitationUrl(new InvitationDetails { inviteEmail = args[0] }));
+            Console.WriteLine(svc.GetInvitationUrl(new InvitationDetails { inviteEmail = args[0], domain_hint="" }));
             return host.RunAsync();
         }
         public static InvitationTokenOptions options = new();
