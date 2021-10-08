@@ -4,6 +4,8 @@
     {
         public string TenantName { get; set; }
         public string ClientId { get; set; }
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
         public string Policy { get; set; }
         public string SigningKey { get; set; }
         public int ValidityMinutes { get; set; }
