@@ -289,7 +289,7 @@ New-AzAppServicePlan -Name $svcPlan -location $settings.location -ResourceGroupN
 $app = New-AzWebApp -Name $webAppSvc `
     -location $settings.location `
     -AppServicePlan $svcPlan `
-    -ResourceGroupName $settings.resourceGroup
+    -ResourceGroupName $settings.resourceGroup -HttpLoggingEnabled $true
 
 $props = @{
     "AzureAD:TenantId" = $b2c.TenantId.ToString();
@@ -303,7 +303,7 @@ $props = @{
 }
 Set-AzWebApp -Name $webAppSvc `
     -ResourceGroupName $settings.resourceGroup `
-    -AppSettings $props
+    -AppSettings $props -HttpLoggingEnabled $true
 
 ####################### Create X509 cert for authn to REST #######################################
 "Creating X509 cert for IEF to Oauth2 autz"
@@ -382,7 +382,7 @@ $props = @{
 }
 Set-AzWebApp -Name $webAPISvc `
         -ResourceGroupName $settings.resourceGroup `
-        -AppSettings $props
+        -AppSettings $props -HttpLoggingEnabled $true
 $api.ClientCertEnabled = $true
 $api.ClientCertExclusionPaths = "/tenant/oauth2"
 Set-AzWebApp -WebApp $api
