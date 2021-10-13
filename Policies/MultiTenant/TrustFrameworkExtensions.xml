@@ -115,9 +115,9 @@
           </OutputClaims>
         </TechnicalProfile>
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
-          <Metadata>
+          <!--Metadata>
             <Item Key="SignUpTarget"></Item>
-          </Metadata>          
+          </Metadata-->          
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" />
           </InputClaims>

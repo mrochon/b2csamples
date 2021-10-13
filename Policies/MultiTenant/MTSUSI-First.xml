@@ -13,6 +13,20 @@
     <PolicyId>B2C_1A_Extensions</PolicyId>
   </BasePolicy>
 
+
+  <BuildingBlocks>
+    <ContentDefinitions>
+      <ContentDefinition Id="api.signuporsignin">
+        <LoadUri>{SignInOnly_UI}</LoadUri>
+        <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:unifiedssp:1.0.0</DataUri>
+        <Metadata>
+          <Item Key="DisplayName">Signin and Signup</Item>
+        </Metadata>
+      </ContentDefinition>
+    </ContentDefinitions>
+  </BuildingBlocks>
+
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SUSI_FirstTenant" />
     <TechnicalProfile Id="PolicyProfile">

@@ -6,7 +6,9 @@
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
   PolicyId="B2C_1A_SusiNT"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SusiNT">
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SusiNT"
+  DeploymentMode="Development"
+UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -177,6 +179,9 @@
 
   <RelyingParty>
     <DefaultUserJourney ReferenceId="NewTenantSusi" />
+    <UserJourneyBehaviors>
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="f4c6ac60-4a90-4d8a-92d7-7b415e03b5d2" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />    
+      </UserJourneyBehaviors>    
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />

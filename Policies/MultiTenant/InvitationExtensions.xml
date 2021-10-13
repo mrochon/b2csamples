@@ -19,7 +19,10 @@
         <DataType>string</DataType>
         <UserHelpText>Invitation email</UserHelpText>
         <UserInputType>Readonly</UserInputType>
-      </ClaimType>                         
+      </ClaimType>  
+      <ClaimType Id="signInName">
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>                             
     </ClaimsSchema>
     <ClaimsTransformations>
       <ClaimsTransformation Id="AssertSigninNameAndInviteEmailAreEqual" TransformationMethod="AssertStringClaimsAreEqual">

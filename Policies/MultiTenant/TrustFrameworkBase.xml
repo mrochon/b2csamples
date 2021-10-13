@@ -442,9 +442,9 @@
       </ContentDefinition>
 
       <ContentDefinition Id="api.signuporsignin">
-        <LoadUri>{SignInOnly_UI}</LoadUri>
+        <LoadUri>~/tenant/templates/AzureBlue/unified.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-        <DataUri>urn:com:microsoft:aad:b2c:elements:unifiedssp:1.0.0</DataUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:contract:unifiedssp:2.1.5</DataUri>
         <Metadata>
           <Item Key="DisplayName">Signin and Signup</Item>
         </Metadata>
@@ -462,7 +462,7 @@
       <ContentDefinition Id="api.selfasserted">
         <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
           <Item Key="DisplayName">Collect information from user page</Item>
         </Metadata>
@@ -471,7 +471,7 @@
       <ContentDefinition Id="api.selfasserted.profileupdate">
         <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
           <Item Key="DisplayName">Collect information from user page</Item>
         </Metadata>
@@ -480,7 +480,7 @@
       <ContentDefinition Id="api.localaccountsignup">
         <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
         <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-        <DataUri>urn:com:microsoft:aad:b2c:elements:selfasserted:1.1.0</DataUri>
+        <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.1.7</DataUri>
         <Metadata>
           <Item Key="DisplayName">Local account sign up page</Item>
         </Metadata>
