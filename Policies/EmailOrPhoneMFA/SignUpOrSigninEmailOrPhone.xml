@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_susi_email_or_phone"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_susi_email_or_phone">
+  PolicyId="B2C_1A_email_or_phone_susi"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_email_or_phone_susi">
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensionsEmailOrPhone</PolicyId>
+    <PolicyId>B2C_1A_EmailOrPhoneExtensions</PolicyId>
   </BasePolicy>
 
   <RelyingParty>

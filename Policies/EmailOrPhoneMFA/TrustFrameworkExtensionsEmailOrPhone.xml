@@ -5,8 +5,8 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
   TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_TrustFrameworkExtensionsEmailOrPhone" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensionsemailOrPhone">
+  PolicyId="B2C_1A_EmailOrPhoneExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_EmailOrPhoneExtensions">
   
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>

@@ -7,9 +7,9 @@ Based on recommendations from JasS.
 ## Purpose
 
 Users migrated to B2C using Graph, batch migration are created without a verified email address.
-That attribute is not accessible thorugh Graph. Consequently, the default password reset flows, which require that attribute cannot be executed. The following policies create an extension attribute for verified mail and use it to drive the password reset flow. Note that all users,
+That attribute is not accessible thorugh Graph. Consequently, the default password reset flows, which require that attribute, cannot be executed. The following policies create an extension attribute for verified mail and use it to drive the password reset flow. Note that all users,
 whether created through the Batch POST operation or the signup policy have to use this attribute.
-Therefore, you should only use the signup policy defined here (or a variante thereof) or the Graph POST statement to create users.
+Therefore, you should only use the signup policy defined here (or a variant thereof) or the Graph POST statement to create users.
 
 ## Microsoft Graph user create
 
