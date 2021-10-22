@@ -22,8 +22,8 @@ namespace B2CRestApis.Controllers
         {
             _logger = logger;
         }
-
-        public async Task<ActionResult> GetDomainHint(string email)
+        [AllowAnonymous]
+        public async Task<ActionResult> GetDomainHint(string email, bool allowAny)
         {
             var http = new HttpClient();
             var json = await http.GetStringAsync($"https://login.windows.net/common/UserRealm/{email}?api-version=2.0");
@@ -36,6 +36,8 @@ namespace B2CRestApis.Controllers
             catch
             {
             }
+            if (allowAny)
+                return new OkResult();
             return this.ErrorResponse(409, "Email cannot be resolved to an IdP");
         }
         private static string[] _IdPDomains = { "gmail.com" };
