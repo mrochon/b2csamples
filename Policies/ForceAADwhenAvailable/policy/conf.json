@@ -1,5 +1,6 @@
 {
     "Prefix": "HRD",
     "DoHRD": "https://b2crestapis.azurewebsites.net/hrd",
-    "AADMTClientAppId": "b4d453c6-369e-4551-8580-177a0043d595"
+    "AADMTClientAppId": "b4d453c6-369e-4551-8580-177a0043d595",
+    "AADMTClientSecretKeyName": "B2C_1A_AADCommonSecret"
 }
