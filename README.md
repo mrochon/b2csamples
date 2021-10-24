@@ -14,6 +14,7 @@ IEF policies as well as policies for other samples and REST functions related to
 | Sep 2021 | Change: Simplified Invitation sample |
 | Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
 | Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
+| Oct 2021 | New: Conditional Access |
 
 ## Samples list
 
@@ -22,6 +23,7 @@ IEF policies as well as policies for other samples and REST functions related to
 | [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
+| [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
 | [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
   [EmailOrPhoneMFA](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOrPhoneMFA)  | Allows local users to use either their email or phone for 2nd FA |
 | [ForceADWhenAvaialble](https://github.com/mrochon/b2csamples/tree/master/Policies/ForceAADwhenAvailable)  | Users who signup with an email address supported by an AAD tenant will be automatically redirected there (rather than defining local password in B2C) |
