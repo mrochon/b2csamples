@@ -9,7 +9,7 @@ Based on the Social and Local with MFA starter pack, implemants Conditional Acce
 Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
 
 ```PowerShell
-New-IefPoliciesSample ConditionalAccess -owner mrochon -repo b2csamples
+Add-IefPoliciesSample ConditionalAccess -owner mrochon -repo b2csamples
 ```
 
 to add to an existing SocialLocal with MFA policy set
