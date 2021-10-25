@@ -358,29 +358,11 @@
             <Candidate SubJourneyReferenceId="CA-Apply"/>
           </JourneyList>
         </OrchestrationStep>
-        
-        <!-- SubJourney cannot be called from a subjourney -->
-        <OrchestrationStep Order="7" Type="InvokeSubJourney">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>newUser</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>               
-            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>CAChallengeIsChgPwd</Value>
-              <Value>False</Value>              
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <JourneyList>
-            <Candidate SubJourneyReferenceId="CAPasswordReset"/>
-          </JourneyList>
-        </OrchestrationStep>                 
 
         <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no attributes to collect 
              from the user. So, in that case, create the user in the directory if one does not already exist 
              (verified using objectId which would be set from the last step if account was created in the directory. -->
-        <OrchestrationStep Order="8" Type="ClaimsExchange">
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
@@ -392,7 +374,7 @@
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
 
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
@@ -444,28 +426,14 @@
             <Candidate SubJourneyReferenceId="CA-Apply"/>
           </JourneyList>
         </OrchestrationStep>
-        
-        <!-- SubJourney cannot be called from a subjourney -->
-        <OrchestrationStep Order="6" Type="InvokeSubJourney">
-          <Preconditions>
-            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>CAChallengeIsChgPwd</Value>
-              <Value>False</Value>              
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <JourneyList>
-            <Candidate SubJourneyReferenceId="CAPasswordReset"/>
-          </JourneyList>
-        </OrchestrationStep>                 
 
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
-        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
 
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
@@ -529,7 +497,19 @@
           <ClaimsExchanges>
             <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
           </ClaimsExchanges>
-        </OrchestrationStep>           
+        </OrchestrationStep>   
+        <OrchestrationStep Order="6" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>CAChallengeIsChgPwd</Value>
+              <Value>False</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="CAPasswordReset"/>
+          </JourneyList>
+        </OrchestrationStep>                      
       </OrchestrationSteps>
     </SubJourney>
 
