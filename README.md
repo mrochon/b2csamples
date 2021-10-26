@@ -1,11 +1,5 @@
 # My B2C samples
 
-## The B2C Multi-tenant sample code has been split into several repos
-
-**In order to provide scripted deployment of (just) the [B2C multi-tenant demo](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant) I have moved
-the VS projects related to this demo (UI and reST APIs) to separate repos. This repo will still contain the related
-IEF policies as well as policies for other samples and REST functions related to them.**
-
 ## Changes
 | Date | Change |
 |---|---|
