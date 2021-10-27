@@ -11,9 +11,16 @@ namespace B2CRestApis.Models
         public ErrorMsg()
         {
             version = "1.0.1";
+            status = 409;
         }
-        public string version { get; private set; }
-        public HttpStatusCode status { get; set; }
+        public string version { get; set; }
+        public int status { get; set; }
         public string userMessage { get; set; }
+
+        // Optional
+        public int code { get; set; }
+        public string requestId { get; set; }
+        public string developerMessage { get; set; }
+        public string moreInfo { get; set; }
     }
 }

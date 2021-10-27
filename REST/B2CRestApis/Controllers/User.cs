@@ -77,7 +77,7 @@ namespace B2CRestApis.Controllers
                 } catch
                 {
                     _logger.LogDebug($"Starting Find({id} returning 'not found'");
-                    return StatusCode(404, new ErrorMsg { status = HttpStatusCode.Unauthorized, userMessage = "User not found" });
+                    return StatusCode(404, new ErrorMsg { userMessage = "User not found" });
                 }
             }
         }

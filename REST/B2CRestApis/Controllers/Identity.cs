@@ -93,7 +93,7 @@ namespace B2CRestApis.Controllers
                 }
             }
             else
-                return StatusCode(404, new ErrorMsg { status = HttpStatusCode.Unauthorized, userMessage = "User id or password is invalid" });
+                return StatusCode(404, new ErrorMsg { userMessage = "User id or password is invalid" });
         }
         private static readonly string emailPattern = @"^((\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*)\s*";
         private static readonly string ssnPattern = @"^\d{3}-\d{2}-\d{4}$";
@@ -104,7 +104,7 @@ namespace B2CRestApis.Controllers
                 return new { idType = "email" };
             if (Regex.IsMatch(id, ssnPattern))
                 return new { idType = "ssn" };
-            return StatusCode(409, new ErrorMsg { status = HttpStatusCode.Conflict, userMessage = "Invalid user id" });
+            return StatusCode(409, new ErrorMsg { userMessage = "Invalid user id" });
 
         }
     }
