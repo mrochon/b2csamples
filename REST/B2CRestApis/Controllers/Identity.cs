@@ -35,12 +35,19 @@ namespace B2CRestApis.Controllers
         {
             return "OK";
         }
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] Credential cred)
+        {
+            if (string.Compare(cred.userId, cred.password) == 0)
+                return Ok();
+            return NotFound();
+        }
 
-        /// <summary>
-        /// If userid and pwd are equal returns success with data pointing to an existing B2C user. Otherwise, fails.
-        /// </summary>
-        /// <param name="cred"></param>
-        /// <returns></returns>
+            /// <summary>
+            /// If userid and pwd are equal returns success with data pointing to an existing B2C user. Otherwise, fails.
+            /// </summary>
+            /// <param name="cred"></param>
+            /// <returns></returns>
         [HttpPost("auth")]
         public async Task<ActionResult> Authenticate([FromBody] Credential cred)
         {
