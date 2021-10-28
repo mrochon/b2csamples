@@ -60,7 +60,7 @@ namespace B2CRestApis.Controllers
             }
             return Ok();
         }
-        [HttpGet("ValidSource")]
+        [HttpGet("VerifySource")]
         [AllowAnonymous]
         public IActionResult Verify([FromQuery] string email, string ipAddress)
         {
@@ -107,7 +107,7 @@ namespace B2CRestApis.Controllers
             if (String.IsNullOrEmpty(ipAddress))
                 return false;
             IPAddress ip;
-            if (IPAddress.TryParse(ipAddress, out ip))
+            if (!IPAddress.TryParse(ipAddress, out ip))
                 return false;
 
             string[] parts = CIDRmask.Split('/');
