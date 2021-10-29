@@ -1,5 +1,7 @@
 # Force use of AAD (work account) when available
 
+Requires federation with [AAD to support multi-tenant users](https://docs.microsoft.com/en-us/azure/active-directory-b2c/identity-provider-azure-ad-multi-tenant?pivots=b2c-custom-policy).
+
 Sign-in policy which first asks for user email, determines whether there is an existing Azure AD tenant for
 the user's domain and, if it is redirects the user to that tenant. Other users are sent to local signin.
 
