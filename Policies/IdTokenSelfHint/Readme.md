@@ -1,5 +1,8 @@
 # Using B2C id_token_hint to initiate the edit journey
 
+## Based on
+
+Local starter pack. To use with Social starter packs, ProfileEdit2.xml needs modification. IdTokenHintExtensions contains TPs usable in other RelyingParties.
 
 ## Purpose
 Native apps use both browser cookies and refresh tokens to maintain user session

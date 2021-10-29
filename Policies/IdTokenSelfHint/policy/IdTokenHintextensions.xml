@@ -5,35 +5,18 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
   TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_TrustFrameworkExtensions" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  PolicyId="B2C_1A_IDTokenHintExtensionsExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_IDTokenHintExtensionsExtensions">
   
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
 
   </BuildingBlocks>
 
   <ClaimsProviders>
-
-
-    <ClaimsProvider>
-      <DisplayName>Local Account SignIn</DisplayName>
-      <TechnicalProfiles>
-         <TechnicalProfile Id="login-NonInteractive">
-          <Metadata>
-            <Item Key="client_id">ProxyIdentityExperienceFrameworkAppId</Item>
-            <Item Key="IdTokenAudience">IdentityExperienceFrameworkAppId</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="ProxyIdentityExperienceFrameworkAppId" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="IdentityExperienceFrameworkAppId" />
-          </InputClaims>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
 
     <ClaimsProvider>
       <DisplayName>My ID Token Hint ClaimsProvider</DisplayName>

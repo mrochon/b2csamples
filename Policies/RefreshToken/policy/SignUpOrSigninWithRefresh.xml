@@ -5,15 +5,14 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_signup_signin"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_signup_signin">
+  PolicyId="B2C_1A_SUSIWithRefresh"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SUSIWithRefresh">
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_RefreshTokenExtensions</PolicyId>
   </BasePolicy>
 
-  
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
     <TechnicalProfile Id="PolicyProfile">
@@ -25,8 +24,9 @@
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
-
+        <OutputClaim ClaimTypeReferenceId="refreshToken" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

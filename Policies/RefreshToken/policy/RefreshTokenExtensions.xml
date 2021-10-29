@@ -5,12 +5,12 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0"     
   TenantId="yourtenant.onmicrosoft.com" 
-  PolicyId="B2C_1A_TrustFrameworkExtensions" 
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+  PolicyId="B2C_1A_RefreshTokenExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_RefreshTokenExtensions">
   
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
     <ClaimsSchema>
@@ -45,19 +45,6 @@
   </BuildingBlocks>
 
   <ClaimsProviders>
-
-    <ClaimsProvider>
-      <DisplayName>Facebook</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="Facebook-OAUTH">
-          <Metadata>
-            <Item Key="client_id">facebook_clientid</Item>
-            <Item Key="scope">email public_profile</Item>
-            <Item Key="ClaimsEndpoint">https://graph.facebook.com/me?fields=id,first_name,last_name,name,email</Item>
-          </Metadata>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
 
     <ClaimsProvider>
       <Domain>google.com</Domain>
@@ -100,7 +87,7 @@
     </ClaimsProvider>
 
     <ClaimsProvider>
-      <Domain>Meraridom</Domain>
+      <Domain>{Tenant}</Domain>
       <DisplayName>Login using {AADTenant}</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="AAD{Tenant}-OpenIdConnect">
