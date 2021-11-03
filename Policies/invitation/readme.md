@@ -12,3 +12,10 @@ This sample uses the client_assertion request format, rather than [id_token_hint
  since the latter requires additional public
 endpoints to be exposed by the inviting application (.well-known and jwks).
 
+## Adding sample to your policy set
+
+Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
+
+```PowerShell
+Add-IefPoliciesSample invitation -owner mrochon -repo b2csamples
+```

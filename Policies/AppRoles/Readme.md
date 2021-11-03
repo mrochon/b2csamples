@@ -30,6 +30,14 @@ $svcPrincipal = Get-MgServiceprincipal -filter "AppId eq '$appId'"
 New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $svcPrincipal.Id -AppRoleId $roleId -PrincipalId $groupId -ResourceId $svcPrincipal.Id 
 ```
 
+## Adding sample to your policy set
+
+Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
+
+```PowerShell
+Add-IefPoliciesSample AppRoles -owner mrochon -repo b2csamples
+```
+
 ## Run-time support
 Using the following IEF policies as sample and the the related [REST API defined here](https://github.com/mrochon/b2csamples/tree/master/REST), will result
 in the user's id_token containing an array of roles the user has been assigned to for this application.

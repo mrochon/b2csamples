@@ -8,3 +8,10 @@ here, users do not need to be batch migrated first. The logic of this policy is 
 2. if a user with this name already exists, use regular b2C authentication
 3. if not, call an API passing the user's id and password. If that succeeds, create user with this name and password in B2C
 
+## Adding sample to your policy set
+
+Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
+
+```PowerShell
+Add-IefPoliciesSample JitMigrate -owner mrochon -repo b2csamples
+```
