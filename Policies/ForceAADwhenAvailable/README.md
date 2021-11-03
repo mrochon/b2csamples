@@ -9,6 +9,14 @@ Could probably be extended to likewise redirect users for other, non-AAD federat
 
 The REST function used to determine the user's Home Realm (currently AAD only) is ppublicly accessible and referenced in the conf.json file
 
+## Deployment
+
+Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
+
+```PowerShell
+Add-IefPoliciesSample ForceAADWhenAvailable -owner mrochon -repo b2csamples
+```
+
 **Note:** currently the email address used for HRD is not write-protected when displayed later
 in the sign-in or sign-up dialogs, i.e. the user could change it. That's a bug - I am waiting to find out why the simple solution (making the fields Readonly in HRDExternsions) is not working
 as it should. The alternative is to override both the sign-in and sign-up self-asserted TechnicalProfiles with new ones using a Readonly, new field for that entry.
