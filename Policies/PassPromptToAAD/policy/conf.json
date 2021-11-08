@@ -1,0 +1,6 @@
+{
+    "AADTenantName": "your AAD tenant name excluding suffix .com or .onmicrosoft.com",
+    "AADAppId": "app id of B2C registered as app in AAD",
+    "AADSecret": "name of policy key with AAD app secret",
+    "Prefix": "PP"
+  }
