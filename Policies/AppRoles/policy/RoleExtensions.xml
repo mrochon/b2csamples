@@ -41,8 +41,8 @@
             <Item Key="SendClaimsIn">QueryString</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RESTUserId" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RESTSecret" />
+            <Key Id="BasicAuthenticationUsername" StorageReferenceId="{RESTUserId}" />
+            <Key Id="BasicAuthenticationPassword" StorageReferenceId="{RESTPassword}" />
           </CryptographicKeys>  
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />

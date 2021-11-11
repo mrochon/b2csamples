@@ -1,3 +1,5 @@
 {
-    "GetRoles": "https://b2crestapis.azurewebsites.net/user/roles"
+    "GetRoles": "https://b2crestapis.azurewebsites.net/user/roles",
+    "RESTUserId": "B2C_1A_RESTUserId",
+    "RESTPassword": "B2C_1A_RESTSecret"
 }
