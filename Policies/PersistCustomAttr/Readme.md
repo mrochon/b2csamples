@@ -24,3 +24,6 @@ Do a global replace to modify the name of the claim (currently *extension_Loyalt
 
 You can add new attributes using similar definition. You will then need to add appropriate *Input-/Output-/Persisted-Claim* wherever there is currently a reference to the *extension_LoyaltyId*
 
+Use the [B2C IEF setup web service](https://aka.ms/b2csetup) to get get the required ids of the B2C extensions app. If you are using the IefPolicies PS module, the service gives these attributes ready for pasting into the conf.json file.
+
+
