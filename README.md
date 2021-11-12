@@ -9,6 +9,7 @@
 | Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
 | Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
 | Oct 2021 | New: Conditional Access |
+| Nov 2021 | New: Persisted custom attribute |
 
 ## Samples list
 
@@ -26,5 +27,6 @@
 | [JIT Migrate](https://github.com/mrochon/b2csamples/tree/master/Policies/JitMigrate)  | Migrate users using an API to verify their legacy passwords |
 | [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
 | [PromptForToAAD](https://github.com/mrochon/b2csamples/tree/master/Policies/PromptForToAAD)  | Passes whatever prompt parameter was used with B2C to a federated AAD. |
+| [Custom, persisted attribute](https://github.com/mrochon/b2csamples/tree/master/Policies/PersistCustomAttribute)  | Modifies starter pack to add support for a new, persisted custom user attribute |
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
 | [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_AttrExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_AttrExtensions">
+  
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
+  </BasePolicy>
+
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <!-- Consider adding LoyaltyId through the portal (Attributes). That will make it available though userFlows as well -->
+      <ClaimType Id="extension_LoyaltyId">
+        <DisplayName>Loyalty id</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText/>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+    </ClaimsSchema>    
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+
+    <ClaimsProvider>
+      <DisplayName>Azure Active Directory</DisplayName>
+      <TechnicalProfiles>
+          <TechnicalProfile Id="AAD-Common">
+              <!-- Use https://aka.ms/b2csetup to get the values ExtObjectId and ExtAppId -->
+              <Metadata>
+                  <Item Key="ApplicationObjectId">{ExtObjectId}</Item>
+                  <Item Key="ClientId">{ExtAppId}</Item>
+              </Metadata>
+          </TechnicalProfile>
+          <TechnicalProfile Id="AAD-UserReadUsingAlternativeSecurityId">
+            <DisplayName>Read using alternative security id</DisplayName>
+            <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <OutputClaims>
+              <OutputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+            </OutputClaims>
+          </TechnicalProfile> 
+          <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+            <OutputClaims>
+              <OutputClaim ClaimTypeReferenceId="extension_LoyaltyId" />  
+            </OutputClaims>
+          </TechnicalProfile> 
+          <TechnicalProfile Id="AAD-UserWriteUsingAlternativeSecurityId">
+            <DisplayName>Write using alternative security id</DisplayName>            
+            <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <PersistedClaims>
+              <PersistedClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+            </PersistedClaims>
+          </TechnicalProfile>   
+          <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
+            <PersistedClaims>
+              <PersistedClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+            </PersistedClaims>
+          </TechnicalProfile>  
+          <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
+            <PersistedClaims>
+              <PersistedClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+            </PersistedClaims>
+          </TechnicalProfile>                                          
+      </TechnicalProfiles>			
+    </ClaimsProvider>    
+
+    <ClaimsProvider>
+      <DisplayName>Local</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Self Asserted</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SelfAsserted-Social">
+          <DisplayName>Self-asserted social</DisplayName>          
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+          </OutputClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-ProfileUpdate">
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_LoyaltyId" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+
+    <!--UserJourneys>
+	
+	</UserJourneys-->
+
+</TrustFrameworkPolicy>
