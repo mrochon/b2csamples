@@ -7,7 +7,7 @@ Can be used with any starter pack.
 You can use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command to add the AttrExtensions.xml policy to your current policy set:
 
 ```PowerShell
-Add-IefPoliciesSample AppRoles -owner mrochon -repo b2csamples
+Add-IefPoliciesSample PersistCustomAttr -owner mrochon -repo b2csamples
 ```
 AttrExtensions.xml defines a new claim (*extension_LoyaltyId*) and modifies all relevant TechnicalProfiles to handle it (read/write/display).
 
