@@ -5,6 +5,8 @@ pwd reset and profile edit journeys.
 
 Based on the SocialAndLocal starter pack.
 
+Makes use of pre-existing Keep Me Signed In UI and therefore this journey may not be combined with the KMSI functionality.
+
 ![ID already exists](media/susiwithedit.png)
 
 ## Adding sample to your policy set
