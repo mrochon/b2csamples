@@ -1,7 +1,7 @@
-# Include profile edit in Sign up/sign in journey
+# All in one journey
 
-Allow user to select to edit their B2C profile as part of the signin journey. Profile edit journey is thus
-no loner needed.
+Allow the user signup, signin, reset password or optionally, edit their profile. Allows applications to dispense with
+pwd reset and profile edit journeys.
 
 Based on the SocialAndLocal starter pack.
 

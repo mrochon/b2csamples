@@ -16,6 +16,7 @@
 
 | Name  | Description  |
 |---|---|
+| [AllInOne](https://github.com/mrochon/b2csamples/tree/master/Policies/AllInOne)  | Allow profile edit during signin or password reset |
 | [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
@@ -31,4 +32,4 @@
 | [PromptForToAAD](https://github.com/mrochon/b2csamples/tree/master/Policies/PromptForToAAD)  | Passes whatever prompt parameter was used with B2C to a federated AAD. |
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
 | [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |
-| [SUSIWithEdit](https://github.com/mrochon/b2csamples/tree/master/Policies/SUSIWithEdit)  | Allow profile edit during signin |
+
