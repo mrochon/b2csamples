@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="yourtenant.onmicrosoft.com"
+  PolicyId="B2C_1A_SUSIWithEdit"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SUSIWithEdit">
+
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+  
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="KMSI">
+        <DisplayName>KMSI Flag</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>  
+    </ClaimsSchema>
+    <ContentDefinitions>
+      <ContentDefinition Id="api.signuporsignin">
+        <DataUri>urn:com:microsoft:aad:b2c:elements:unifiedssp:1.1.0</DataUri>
+      </ContentDefinition>
+    </ContentDefinitions>    
+    <Localization Enabled="true">
+      <SupportedLanguages DefaultLanguage="en" MergeBehavior="ReplaceAll">
+        <SupportedLanguage>en</SupportedLanguage>
+      </SupportedLanguages>
+      <LocalizedResources Id="api.signuporsignin.en">
+        <LocalizedStrings>
+          <LocalizedString ElementType="UxElement" StringId="remember_me">Edit my profile</LocalizedString>
+        </LocalizedStrings>
+      </LocalizedResources>
+    </Localization>      
+  </BuildingBlocks>
+
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Local Account</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <Metadata>
+            <Item Key="setting.enableRememberMe">True</Item>
+          </Metadata>
+        </TechnicalProfile>
+
+        <TechnicalProfile Id="GetClaimsResolvers">
+          <DisplayName>Get claimsresolvers values</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">True</Item>
+          </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="KMSI" DefaultValue="{Context:KMSI}" AlwaysUseDefaultValue="true" />       
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+      </TechnicalProfile>        
+      </TechnicalProfiles>
+    </ClaimsProvider>  
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignIn">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetClaimsResolvers" TechnicalProfileReferenceId="GetClaimsResolvers" />
+          </ClaimsExchanges>
+        </OrchestrationStep> 
+        <OrchestrationStep Order="8" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>newUser</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>            
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>KMSI</Value>
+              <Value>False</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>          
+          <ClaimsExchanges>
+            <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
+          </ClaimsExchanges>
+        </OrchestrationStep>               
+        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />        
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

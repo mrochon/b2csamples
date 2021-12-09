@@ -1,0 +1,4 @@
+{
+  "Prefix": "V1",
+  "SomeProperty": "Use {SomeProperty} in your xml to have it replaced by this value"
+}
