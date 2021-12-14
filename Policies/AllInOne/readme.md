@@ -22,7 +22,7 @@ After replacing *yourtenantname* with the name of your B2C tenant (the *.onmicro
 
 To add this sample to the above starter pack
 ```PowerShell
-Add-IefPoliciesSample SUSIWithEdit -owner mrochon -repo b2csamples
+Add-IefPoliciesSample AllInOne -owner mrochon -repo b2csamples
 ```
 
 To import to your tenant:
