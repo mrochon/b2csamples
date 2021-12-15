@@ -1,7 +1,10 @@
 # All in one journey
 
-Allow the user signup, signin, reset password or optionally, edit their profile. Allows applications to dispense with
-pwd reset and profile edit journeys.
+A single user journey with all the options: signup or sign-in, password reset and/or optionally (user choice on signin) edit attributes. Allows applications to dispense with
+having to handle initiation of separate pwd reset and profile edit journeys.
+
+ProfileEdit UI is displayed (always) for new users, optionally based on user selecting a checkbox on the signin screen or if the application
+initiates the journey with *profileEdit=true* URL parameter included in the OIDC token request.
 
 Based on the SocialAndLocal starter pack.
 

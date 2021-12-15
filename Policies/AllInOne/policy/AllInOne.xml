@@ -19,6 +19,10 @@
         <DisplayName>KMSI Flag</DisplayName>
         <DataType>string</DataType>
       </ClaimType>  
+      <ClaimType Id="requireEditProfile">
+        <DisplayName>Use request parameter to request profile edit UI</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>        
       <ClaimType Id="isForgotPassword">
         <DisplayName>isForgotPassword</DisplayName>
         <DataType>boolean</DataType>
@@ -50,6 +54,7 @@
           <Metadata>
             <Item Key="setting.forgotPasswordLinkOverride">ForgotPasswordExchange</Item>            
             <Item Key="setting.enableRememberMe">True</Item>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
           </Metadata>
         </TechnicalProfile>
 
@@ -59,6 +64,9 @@
           <Metadata>
             <Item Key="IncludeClaimResolvingInClaimsHandling">True</Item>
           </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="requireEditProfile" DefaultValue="{OAUTH-KV:editProfile}" AlwaysUseDefaultValue="true" />                
+          </InputClaims>          
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="KMSI" DefaultValue="{Context:KMSI}" AlwaysUseDefaultValue="true" />       
           </OutputClaims>
@@ -200,8 +208,33 @@
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep> 
+
+        <OrchestrationStep Order="10" Type="ClaimsExchange">
+            <Preconditions>
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                <Value>newUser</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>  
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                <Value>requireEditProfile</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>                           
+              <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+                <Value>requireEditProfile</Value>
+                <Value>true</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                <Value>executed-SelfAsserted-Input</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>                           
+            </Preconditions>          
+            <ClaimsExchanges>
+              <ClaimsExchange Id="B2CUserProfileUpdateExchange2" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
+            </ClaimsExchanges>
+        </OrchestrationStep>         
                       
-        <OrchestrationStep Order="10" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />        
+        <OrchestrationStep Order="11" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />        
       </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>
@@ -239,6 +272,7 @@
         <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" PartnerClaimType="profileEditExecuted" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
