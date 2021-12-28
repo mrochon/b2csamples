@@ -1,9 +1,9 @@
 ## Identity for multi-tenant SaaS apps for small organizations
 
 ### Description
-A [sample React SPA application](https://aka.ms/mtb2c) illustrating use of a single Azure B2C directory for a multi-tenant SaaS applications. A SaaS application need to know not only who the user is but also which of the many organizations the application services the user belongs to. In the SaaS application, each organization is considered to be a separate application tenant. In this sample, a single B2C directory maintains the relationship between individuals and the application tenants (organizations) presenting that information as part of the token it issues to the application.
+A [sample React SPA application](https://aka.ms/mtb2c) illustrating use of a single Azure B2C directory for a multi-tenant SaaS applications. SaaS applications need to know not only who the user is, but also which of the many organizations the application services the user belongs to. In the SaaS application, each organization is considered to be a separate tenant. To make it more obvious as to the context for using this term, the following will qualify it *application tenant*. In this sample, a single B2C directory maintains the relationship between individuals and the application tenants (organizations) presenting that information as part of the token it issues to the application.
 
-**NOte:** an older version of the [sample application (MVC)](https://b2cmultitenant.azurewebsites.net) is still deployed. IEF policies in this folder are used by it. I am planning to retire it in a couple of months.
+**Note:** an older version of the [sample application (MVC)](https://b2cmultitenant.azurewebsites.net) is still deployed. IEF policies in this folder are used by it. I am planning to retire it in a couple of months.
 
 ### Functionality
 
@@ -65,13 +65,13 @@ copy /src
 
 #### API
 1. Register an application in your B2C tenant to manage authorization to the REST API
-1.a. Expose two API permissions: User.Read and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
-1.b. Give **application** permissions to Graph API: Group.ReadWrite.All, GroupMember.ReadWrite.All, User.Read.All
-1.c. Create a secret (store it in the API configuration as *ClientCreds:ClientSecret*)
-1.d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). You can then delete it from the application's secrets.
+    a. Expose two API permissions: User.Read and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
+    b. Give **application** permissions to Graph API: Group.ReadWrite.All, GroupMember.ReadWrite.All, User.Read.All
+    c. Create a secret (store it in the API configuration as *ClientCreds:ClientSecret*)
+    d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). You can then delete it from the application's secrets.
 2. Modify appsettings.json as appropriate to your configuration
-2.a. details of the certificate created above (B2C step)
-2.b. details of the application registered above
+    a. details of the certificate created above (B2C step)
+    b. details of the application registered above
 3. Deploy to a publicly accessible url
 4. Provide the deployed application with the public key of the certificate created above and make it required for authentication to the app
 5. Exclude */tenant/oauth2* path from certificate requirement
