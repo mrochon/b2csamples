@@ -65,11 +65,13 @@ copy /src
 
 #### API
 1. Register an application in your B2C tenant to manage authorization to the REST API
+
     a. Expose two API permissions: User.Read and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
     b. Give **application** permissions to Graph API: Group.ReadWrite.All, GroupMember.ReadWrite.All, User.Read.All
     c. Create a secret (store it in the API configuration as *ClientCreds:ClientSecret*)
     d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). You can then delete it from the application's secrets.
 2. Modify appsettings.json as appropriate to your configuration
+
     a. details of the certificate created above (B2C step)
     b. details of the application registered above
 3. Deploy to a publicly accessible url
