@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -15,34 +16,43 @@ namespace RESTFunctions.Services
 {
     public class CertValidationMiddleware
     {
-        public CertValidationMiddleware(RequestDelegate next, IOptionsMonitor<ClientCertificateOptions> options)
+        public CertValidationMiddleware(RequestDelegate next, IOptionsMonitor<ClientCertificateOptions> options, ILogger<CertValidationMiddleware> logger)
         {
             _next = next;
             _optionsMonitor = options;
+            _logger = logger;
         }
         private readonly RequestDelegate _next;
         private readonly IOptionsMonitor<ClientCertificateOptions> _optionsMonitor;
+        ILogger<CertValidationMiddleware> _logger;
         public async Task InvokeAsync(HttpContext context)
         {
-            Trace.WriteLine("Starting cert validation");
+            _logger.LogInformation("Starting cert validation");
             bool isAuthorized = false;
             ClaimsIdentity identity  = null;
             var certHeader = context.Request.Headers["X-ARR-ClientCert"];
             if (!String.IsNullOrEmpty(certHeader))
             {
-                Trace.WriteLine("Certificate present");
+                _logger.LogInformation("Certificate present");
                 try
                 {
                     var options = _optionsMonitor.CurrentValue;
-                    Trace.WriteLine($"Issuer: {options.issuer}; subject: {options.subject}");
                     if (options == null) throw new ApplicationException("Bad options");
+                    _logger.LogInformation("Options:");
+                    _logger.LogInformation($"Thumbprint: {options.thumbprint}");
+                    _logger.LogInformation($"Subject: {options.subject}");
+                    _logger.LogInformation($"Issuer: {options.issuer}");
+
                     byte[] clientCertBytes = Convert.FromBase64String(certHeader);
                     var certificate = new X509Certificate2(clientCertBytes);
                     //if (!certificate.Verify()) throw new ApplicationException("Verify failed");
                     if (DateTime.Compare(DateTime.Now, certificate.NotBefore) < 0 ||
                         DateTime.Compare(DateTime.Now, certificate.NotAfter) > 0)
                         throw new ApplicationException("Validity period");
-                    Trace.WriteLine($"Date validated");
+                    _logger.LogInformation($"Date validated");
+                    _logger.LogInformation($"Thumbprint: {certificate.Thumbprint}");
+                    _logger.LogInformation($"Subject: {certificate.Subject.Trim()}");
+                    _logger.LogInformation($"Issuer: {certificate.Issuer.Trim()}");
                     isAuthorized =
                         (String.Compare(certificate.Thumbprint, options.thumbprint, true, CultureInfo.InvariantCulture) == 0)
                         && (String.Compare(certificate.Subject.Trim(), options.subject, true, CultureInfo.InvariantCulture) == 0)
@@ -55,10 +65,10 @@ namespace RESTFunctions.Services
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"System exception: {ex.Message}");
+                    _logger.LogInformation($"System exception: {ex.Message}");
                 }
             }
-            Trace.WriteLine($"Is authorized? {isAuthorized}");
+            _logger.LogInformation($"Is authorized? {isAuthorized}");
             if (isAuthorized)
             {
                 context.User = new System.Security.Claims.ClaimsPrincipal(identity);

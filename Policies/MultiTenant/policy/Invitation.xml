@@ -70,6 +70,17 @@
           <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim" />
         </OutputClaims>
       </ClaimsTransformation>  
+      <ClaimsTransformation Id="CopySignInNameToEmail" TransformationMethod="FormatStringClaim">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringFormat" DataType="string" Value="{0}" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>        
       <ClaimsTransformation Id="CheckInvitedEmail" TransformationMethod="CompareClaims">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim1" />
@@ -131,9 +142,15 @@
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="responseMsg" DefaultValue="This invitation url is for a user with a different email address."/>
+            <InputClaim ClaimTypeReferenceId="email" />
+            <InputClaim ClaimTypeReferenceId="invitedEmail" />     
+            <InputClaim ClaimTypeReferenceId="signInName" />                   
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="responseMsg"/>
+            <OutputClaim ClaimTypeReferenceId="email" />
+            <OutputClaim ClaimTypeReferenceId="invitedEmail" />
+            <OutputClaim ClaimTypeReferenceId="signInName" />            
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop"/>
           <EnabledForUserJourneys>Always</EnabledForUserJourneys>

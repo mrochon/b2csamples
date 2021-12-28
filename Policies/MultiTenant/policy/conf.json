@@ -5,6 +5,7 @@
     "RestIsSignupAllowed": "https://mrmtrestapi.azurewebsites.net/tenant/issignupallowed",
     "RestGetOrJoinTenant": "https://mrmtrestapi.azurewebsites.net/tenant/member",
     "RestGetTenantsForUser": "https://mrmtrestapi.azurewebsites.net/tenant/gettenantsforuser",
+    "RESTClientCert": "B2C_1A_RESTClientCert",
     "AADCommonAppId": "b4d453c6-369e-4551-8580-177a0043d595",
     "AADCommonSecret": "B2C_1A_AADCommonSecret",
     "ExtAppId": "0428f335-4957-491e-96bb-7ce51b81d46a",

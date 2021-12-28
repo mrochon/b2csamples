@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RESTFunctions.Models;
 using RESTFunctions.Services;
-using Microsoft.Identity.Web.Resource;
 
 namespace RESTFunctions.Controllers
 {

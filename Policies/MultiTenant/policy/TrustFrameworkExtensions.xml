@@ -131,12 +131,6 @@
     <ClaimsProvider>
       <DisplayName>Azure Active Directory</DisplayName>    
       <TechnicalProfiles>
-        <TechnicalProfile Id="AAD-Common">
-          <Metadata>
-            <Item Key="ApplicationObjectId">{ExtObjectId}</Item>
-            <Item Key="ClientId">{ExtAppId}</Item>
-          </Metadata>
-        </TechnicalProfile>
         <TechnicalProfile Id="AAD-UserWriteUsingAlternativeSecurityId-NoError">
           <Metadata>
             <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
@@ -188,7 +182,7 @@
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
@@ -216,7 +210,7 @@
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />            
@@ -244,7 +238,7 @@
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />

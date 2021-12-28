@@ -63,7 +63,7 @@
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_RESTClientCert" />
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" DefaultValue="{OAUTH-KV:tenant}" />
