@@ -110,7 +110,8 @@ export const PageLayout = (props) => {
 export const IdTokenClaims = (props) => {  
     return (
         <div id="token-div">
-            <p><strong>Audience: </strong> {props.idTokenClaims.aud}</p>
+            <p><strong>Sign in name: </strong> {props.idTokenClaims.signInName}</p>               
+            <p><strong>Email: </strong> {props.idTokenClaims.email}</p>            
             <p><strong>Issuer: </strong> {props.idTokenClaims.iss}</p>
             <p><strong>OID: </strong> {props.idTokenClaims.oid}</p>
             <p><strong>UPN: </strong> {props.idTokenClaims.preferred_username}</p>
@@ -153,20 +154,21 @@ export const InviteMember = () => {
             <h5 className="card-title">Invitation</h5>
             <div>
                 <div><p><i>Enter email address</i></p></div>                
-                <div><input type="text" value={email} onChange={(e) => setEmail(e.target.value)}/></div>
+                <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); }}/></div>
                 <div><Button onClick={() => 
                     {
                         console.log('starting click' + email);
                         setEmail(email);
+                        setInvitation("");
                         instance.acquireTokenSilent({ 
                             authority:b2cPolicies.authorities.signIn.authority,
-                            scopes: ["openid", "profile", "https://mrochonb2cprod.onmicrosoft.com/mtrest/User.Invite", "https://mrochonb2cprod.onmicrosoft.com/mtrest/User.ReadAll"],
+                            scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
                             account: accounts[0]
                         }).then(function(accessTokenResponse) {
                             console.log("Email:"+email);
                             let accessToken = accessTokenResponse.accessToken;
                             axios.post(
-                                'https://mrmtrestapi.azurewebsites.net/tenant/oauth2/invite',
+                                `${deployment.restUrl}tenant/oauth2/invite`,
                                 { inviteEmail: email, clientId: deployment.invitation.appId, replyUrl: deployment.invitation.replyUrl },
                                 { headers: { 'Authorization': `Bearer ${accessToken}`} }
                               ).then(response => { setInvitation(response.data); console.log("invite received");})

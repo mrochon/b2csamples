@@ -6,6 +6,18 @@
 import { LogLevel } from "@azure/msal-browser";
 
 export const deployment = {
+    policyPrefix : "V2",
+    b2cTenantName: "b2cmultitenant",
+    b2cTenantId: "d06b10f6-c712-40c1-9617-cec9c7d02390",
+    b2cClientId: "c84a01bb-4f19-4eef-9941-4ab537922039",
+    invitation: {
+        appId: "4359b489-7110-4d91-8946-0cf12b1cf90d",
+        replyUrl: "https://oidcdebugger.com/debug"
+    },
+    restUrl: "https://b2cmtrestv2.azurewebsites.net/"
+}
+
+export const deployment_b2cprod = {
     policyPrefix : "mt",
     b2cTenantName: "mrochonb2cprod",
     b2cTenantId: "cf6c572c-c72e-4f31-bd0b-75623d040495",
@@ -13,7 +25,8 @@ export const deployment = {
     "invitation": {
         "appId": "88e4056b-ffce-4660-a3fe-2481e2713197",
         "replyUrl": "https://jwt.ms"
-    }
+    },
+    restUrl: "https://mrmtrestapi.azurewebsites.net/"
 }
 
 export const policyNames = {
