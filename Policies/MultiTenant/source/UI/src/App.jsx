@@ -4,39 +4,11 @@ import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal }
 import { EventType, InteractionType } from "@azure/msal-browser";
 
 import { msalConfig, b2cPolicies } from "./authConfig";
-import { PageLayout, IdTokenClaims } from "./ui.jsx";
-import { InviteMember } from "./ui.jsx";
+import { PageLayout, IdTokenClaims, InviteMember } from "./ui.jsx";
+import { Tenant } from "./tenant.jsx";
 
 import Button from "react-bootstrap/Button";
 import "./styles/App.css";
-
-const IdTokenContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance, 
-     * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
-    const { accounts } = useMsal();
-    const [idTokenClaims, setIdTokenClaims] = useState(null);
-
-    function GetIdTokenClaims() {
-        console.log(idTokenClaims);
-        setIdTokenClaims(accounts[0].idTokenClaims)
-    }
-
-    return (
-        <>
-            <h5 className="card-title">Welcome {accounts[0].name}</h5>
-            {idTokenClaims ?
-                <IdTokenClaims idTokenClaims={idTokenClaims} />
-                :
-                <Button variant="secondary" onClick={GetIdTokenClaims}>View ID Token Claims</Button>
-            }
-        </>
-    );
-};
-
 
 /**
  * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
@@ -95,9 +67,7 @@ const MainContent = () => {
     return (
         <div className="App">
             <AuthenticatedTemplate>
-                <IdTokenContent />
-                <br/><br/>
-                <InviteMember />                
+                <Tenant />
             </AuthenticatedTemplate>
 
             <UnauthenticatedTemplate>
