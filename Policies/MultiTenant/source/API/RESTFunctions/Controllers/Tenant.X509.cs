@@ -378,5 +378,6 @@ namespace RESTFunctions.Controllers
         public string userId { get; set; }
         public List<string> roles { get; set; }
         public string name { get; set; }
+        public string email { get; set; }
     }
 }

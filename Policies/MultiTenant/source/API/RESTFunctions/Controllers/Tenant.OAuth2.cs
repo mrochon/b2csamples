@@ -118,8 +118,22 @@ namespace RESTFunctions.Controllers
                             userId = memb["id"].Value<string>(),
                             roles = new List<string>() { role }
                         };
-                        var userJson = await http.GetStringAsync($"{Graph.BaseUrl}users/{user.userId}?$select=displayName,identities");
-                        user.name = JObject.Parse(userJson)["displayName"].Value<string>();
+                        var userJson = await http.GetStringAsync($"{Graph.BaseUrl}users/{user.userId}?$select=displayName,identities,otherMails");
+                        var userObj = JObject.Parse(userJson);
+                        user.name = userObj["displayName"].Value<string>();
+                        var otherMails = (JArray)userObj["otherMails"];
+                        if (otherMails.Count > 0)
+                            user.email = otherMails[0].Value<string>();
+                        else
+                        {
+                            try
+                            {
+                                user.email = ((JArray)userObj["identities"]).First((i) => i["signInType"].Value<string>() == "emailAddress")["issuerAssignedId"].Value<string>();
+                            } catch
+                            {
+                                user.email = "unable to parse";
+                            }
+                        }
                         result.Add(user);
                     }
                 }

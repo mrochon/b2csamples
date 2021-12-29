@@ -43,27 +43,11 @@ export const Tenant = () => {
 }
 
 const IdTokenContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance, 
-     * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
     const { accounts } = useMsal();
-    const [idTokenClaims, setIdTokenClaims] = useState(null);
-
-    function GetIdTokenClaims() {
-        console.log(idTokenClaims);
-        setIdTokenClaims(accounts[0].idTokenClaims)
-    }
-
+    const [idTokenClaims, setIdTokenClaims] = useState(accounts[0].idTokenClaims);
     return (
         <>
-            {idTokenClaims ?
                 <IdTokenClaims idTokenClaims={idTokenClaims} />
-                :
-                <Button variant="secondary" onClick={GetIdTokenClaims}>View ID Token Claims</Button>
-            }
         </>
     );
 };
@@ -187,7 +171,7 @@ class Members extends React.Component {
             console.log("Members has:" + this.state.members.length);
             const listMembers = this.state.members.map((m, ix) =>
                 <tr>
-                    <td>{ix}</td>
+                    <td>{m.email}</td>
                     <td>{m.name}</td>
                     <td>{m.roles.toString()}</td>
                 </tr>
@@ -198,7 +182,7 @@ class Members extends React.Component {
                     <Table>
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>Email</th>
                                 <th>Name</th>
                                 <th>Roles</th>
                             </tr>
