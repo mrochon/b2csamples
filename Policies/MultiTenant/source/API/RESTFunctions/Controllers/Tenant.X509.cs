@@ -232,14 +232,14 @@ namespace RESTFunctions.Controllers
         public async Task<IActionResult> GetTenantsForUser([FromQuery] string userId, string tenantName = "", string identityProvider = "", string directoryId = "")
         {
             _logger.LogInformation($"GetTenantsForUser: User id:{userId}, tenantName: {tenantName}");
-            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            //if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             Member tenant = null;
             IEnumerable<Member> ts = null;
             if (!String.IsNullOrEmpty(userId)) // for an AAD user new to B2C this could be empty
             {
                 ts = await GetTenantsForUserImpl(userId);
                 if (!String.IsNullOrEmpty(tenantName))
-                    tenant = ts.FirstOrDefault(t => t.tenantName == tenantName);
+                    tenant = ts.FirstOrDefault(t => t.tenantName == tenantName.ToUpper());
                 if (tenant == null)
                     tenant = ts.FirstOrDefault();
             }

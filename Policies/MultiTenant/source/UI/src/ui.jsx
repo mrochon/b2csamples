@@ -2,13 +2,11 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-import React, { useState, TextInput } from "react";
-
-import axios from 'axios';
+import React from "react";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { Accordion, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
+import { Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
 import { loginRequest, b2cPolicies, deployment } from "./authConfig";
 
@@ -112,8 +110,9 @@ export const SwitchTenant = () => {
         <Dropdown.Item as="button" key={ix} onClick={() => 
                 instance.loginRedirect({ 
                     authority:b2cPolicies.authorities.signIn.authority,
+                    scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],                    
                     account: accounts[0],
-                    /*prompt: "login",*/
+                    prompt: "login",
                     extraQueryParameters: { tenant: tenant }
                 })
             }>{tenant}</Dropdown.Item>

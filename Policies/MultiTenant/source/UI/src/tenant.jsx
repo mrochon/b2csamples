@@ -6,11 +6,11 @@ import React, { useState } from "react";
 
 import axios from 'axios';
 
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 
-import { Card, ButtonGroup, Button, Table } from "react-bootstrap";
+import {  ButtonGroup, Button, Table } from "react-bootstrap";
 
-import { loginRequest, b2cPolicies, deployment } from "./authConfig";
+import { b2cPolicies, deployment } from "./authConfig";
 
 export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
@@ -53,7 +53,6 @@ const IdTokenContent = () => {
 
     return (
         <>
-            <h5 className="card-title">Welcome {accounts[0].name}</h5>
             {idTokenClaims ?
                 <IdTokenClaims idTokenClaims={idTokenClaims} />
                 :
@@ -92,11 +91,13 @@ const InviteMember = () => {
                         console.log('starting click' + email);
                         setEmail(email);
                         setInvitation("");
-                        instance.acquireTokenSilent({ 
+                        let request = { 
                             authority:b2cPolicies.authorities.signIn.authority,
                             scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
-                            account: accounts[0]
-                        }).then(function(accessTokenResponse) {
+                            account: accounts[0],
+                            extraQueryParameters: { tenant: accounts[0].idTokenClaims.appTenantName }
+                        }
+                        instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
                             console.log("Email:"+email);
                             let accessToken = accessTokenResponse.accessToken;
                             axios.post(
@@ -107,7 +108,7 @@ const InviteMember = () => {
                               .catch(error => console.log(error));
                         }).catch(function (error) {
                             if (error instanceof InteractionRequiredAuthError) {
-                                instance.acquireTokenPopup(accessTokenRequest).then(function(accessTokenResponse) {
+                                instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
                                     let accessToken = accessTokenResponse.accessToken;
                                     callApi(accessToken);
                                 }).catch(function(error) {
@@ -154,7 +155,8 @@ class Members extends React.Component {
         let request = { 
             authority:b2cPolicies.authorities.signIn.authority,
             scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
-            account: this.state.account
+            account: this.state.account,
+            extraQueryParameters: { tenant: this.state.account.idTokenClaims.appTenantName }
         };
         let api = this.state.callApi;
         this.state.instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
@@ -177,13 +179,13 @@ class Members extends React.Component {
     render() {
         if(this.state.members) {
             console.log("Members has:" + this.state.members.length);
-            const listMembers = this.state.members.map((m, ix) => {
+            const listMembers = this.state.members.map((m, ix) =>
                 <tr>
                     <td>{ix}</td>
                     <td>{m.name}</td>
                     <td>{m.roles.toString()}</td>
                 </tr>
-                })
+                )
             return (
                 <div>
                     <h5 className="card-title">{`Tenant: ${this.state.account.idTokenClaims.appTenantName} has ${this.state.members.length} members`}</h5>
