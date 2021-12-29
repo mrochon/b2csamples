@@ -1,4 +1,4 @@
-## Descrription
+## Description
 
 A simple React Single Page App demonstrating some of the features of the B2C multi-tenant sample.
 
