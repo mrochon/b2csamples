@@ -15,13 +15,19 @@ import { b2cPolicies, deployment } from "./authConfig";
 export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
     const { instance, accounts } = useMsal();
+    let options = [["claims","Claims"], ["members", "Members"], ["invitation", "Invite someone"]].filter(role).map((v) => 
+        <Button onClick={() => setState(v[0])}>{v[1]}</Button>
+    );
+    function role(option) {
+        if(option[0] === "invitation")
+            if (accounts[0].idTokenClaims.roles.includes("admin")) return true; else return false;
+        return true;
+    }
     return (
         <>
             <div>
                 <ButtonGroup className="mb-2">
-                    <Button onClick={() => setState("claims")}>Claims</Button>
-                    <Button onClick={() => setState("members")}>Members</Button>
-                    <Button onClick={() => setState("invitation")}>Invitation</Button>
+                    {options}
                 </ButtonGroup>                      
             </div>
             {nowShowing === "claims"?
