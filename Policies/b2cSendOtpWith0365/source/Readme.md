@@ -1,0 +1,1 @@
+Deploy this source as an Azure Function and provide its url and function access code to the conf.json and your B2C policy keys
