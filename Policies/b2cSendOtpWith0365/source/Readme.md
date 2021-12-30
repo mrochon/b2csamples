@@ -9,6 +9,7 @@ POST https://<address>
 Headers:
 ```
 x-functions-key: <key>
+Content-type: "application/json
 ```
 
 Body:
