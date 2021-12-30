@@ -1,4 +1,4 @@
 {
     "Prefix": "MYEMAIL",
-    "SendOTP": "https://b2crestapis.azurewebsites.net/email"
+    "SendOTP": "https://sendotpmail.azurewebsites.net/api/Send"
 }

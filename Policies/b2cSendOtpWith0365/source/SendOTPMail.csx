@@ -9,9 +9,6 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 {
     log.LogInformation("C# HTTP trigger function processed a request.");
 
-    /* Register this app in your AAD with an Application Permission to Mail.Send (as any user) */
-    /* Follow https://docs.microsoft.com/en-us/graph/auth-limit-mailbox-access to restrict the app to specific mailbox(es) */
-
     var tenant_id = Environment.GetEnvironmentVariable("AzureAD:tenant_id");
     var client_id = Environment.GetEnvironmentVariable("AzureAD:client_id");
     var client_secret = Environment.GetEnvironmentVariable("AzureAD:client_secret");
@@ -38,7 +35,6 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     if (!resp.IsSuccessStatusCode)
         return new BadRequestObjectResult(new { version = "1.0.0", status = 409, userMessage = "Authorization failure" });
     dynamic tokens = JsonConvert.DeserializeObject(await resp.Content.ReadAsStringAsync());
-    log.LogInformation("Access token received");
     http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ((string)(tokens.access_token)));
     var msg = new
     {
