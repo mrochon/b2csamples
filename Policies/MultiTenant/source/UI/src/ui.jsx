@@ -56,7 +56,7 @@ const NavigationBar = () => {
 };
 
 export const PageLayout = (props) => {
-    const [card, setCard] = useState(null);
+    const [card, setCard] = useState("#purpose");
 
     return (
         <>
