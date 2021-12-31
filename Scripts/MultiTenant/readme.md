@@ -1,4 +1,7 @@
 # Multi-tenant B2C setup
+
+**Note:** I am replacing the original source code for this sample with a combination of [React SPA and REST MVC app](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant). Some custom journeys are modified as well. The underlying B2C data remains the same except for a change to the federation technical profile for AAD federation. As a consequence, any existing AAD federated users will need to re-sign up (and be invited). This repo will be deleted in a couple of months.
+
 ## Introduction
 The following leads you through the process of setting up an Azure AD B2C directory to provide identity (authentication) support for a multi-tenant SaaS application. A single B2C directory is used to maintain each users membership of an application tenant. Once a user authenticates, using either a local B2C account or a federated social or work account, the token issued to the application contains, among other the user's application tenant id.
 
