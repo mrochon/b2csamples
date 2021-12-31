@@ -71,7 +71,7 @@ const MainContent = () => {
             </AuthenticatedTemplate>
 
             <UnauthenticatedTemplate>
-                <h5 className="card-title">Please sign-in to see your profile information.</h5>
+                {/*<h5 className="card-title">Please sign-in to see your profile information.</h5>*/}
             </UnauthenticatedTemplate>
         </div>
     );
