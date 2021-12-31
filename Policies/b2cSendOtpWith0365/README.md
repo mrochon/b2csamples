@@ -15,5 +15,5 @@ If using the [IefPolicies module](https://www.powershellgallery.com/packages/Ief
 
 ```PowerShell
 cd /mypolicyfolder
-Add-IefPoliciesSample b2cSendOtpWithO365 -owner mrochon -repo b2csamples
+Add-IefPoliciesSample b2cSendOtpWith0365 -owner mrochon -repo b2csamples
 ```
