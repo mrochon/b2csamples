@@ -102,10 +102,14 @@ export const PageLayout = (props) => {
                                 <Card.Body>
                                     <Card.Subtitle className="mb-2 text-muted">B2C for SaaS apps for small businesses</Card.Subtitle>
                                     <Card.Text>
-                                        Demonstrates use of a single Azure B2C directory to provide user identity support for an application needing to partition
-                                        its users into distinct groups. A SaaS application commonly uses the concept of a <b>tenant</b> to group users whose from different organizations using the software. For example, a SaaS application may provide accounting
-                                        services. Each business using the application is considered a tenant in the application. Since Azure AD itself is a SaaS application, to distinguish such an AAD tenant
-                                        from tenants exposed in this sample, this application uses the term <b>application tenant</b>.
+                                        <p>Demonstrates use of a single Azure B2C directory to provide user identity support for an application needing to partition
+                                        its users into distinct groups (application tenants). A Software as a Service (SaaS) application commonly uses the concept of a <b>tenant</b> to group users from different organizations.</p>
+                                        <p>For example, a SaaS 
+                                        application may provide accounting
+                                        services. Each accounting business/firm using the application is considered a tenant in the application. Since Azure AD itself is a SaaS application, to distinguish the term when
+                                        applied to user partitioning implemented here, the term <b>application tenant</b> will be used here.</p>
+                                        <p><i>Note that as implemented in this sample, users may indeed be <b>authenticated</b> in many other AADs or other IdP. However, an application using the functionality provided
+                                        in this sample will generally not be aware of that. Information as to which <b>application tenant</b> a user belongs to, will be provided by the single B2C directory used here.</i></p>
                                     </Card.Text>
                                 </Card.Body>
                                 :
@@ -136,7 +140,7 @@ export const PageLayout = (props) => {
                                 <Card.Body>
                                     <Card.Text>
                                         <ul>
-                                            <li>signin/up and create a new application tenant</li>
+                                            <li>Signin/up and create a new application tenant</li>
                                             <li>Invite other users to your tenant using their email address</li>
                                             <li>Redeem invitation and join a tenant</li>
                                             <li>View list of all members of a tenant</li>
@@ -154,8 +158,8 @@ export const PageLayout = (props) => {
                                 <Card.Body>
                                     <Card.Text>
                                         <ul>
-                                            <li><a href="https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant">Source code</a></li>
-                                            <li><a href="mailto:sailingrock@live.com">My email</a></li>
+                                            <li><a href="https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant" target="_blank" rel="noopener">Source code</a></li>
+                                            <li><a href="mailto:sailingrock@live.com" target="_blank" rel="noopener">My email</a></li>
                                         </ul>
                                     </Card.Text>
                                 </Card.Body>                                                  
