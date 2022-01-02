@@ -61,11 +61,11 @@ export const PageLayout = (props) => {
     return (
         <>
             <Navbar bg="primary" variant="dark">
-                <a className="navbar-brand" href="/">B2C multi-tenant identities</a>
+                <a className="navbar-brand" href="/">B2C multi-tenant</a>
                 <NavigationBar />
             </Navbar>
             <br />
-            <h5><center>Welcome to 'B2C as multi-tenant identity' sample</center></h5>
+            <h5><center>Welcome to the 'B2C as multi-tenant identity' sample</center></h5>
             <br />
             {props.children}
             <br />
