@@ -273,7 +273,7 @@
             <Item Key="client_id">{GoogleClientId}</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleSecret" />
+            <Key Id="client_secret" StorageReferenceId="B2C_1A_GoogleClientSecret" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="login_hint" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />            
