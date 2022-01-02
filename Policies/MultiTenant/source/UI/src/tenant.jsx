@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 import axios from 'axios';
 
-import { useMsal, InteractionRequiredAuthError } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 
 import {  ButtonGroup, Button, Table } from "react-bootstrap";
 
