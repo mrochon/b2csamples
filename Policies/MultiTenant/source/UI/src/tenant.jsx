@@ -143,7 +143,7 @@ class Members extends React.Component {
     componentDidMount() {
         console.log('getMembers');
         let request = { 
-            authority:b2cPolicies.authorities.signIn.authority,
+            authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${this.state.account.idTokenClaims.acr}`,
             scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
             account: this.state.account,
             extraQueryParameters: { tenant: this.state.account.idTokenClaims.appTenantName }
