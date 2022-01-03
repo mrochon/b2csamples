@@ -175,9 +175,10 @@ export const PageLayout = (props) => {
 };
 
 export const SwitchTenant = () => {
-    const { accounts, instance } = useMsal();    
+    const { accounts, instance } = useMsal();  
 
-    const listTenants = accounts[0].idTokenClaims.allTenants.filter(currTenant).map((tenant, ix) =>
+    let allTenants = accounts[0].idTokenClaims.allTenants;
+    const listTenants = allTenants? null: accounts[0].idTokenClaims.allTenants.filter(currTenant).map((tenant, ix) =>
         <Dropdown.Item as="button" key={ix} onClick={() => 
                 instance.loginRedirect({ 
                     authority:b2cPolicies.authorities.signIn.authority,
