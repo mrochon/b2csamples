@@ -170,7 +170,7 @@ class Members extends React.Component {
         if(this.state.members) {
             console.log("Members has:" + this.state.members.length);
             const listMembers = this.state.members.map((m, ix) =>
-                <tr>
+                <tr key="0">
                     <td>{m.email}</td>
                     <td>{m.name}</td>
                     <td>{m.roles.toString()}</td>
@@ -181,7 +181,7 @@ class Members extends React.Component {
                     <h5 className="card-title">{`Tenant: ${this.state.account.idTokenClaims.appTenantName} has ${this.state.members.length} members`}</h5>
                     <Table>
                         <thead>
-                            <tr>
+                            <tr key="ix">
                                 <th>Email</th>
                                 <th>Name</th>
                                 <th>Roles</th>
