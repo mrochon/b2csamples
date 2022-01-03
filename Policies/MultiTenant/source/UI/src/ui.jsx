@@ -189,7 +189,7 @@ export const SwitchTenant = () => {
             }>{tenant}</Dropdown.Item>
     );
     function currTenant(tenant) {
-        return (tenant !== accounts[0].idTokenClaims.appTenantName);
+        return (tenant != accounts[0].idTokenClaims.appTenantName.toUpperCase());
     }
     if(accounts[0].idTokenClaims.allTenants.length > 1) {
         var title = `Current: ${accounts[0].idTokenClaims.appTenantName}`
