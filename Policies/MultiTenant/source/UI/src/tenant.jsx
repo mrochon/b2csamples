@@ -92,7 +92,7 @@ const InviteMember = () => {
                             let accessToken = accessTokenResponse.accessToken;
                             axios.post(
                                 `${deployment.restUrl}tenant/oauth2/invite`,
-                                { inviteEmail: email, clientId: deployment.invitation.appId, replyUrl: deployment.invitation.replyUrl },
+                                { inviteEmail: email },
                                 { headers: { 'Authorization': `Bearer ${accessToken}`} }
                               ).then(response => { setInvitation(response.data); console.log("invite received");})
                               .catch(error => console.log(error));

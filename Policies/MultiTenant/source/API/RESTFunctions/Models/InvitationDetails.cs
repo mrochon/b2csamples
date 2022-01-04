@@ -9,8 +9,6 @@ namespace RESTFunctions.Models
     public class InvitationDetails
     {
         public string inviteEmail { get; set; }
-        public string clientId { get; set; } 
-        public string replyUrl { get; set; }
         public Dictionary<string, string> additionalClaims { get; set; }
     }
 }

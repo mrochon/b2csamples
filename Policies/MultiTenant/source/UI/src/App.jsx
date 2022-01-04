@@ -6,8 +6,8 @@ import { EventType, InteractionType } from "@azure/msal-browser";
 import { msalConfig, b2cPolicies } from "./authConfig";
 import { PageLayout, IdTokenClaims, InviteMember } from "./ui.jsx";
 import { Tenant } from "./tenant.jsx";
+import { Docs } from "./docs.jsx";
 
-import Button from "react-bootstrap/Button";
 import "./styles/App.css";
 
 /**
@@ -18,6 +18,7 @@ import "./styles/App.css";
 const MainContent = () => {
 
     const { instance } = useMsal();
+    const [redeemToken, setRedeemToken ] = useState(null);
 
     /**
      * Using the event API, you can register an event callback that will do something when an event is emitted. 
@@ -27,6 +28,12 @@ const MainContent = () => {
      * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
      */
     useEffect(() => {
+        
+        const queryParams = new URLSearchParams(window.location.search);
+        const id = queryParams.get('id_token');
+        console.log("id_token:" + id);
+        setRedeemToken(id);
+
         const callbackId = instance.addEventCallback((event) => {
             if (event.eventType === EventType.LOGIN_FAILURE) {
                 console.log("sign in failed:" + event.error.errorMessage);
@@ -71,7 +78,7 @@ const MainContent = () => {
             </AuthenticatedTemplate>
 
             <UnauthenticatedTemplate>
-                {/*<h5 className="card-title">Please sign-in to see your profile information.</h5>*/}
+                <Docs redeemToken={redeemToken} />
             </UnauthenticatedTemplate>
         </div>
     );

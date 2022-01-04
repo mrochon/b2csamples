@@ -11,5 +11,7 @@ namespace RESTFunctions.Models
         public string SigningKey { get; set; }          // symmetric signing key (same must be stored in PolicKeys)
         public int ValidityHours { get; set; }          // How long must the invitation be valid for
         public bool IncludeDomainHints { get; set; }    // include domain_hint and AAD-specific hint if email corresponds to existing AD tenant
+        public string clientId { get; set; }            // clientId of a b2C app on whose behalf invitation journey should be executed
+        public string replyUrl { get; set; }            // replyUrl to which the user should be redirected after redeeming the invitation (must be registered for the above app)
     }
 }

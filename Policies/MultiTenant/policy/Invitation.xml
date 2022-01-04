@@ -142,9 +142,9 @@
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="responseMsg" DefaultValue="This invitation url is for a user with a different email address."/>
-            <InputClaim ClaimTypeReferenceId="email" />
+            <!--InputClaim ClaimTypeReferenceId="email" />
             <InputClaim ClaimTypeReferenceId="invitedEmail" />     
-            <InputClaim ClaimTypeReferenceId="signInName" />                   
+            <InputClaim ClaimTypeReferenceId="signInName" /-->                   
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="responseMsg"/>

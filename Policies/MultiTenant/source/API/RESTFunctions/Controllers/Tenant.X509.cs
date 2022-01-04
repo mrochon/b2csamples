@@ -44,7 +44,7 @@ namespace RESTFunctions.Controllers
         public async Task<IActionResult> Post([FromBody] TenantDetails tenant)
         {
             _logger.LogTrace("Starting POST /tenant");
-            //if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
+            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
             _logger.LogTrace("Authorized");
             if ((string.IsNullOrEmpty(tenant.name) || (string.IsNullOrEmpty(tenant.ownerId))))
                 return BadRequest(new { userMessage = "Bad parameters", status = 409, version = 1.0 });

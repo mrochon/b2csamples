@@ -37,7 +37,7 @@ namespace RESTFunctions.Services
             claims.Add("appTenantId", inviter.FindFirstValue("appTenantId"));
             var hints = await GetTPDomain(invite.inviteEmail);
             var jwt = CreateJWTToken(invite.inviteEmail, domainName, domainName, _tokenOptions.CurrentValue.SigningKey, tokenOptions.ValidityHours, claims);
-            var url = $"https://{domainName}.b2clogin.com/{tenantId}/{tokenOptions.Policy}/oauth2/v2.0/authorize?client_id={invite.clientId}{hints}&login_hint={invite.inviteEmail}&prompt=login&response_mode=form_post&nonce=defaultNonce&redirect_uri={invite.replyUrl}&scope=openid&response_type=code&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
+            var url = $"https://{domainName}.b2clogin.com/{tenantId}/{tokenOptions.Policy}/oauth2/v2.0/authorize?client_id={tokenOptions.clientId}{hints}&login_hint={invite.inviteEmail}&prompt=login&response_mode=query&nonce=defaultNonce&redirect_uri={tokenOptions.replyUrl}&scope=openid&response_type=id_token&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={jwt}";
             return url;
         }
         private string CreateJWTToken(string email, string issuer, string audience, string signingKey, int validityHours, IDictionary<string, string> userClaims = null)
