@@ -284,7 +284,7 @@
             <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name" />
             <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name" />
             <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="google.com" />
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="gmail.com" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" />
           </OutputClaims>
           <OutputClaimsTransformations>
@@ -334,7 +334,7 @@
             <Key Id="client_secret" StorageReferenceId="{AADCommonSecret}"/>
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="domain_hint" DefaultValue="{OAuth-KV:subdomain}" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="domain_hint" DefaultValue="{OAuth-KV:subdomain}" AlwaysUseDefaultValue="true" /> <!-- Not needed: AAD can work that out from the login_hint /-->
             <InputClaim ClaimTypeReferenceId="login_hint" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />            
           </InputClaims>
           <OutputClaims>

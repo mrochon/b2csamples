@@ -16,12 +16,14 @@ import { useEffect } from "react";
 export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
     const { instance, accounts } = useMsal();
-    let options = [["claims","Claims"], ["members", "Members"], ["invitation", "Invite someone"]].filter(role).map((v) => 
+    let options = [["claims","Claims"], ["members", "Members"], ["invitation", "Invite someone"], ["myurl", "My url"]].filter(role).map((v) => 
         <Button onClick={() => setState(v[0])}>{v[1]}</Button>
     );
     function role(option) {
         if(option[0] === "invitation")
             if (accounts[0].idTokenClaims.roles.includes("admin")) return true; else return false;
+        if(option[0] === "myurl")
+            if (accounts[0].idTokenClaims.idp != 'local') return true; else return false;            
         return true;
     }
     return (
@@ -33,11 +35,12 @@ export const Tenant = () => {
             </div>
             {nowShowing === "claims"?
                 <IdTokenContent />
-                :
-                (nowShowing === "members")?
-                    <Members instance = {instance} account = {accounts[0]}/>
-                    :
-                    <InviteMember />
+            :(nowShowing === "members")?
+                <Members instance = {instance} account = {accounts[0]}/>
+            :(nowShowing === "invitation")?
+                <InviteMember />
+            :
+                <MyUrl domain_hint={accounts[0].idTokenClaims.idp} login_hint={accounts[0].idTokenClaims.email} tenant={accounts[0].idTokenClaims.appTenantName}/>
             }            
         </>
     );
@@ -204,5 +207,18 @@ const listMembers = (members) => {
             <td>{m.roles.toString()}</td>
         </tr>
     ))
+}
+
+const MyUrl = (props) => {
+
+    console.log(props)
+    const lh = props.login_hint;
+    const url = 'https://aka.ms/mtb2c?domain_hint=' + props.domain_hint + '&login_hint=' + lh + '&tenant=' + props.tenant;
+    return (
+        <>
+            <h5>Use this url to speed up your sign in next time:</h5>
+            <p>{url}</p>
+        </>
+    )
 }
 

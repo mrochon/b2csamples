@@ -19,6 +19,11 @@ const NavigationBar = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const { instance } = useMsal();
+    const queryParams = new URLSearchParams(window.location.search);
+    const login_hint = queryParams.get('login_hint');    
+    const domain_hint = queryParams.get('domain_hint');
+    const sub = queryParams.get('sub');
+    console.log("login_hint:" + login_hint);
 
     return (
         <>
@@ -43,7 +48,12 @@ const NavigationBar = () => {
                     }>Create new tenant</Button>
                 </div>   
                 <div className="ml-auto">                         
-                    <Button variant="warning" className="ml-auto" onClick={() => instance.loginRedirect(loginRequest)}>Sign in</Button>  
+                    <Button variant="warning" className="ml-auto" onClick={() => instance.loginRedirect({
+                        scopes: loginRequest.scopes, 
+                        loginHint: login_hint,
+                        extraQueryParameters : {
+                            domain_hint: domain_hint
+                        }})}>Sign in</Button>  
                 </div>   
                 {/*              
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">

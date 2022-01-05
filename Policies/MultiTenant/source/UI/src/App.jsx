@@ -31,6 +31,8 @@ const MainContent = () => {
         
         const queryParams = new URLSearchParams(window.location.search);
         const id = queryParams.get('id_token');
+        const domain = queryParams.get('domain');
+        const sub = queryParams.get('sub');
         console.log("id_token:" + id);
         setRedeemToken(id);
 
