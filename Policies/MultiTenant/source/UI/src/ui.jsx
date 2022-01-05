@@ -100,7 +100,7 @@ export const SwitchTenant = () => {
         return (tenant != accounts[0].idTokenClaims.appTenantName.toUpperCase());
     }
     if(accounts[0].idTokenClaims.allTenants.length > 1) {
-        var title = `Current: ${accounts[0].idTokenClaims.appTenantName}`
+        var title = `${accounts[0].idTokenClaims.appTenantName}`
         return (
                 <DropdownButton variant="warning" className="ml-auto" drop="left" title={title}>{listTenants}</DropdownButton>
     )} else return null;
