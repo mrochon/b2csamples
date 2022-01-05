@@ -27,10 +27,11 @@ const NavigationBar = () => {
                     <SwitchTenant/>
                 </div>                  
                 <div className="ml-auto">
-                    <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
+                    <Button variant="warning" className="ml-auto" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out</Button>                      
+                    {/*<DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
                         <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
                         <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
-                    </DropdownButton>
+                    </DropdownButton>*/}
                 </div>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
@@ -67,13 +68,13 @@ export const PageLayout = (props) => {
             <br />
             {props.children}
             <br />
-            <AuthenticatedTemplate>
+            {/*<AuthenticatedTemplate>
                 <footer>
                     <center> 
                         <a href="https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant" target="_blank"> Source</a>
                     </center>
                 </footer> 
-            </AuthenticatedTemplate>
+            </AuthenticatedTemplate>*/}
             <UnauthenticatedTemplate>
 
             </UnauthenticatedTemplate>

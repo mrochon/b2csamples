@@ -16,7 +16,7 @@ export const Docs = (props) => {
         {props.redeemToken?
             <h5 className="card-title">Please sign-in to complete signup.</h5>           
             :
-            <Container>
+            <Container className="text-justify">
                 <Row>
                     <Col />
                     <Col>
