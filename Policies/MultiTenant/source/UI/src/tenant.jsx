@@ -128,81 +128,81 @@ const InviteMember = () => {
 };
 
 const Members = (props)  => {
-        console.log("Members: " + props);
+    console.log("Members: " + props);
 
-        const [members, setMembers] = useState(null);
-        const { instance, accounts } = useMsal(); 
-        const account = accounts[0];   
+    const [members, setMembers] = useState(null);
+    const { instance, accounts } = useMsal(); 
+    const account = accounts[0];   
 
-        const getMembers = (accessToken) => {
-            console.log("Starting getMembers");
-            axios.get(
-                `${deployment.restUrl}tenant/oauth2/members`,
-                { headers: { 'Authorization': `Bearer ${accessToken}`} }
-            )
-            .then(response => { 
-                console.log(`${response.data.length} members received`); 
-                setMembers(response.data)
-             })
-            .catch(error => console.log(error));             
-        }
-
-        useEffect(() => {
-            let request = { 
-                authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${account.idTokenClaims.acr}`,
-                scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
-                account: accounts[0],
-                extraQueryParameters: { tenant: account.idTokenClaims.appTenantName }
-            };
-            instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
-                getMembers(accessTokenResponse.accessToken);
-            }).catch(function (error) {
-                if (error instanceof InteractionRequiredAuthError) {
-                    instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
-                        getMembers(accessTokenResponse.accessToken);
-                    }).catch(function(error) {
-                        console.log(error);
-                    });
-                }
-                console.log(error);
-            });
-        },[]) 
-        
-
-        return (
-            <>
-            {members? 
-                <div>
-                    <h5 className="card-title">{`Tenant: ${account.idTokenClaims.appTenantName} has ${members.length} members`}</h5>
-                    <Table>
-                        <thead>
-                            <tr key="ix">
-                                <th>Email</th>
-                                <th>Name</th>
-                                <th>Roles</th>
-                            </tr>
-                        </thead>    
-                        <tbody>
-                            { listMembers(members) }   
-                        </tbody>                                
-                    </Table>
-                </div>
-            :
-                <p>Loading, please wait...</p>
-            }
-            </>
-
+    const getMembers = (accessToken) => {
+        console.log("Starting getMembers");
+        axios.get(
+            `${deployment.restUrl}tenant/oauth2/members`,
+            { headers: { 'Authorization': `Bearer ${accessToken}`} }
         )
-    };
-
-    const listMembers = (members) => {
-        console.log("listMembers");
-        return (members.map((m, ix) =>
-            <tr key="0">
-                <td>{m.email}</td>
-                <td>{m.name}</td>
-                <td>{m.roles.toString()}</td>
-            </tr>
-        ))
+        .then(response => { 
+            console.log(`${response.data.length} members received`); 
+            setMembers(response.data)
+            })
+        .catch(error => console.log(error));             
     }
+
+    useEffect(() => {
+        let request = { 
+            authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${account.idTokenClaims.acr}`,
+            scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
+            account: accounts[0],
+            extraQueryParameters: { tenant: account.idTokenClaims.appTenantName }
+        };
+        instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
+            getMembers(accessTokenResponse.accessToken);
+        }).catch(function (error) {
+            if (error instanceof InteractionRequiredAuthError) {
+                instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
+                    getMembers(accessTokenResponse.accessToken);
+                }).catch(function(error) {
+                    console.log(error);
+                });
+            }
+            console.log(error);
+        });
+    },[]) 
+    
+
+    return (
+        <>
+        {members? 
+            <div>
+                <h5 className="card-title">{`Tenant: ${account.idTokenClaims.appTenantName} has ${members.length} members`}</h5>
+                <Table>
+                    <thead>
+                        <tr key="ix">
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Roles</th>
+                        </tr>
+                    </thead>    
+                    <tbody>
+                        { listMembers(members) }   
+                    </tbody>                                
+                </Table>
+            </div>
+        :
+            <p>Loading, please wait...</p>
+        }
+        </>
+
+    )
+};
+
+const listMembers = (members) => {
+    console.log("listMembers");
+    return (members.map((m, ix) =>
+        <tr key="0">
+            <td>{m.email}</td>
+            <td>{m.name}</td>
+            <td>{m.roles.toString()}</td>
+        </tr>
+    ))
+}
 
