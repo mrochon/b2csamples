@@ -11,6 +11,7 @@ import { useMsal } from "@azure/msal-react";
 import {  ButtonGroup, Button, Table } from "react-bootstrap";
 
 import { b2cPolicies, deployment } from "./authConfig";
+import { useEffect } from "react";
 
 export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
@@ -118,67 +119,53 @@ const InviteMember = () => {
     );
 };
 
-class Members extends React.Component {
-    constructor(props) {
-        super(props);
-        console.log(props);
-        this.state = 
-        {
-            error : null,
-            instance : props.instance,
-            account : props.account,
-            members : null,
-            callApi : ((accessToken) =>
-            {
-                axios.get(
-                    `${deployment.restUrl}tenant/oauth2/members`,
-                    { headers: { 'Authorization': `Bearer ${accessToken}`} }
-                )
-                .then(response => { console.log(`${response.data.length} members received`); this.setState({ members: response.data }) })
-                .catch(error => console.log(error));
-            })
-        }        
-    }
+const Members = (props)  => {
+        console.log("Members: " + props);
 
-    componentDidMount() {
-        console.log('getMembers');
-        let request = { 
-            authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${this.state.account.idTokenClaims.acr}`,
-            scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
-            account: this.state.account,
-            extraQueryParameters: { tenant: this.state.account.idTokenClaims.appTenantName }
-        };
-        let api = this.state.callApi;
-        this.state.instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
-            let accessToken = accessTokenResponse.accessToken;
-            api(accessToken)
-        }).catch(function (error) {
-            if (error instanceof InteractionRequiredAuthError) {
-                this.state.instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
-                    let accessToken = accessTokenResponse.accessToken;
-                    this.state.callApi(accessToken);
-                }).catch(function(error) {
-                    this.state.error = "Unable to acquire token: " + error;
-                    console.log(error);
-                });
-            }
-            console.log(error);
-        });
-    }
+        const [members, setMembers] = useState(null);
+        const { instance, accounts } = useMsal(); 
+        const account = accounts[0];   
 
-    render() {
-        if(this.state.members) {
-            console.log("Members has:" + this.state.members.length);
-            const listMembers = this.state.members.map((m, ix) =>
-                <tr key="0">
-                    <td>{m.email}</td>
-                    <td>{m.name}</td>
-                    <td>{m.roles.toString()}</td>
-                </tr>
-                )
-            return (
+        const getMembers = (accessToken) => {
+            console.log("Starting getMembers");
+            axios.get(
+                `${deployment.restUrl}tenant/oauth2/members`,
+                { headers: { 'Authorization': `Bearer ${accessToken}`} }
+            )
+            .then(response => { 
+                console.log(`${response.data.length} members received`); 
+                setMembers(response.data)
+             })
+            .catch(error => console.log(error));             
+        }
+
+        useEffect(() => {
+            let request = { 
+                authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${account.idTokenClaims.acr}`,
+                scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
+                account: accounts[0],
+                extraQueryParameters: { tenant: account.idTokenClaims.appTenantName }
+            };
+            instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
+                getMembers(accessTokenResponse.accessToken);
+            }).catch(function (error) {
+                if (error instanceof InteractionRequiredAuthError) {
+                    instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
+                        getMembers(accessTokenResponse.accessToken);
+                    }).catch(function(error) {
+                        console.log(error);
+                    });
+                }
+                console.log(error);
+            });
+        },[]) 
+        
+
+        return (
+            <>
+            {members? 
                 <div>
-                    <h5 className="card-title">{`Tenant: ${this.state.account.idTokenClaims.appTenantName} has ${this.state.members.length} members`}</h5>
+                    <h5 className="card-title">{`Tenant: ${account.idTokenClaims.appTenantName} has ${members.length} members`}</h5>
                     <Table>
                         <thead>
                             <tr key="ix">
@@ -188,12 +175,26 @@ class Members extends React.Component {
                             </tr>
                         </thead>    
                         <tbody>
-                            { listMembers }   
+                            { listMembers(members) }   
                         </tbody>                                
                     </Table>
                 </div>
-            )
-        } else if (this.state.error) return(<h2>this.state.error</h2>);
-        else return null;
+            :
+                <p>Loading, please wait...</p>
+            }
+            </>
+
+        )
     };
-};
+
+    const listMembers = (members) => {
+        console.log("listMembers");
+        return (members.map((m, ix) =>
+            <tr key="0">
+                <td>{m.email}</td>
+                <td>{m.name}</td>
+                <td>{m.roles.toString()}</td>
+            </tr>
+        ))
+    }
+
