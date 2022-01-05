@@ -70,17 +70,19 @@ const IdTokenClaims = (props) => {
 const InviteMember = () => {
     const [email, setEmail] = useState("abc@xyz.com");
     const [invitation, setInvitation] = useState(null);
+    const [statusMsg, setStatusMsg] = useState("");
     const { instance, accounts } = useMsal();    
     return (
         <div>
             <h5 className="card-title">Invitation</h5>
             <div>
                 <div><p><i>Enter email address</i></p></div>                
-                <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); }}/></div>
+                <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); setStatusMsg(""); }}/></div>
                 <div><Button onClick={() => 
                     {
                         console.log('starting click' + email);
-                        setEmail(email);
+                        setStatusMsg("generating");
+                        //setEmail(email);
                         setInvitation("");
                         let request = { 
                             authority:b2cPolicies.authorities.signIn.authority,
@@ -110,8 +112,14 @@ const InviteMember = () => {
                         });
                     }}>Invite</Button></div>
                 {invitation?
-                    <a href={invitation} target="_blank" rel="noopener">Invitation url</a>
-                    :
+                    <Table bordered="true">
+                        <tbody>
+                            <a href={invitation} target="_blank" rel="noopener">Invitation url</a>
+                        </tbody>
+                    </Table>
+                :statusMsg?
+                    <p>Generating invitation link, please wait...</p>                    
+                :
                     <p/>
                 }       
             </div>
