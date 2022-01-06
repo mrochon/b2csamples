@@ -216,7 +216,7 @@ namespace RESTFunctions.Controllers
             }
             else
             {
-                var segment = (memb.isAdmin.ToLower() == "true") ? "owners" : "members";
+                var segment = (!String.IsNullOrEmpty(memb.isAdmin) && (memb.isAdmin.ToLower() == "true")) ? "owners" : "members";
                 var resp = await http.PostAsync(
                     $"{Graph.BaseUrl}groups/{tenantId}/{segment}/$ref",
                     new StringContent(

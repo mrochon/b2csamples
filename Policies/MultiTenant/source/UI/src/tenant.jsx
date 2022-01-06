@@ -16,7 +16,7 @@ import { useEffect } from "react";
 export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
     const { instance, accounts } = useMsal();
-    let options = [["claims","Claims"], ["members", "Members"], ["invitation", "Invite someone"], ["myurl", "My url"]].filter(role).map((v) => 
+    let options = [["claims","Claims"], ["members", "Members"], ["invitation", "New"], ["myurl", "My url"]].filter(role).map((v) => 
         <Button onClick={() => setState(v[0])}>{v[1]}</Button>
     );
     function role(option) {
@@ -80,13 +80,14 @@ const InviteMember = () => {
         <div>
             <h5 className="card-title">Invitation</h5>
             <div>
-                <div><p><i>Enter email address</i></p></div>                
-                <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); setStatusMsg(""); }}/></div>
+                <div><p><i>Enter email address</i></p>               
+                    <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); setStatusMsg(""); }}/></div>
+                </div>                     
                 <br />
                 <ToggleButton
                     id="isTenantAdmin"
                     type="checkbox"
-                    variant="secondary"
+                    variant="primary"
                     checked={isAdmin}
                     value="0"
                     onChange={(e) => { setIsAdmin(e.currentTarget.checked); setInvitation(""); }} >
@@ -216,7 +217,7 @@ const Members = (props)  => {
 const listMembers = (members) => {
     console.log("listMembers");
     return (members.map((m, ix) =>
-        <tr key="0">
+        <tr key={ix}>
             <td>{m.email}</td>
             <td>{m.name}</td>
             <td>{m.roles.toString()}</td>
