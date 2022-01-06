@@ -216,14 +216,15 @@ namespace RESTFunctions.Controllers
             }
             else
             {
+                var segment = (memb.isAdmin.ToLower() == "true") ? "owners" : "members";
                 var resp = await http.PostAsync(
-                    $"{Graph.BaseUrl}groups/{tenantId}/members/$ref",
+                    $"{Graph.BaseUrl}groups/{tenantId}/{segment}/$ref",
                     new StringContent(
                         $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{memb.userId}\"}}",
                         System.Text.Encoding.UTF8,
                         "application/json"));
                 if (!resp.IsSuccessStatusCode)
-                    return BadRequest("Add member failed");
+                    return BadRequest("Add owener/member failed");
                 return new JsonResult(new { tenantId, tenantName = appTenantName, roles = new string[] { "member" }, isNewMember = true });
             }
         }
@@ -370,6 +371,7 @@ namespace RESTFunctions.Controllers
     {
         public string tenantId { get; set; }
         public string userId { get; set; }
+        public string isAdmin { get; set; }  // string of boolean
     }
     public class Member
     {

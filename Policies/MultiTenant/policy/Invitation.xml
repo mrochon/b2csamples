@@ -295,6 +295,7 @@
       <InputClaims>
         <InputClaim ClaimTypeReferenceId="invitedEmail" PartnerClaimType="email" Required="true" />
         <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="appTenantId" Required="true" />
+        <InputClaim ClaimTypeReferenceId="isAdmin" PartnerClaimType="isAdmin" />        
       </InputClaims>
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />

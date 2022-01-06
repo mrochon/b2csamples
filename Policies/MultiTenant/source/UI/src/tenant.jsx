@@ -8,7 +8,7 @@ import axios from 'axios';
 
 import { useMsal } from "@azure/msal-react";
 
-import {  ButtonGroup, Button, Table } from "react-bootstrap";
+import {  ButtonGroup, Button, Table, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 
 import { b2cPolicies, deployment } from "./authConfig";
 import { useEffect } from "react";
@@ -75,15 +75,28 @@ const InviteMember = () => {
     const [invitation, setInvitation] = useState(null);
     const [statusMsg, setStatusMsg] = useState("");
     const { instance, accounts } = useMsal();    
+    const [ isAdmin, setIsAdmin ] = useState(false);
     return (
         <div>
             <h5 className="card-title">Invitation</h5>
             <div>
                 <div><p><i>Enter email address</i></p></div>                
                 <div><input type="text" value={email} onChange={(e) => { setEmail(e.target.value); setInvitation(""); setStatusMsg(""); }}/></div>
+                <br />
+                <ToggleButton
+                    id="isTenantAdmin"
+                    type="checkbox"
+                    variant="secondary"
+                    checked={isAdmin}
+                    value="0"
+                    onChange={(e) => { setIsAdmin(e.currentTarget.checked); setInvitation(""); }} >
+                    Is co-admin?
+                    </ToggleButton>
+                <br />              
                 <div><Button onClick={() => 
                     {
                         console.log('starting click' + email);
+                        console.log("isAdmin?" + isAdmin);
                         setStatusMsg("generating");
                         //setEmail(email);
                         setInvitation("");
@@ -93,20 +106,22 @@ const InviteMember = () => {
                             account: accounts[0],
                             extraQueryParameters: { tenant: accounts[0].idTokenClaims.appTenantName }
                         }
-                        instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
-                            console.log("Email:"+email);
-                            let accessToken = accessTokenResponse.accessToken;
+                        let callApi = (accessToken) => {
                             axios.post(
                                 `${deployment.restUrl}tenant/oauth2/invite`,
-                                { inviteEmail: email },
+                                { inviteEmail: email, additionalClaims: { isAdmin: isAdmin.toString() } },
                                 { headers: { 'Authorization': `Bearer ${accessToken}`} }
                               ).then(response => { setInvitation(response.data); console.log("invite received");})
-                              .catch(error => console.log(error));
+                              .catch(error => console.log(error));                            
+                        }
+                        instance.acquireTokenSilent(request).then(function(accessTokenResponse) {
+                            console.log("Email:"+email);
+                            callApi(accessTokenResponse.accessToken);
+
                         }).catch(function (error) {
                             if (error instanceof InteractionRequiredAuthError) {
                                 instance.acquireTokenPopup(request).then(function(accessTokenResponse) {
-                                    let accessToken = accessTokenResponse.accessToken;
-                                    callApi(accessToken);
+                                    callApi(acceaccessTokenResponse.accessTokenssToken);
                                 }).catch(function(error) {
                                     console.log(error);
                                 });

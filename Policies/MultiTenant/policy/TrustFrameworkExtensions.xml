@@ -92,7 +92,11 @@
       <ClaimType Id="login_hint">
         <DisplayName>Login hint</DisplayName>
         <DataType>string</DataType>
-      </ClaimType>                 
+      </ClaimType>   
+      <ClaimType Id="isAdmin">
+        <DisplayName>User is tenant admin</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>              
     </ClaimsSchema>
   
     <Localization Enabled="true">
@@ -243,6 +247,7 @@
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
+            <InputClaim ClaimTypeReferenceId="isAdmin" PartnerClaimType="isAdmin" />            
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
