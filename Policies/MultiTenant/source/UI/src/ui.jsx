@@ -43,7 +43,8 @@ const NavigationBar = () => {
                 <div className="ml-auto">
                     <Button variant="warning" className="ml-auto" drop="left" onClick={() => 
                         instance.loginRedirect({ 
-                            authority:b2cPolicies.authorities.newTenant.authority
+                            authority:b2cPolicies.authorities.newTenant.authority,
+                            scopes: loginRequest.scopes                           
                         })
                     }>Create new tenant</Button>
                 </div>   

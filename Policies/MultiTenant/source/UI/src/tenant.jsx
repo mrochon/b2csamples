@@ -102,7 +102,7 @@ const InviteMember = () => {
                         //setEmail(email);
                         setInvitation("");
                         let request = { 
-                            authority:b2cPolicies.authorities.signIn.authority,
+                            authority: `https://${deployment.b2cTenantName}.b2clogin.com/${deployment.b2cTenantId}/${accounts[0].idTokenClaims.acr}`,
                             scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],
                             account: accounts[0],
                             extraQueryParameters: { tenant: accounts[0].idTokenClaims.appTenantName }
