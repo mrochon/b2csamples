@@ -11,7 +11,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     log.LogInformation("GetRoles starting.");
 
     string userObjectId = req.Query["userObjectId"];
-    string appId = req.Query["appId"];
+    string appId = req.Query["client_id"];
 
     if (String.IsNullOrEmpty(userObjectId) || String.IsNullOrEmpty(appId))
         return new BadRequestObjectResult(new { version = "1.0.0", status = 409, userMessage = "Invalid arguments" });

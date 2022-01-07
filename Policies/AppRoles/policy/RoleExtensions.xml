@@ -19,11 +19,6 @@
           <DataType>stringCollection</DataType>
           <UserHelpText/>
         </ClaimType>
-        <ClaimType Id="appId">
-          <DisplayName>Application id</DisplayName>
-          <DataType>string</DataType>
-          <UserHelpText/>
-        </ClaimType>        
       </ClaimsSchema>
   </BuildingBlocks>
 
@@ -45,7 +40,7 @@
           </CryptographicKeys>  
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
-            <InputClaim ClaimTypeReferenceId="appId" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="roles" PartnerClaimType="roles" />
