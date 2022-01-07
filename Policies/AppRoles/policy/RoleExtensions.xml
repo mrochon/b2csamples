@@ -36,13 +36,12 @@
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ServiceUrl">{GetRoles}</Item>
-            <Item Key="AuthenticationType">Basic</Item>
-            <Item Key="AllowInsecureAuthInProduction">true</Item>            
+            <Item Key="AuthenticationType">ApiKeyHeader</Item>
+            <Item Key="AllowInsecureAuthInProduction">false</Item>            
             <Item Key="SendClaimsIn">QueryString</Item>
           </Metadata>
           <CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="{RESTUserId}" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="{RESTPassword}" />
+            <Key Id="x-functions-key" StorageReferenceId="B2C_1A_RESTFuncKey" />
           </CryptographicKeys>  
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />

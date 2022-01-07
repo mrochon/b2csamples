@@ -36,6 +36,8 @@ New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $svcPrincipal.Id -Ap
 
 ### Using Graph
 
+POST 
+
 ```https://graph.microsoft.com/v1.0/users/<user object id>/appRoleAssignments```
 
 ```Json

@@ -45,6 +45,12 @@
         <UserHelpText>User role(s) in the application tenant.</UserHelpText>
         <UserInputType>Readonly</UserInputType>
       </ClaimType>      
+      <ClaimType Id="appRoles">
+        <DisplayName>Users role in the application</DisplayName>
+        <DataType>stringCollection</DataType>
+        <UserHelpText>User role(s) in the application.</UserHelpText>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>         
       <ClaimType Id="appTenantName">
         <DisplayName>Unique tenant name</DisplayName>
         <DataType>string</DataType>
@@ -257,6 +263,27 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>   
+        <TechnicalProfile Id="REST-GetUserRoles">
+          <DisplayName>Get user role</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{RestGetRolesForUser}</Item>
+            <Item Key="AuthenticationType">ApiKeyHeader</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="x-functions-key" StorageReferenceId="B2C_1A_RESTFuncKey" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
+            <InputClaim ClaimTypeReferenceId="appId" PartnerClaimType="{OIDC:ClientId}" />            
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appRoles" PartnerClaimType="roles" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>           
       </TechnicalProfiles>
     </ClaimsProvider>
 
