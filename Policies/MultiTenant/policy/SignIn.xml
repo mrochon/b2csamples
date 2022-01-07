@@ -6,7 +6,9 @@
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
   PolicyId="B2C_1A_SignIn"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SignIn">
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SignIn"
+  DeploymentMode="Development"
+UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -254,6 +256,7 @@
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignIn" />
     <UserJourneyBehaviors>
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="{AppInsightsKey}" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />       
       <ScriptExecution>Allow</ScriptExecution>
     </UserJourneyBehaviors>    
     <TechnicalProfile Id="PolicyProfile">

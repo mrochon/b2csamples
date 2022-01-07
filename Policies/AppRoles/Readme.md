@@ -18,7 +18,9 @@ B2C does not expose the UI for adding application roles. To define define them u
 }
 ```
 ## Assigning roles
-You can open the AAD portal view;s Enterprise Tab to assign users to the defined roles. You can also create groups, assign
+
+### Using PowerShell
+You can create groups, assign
 these groups to the application roles using the [Graph SDK PowerShell](https://docs.microsoft.com/en-us/graph/powershell/get-started)
  script below and then just assign users to groups using the Azure portal.
 
@@ -30,6 +32,18 @@ $roleId = "<role id>"
 Connect-MgGraph -TenantId <your tenant name> -scopes $scopes
 $svcPrincipal = Get-MgServiceprincipal -filter "AppId eq '$appId'"
 New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $svcPrincipal.Id -AppRoleId $roleId -PrincipalId $groupId -ResourceId $svcPrincipal.Id 
+```
+
+### Using Graph
+
+```https://graph.microsoft.com/v1.0/users/<user object id>/appRoleAssignments```
+
+```Json
+{
+    "appRoleId": "<app role guid>",
+    "principalId": "<user or group id>",
+    "resourceId": "<object id of the SERVICE PRINCIPAL of the application>"
+}
 ```
 
 ## Adding sample to your policy set
