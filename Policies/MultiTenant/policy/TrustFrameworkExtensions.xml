@@ -223,16 +223,15 @@
             <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />            
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" Required="true" />            
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" AlwaysUseDefaultValue="true" />
-            <InputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />
-            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" DefaultValue="" />                 
+            <InputClaim ClaimTypeReferenceId="identityProvider" />
+            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />                 
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
             <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
             <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
-            <OutputClaim ClaimTypeReferenceId="newUser" />            
             <OutputClaim ClaimTypeReferenceId="requireMFA" />
             <OutputClaim ClaimTypeReferenceId="allTenants" />     
           </OutputClaims>
@@ -277,7 +276,7 @@
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
-            <InputClaim ClaimTypeReferenceId="appId" PartnerClaimType="{OIDC:ClientId}" />            
+            <InputClaim ClaimTypeReferenceId="client_id" PartnerClaimType="{OIDC:ClientId}" />            
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appRoles" PartnerClaimType="roles" />

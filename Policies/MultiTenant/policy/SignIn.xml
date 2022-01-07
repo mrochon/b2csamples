@@ -132,41 +132,13 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
           </ClaimsExchanges>
         </OrchestrationStep>
+        <!-- If this is an AAD user and the tenant allows uninvited same-directory users, this user may not yet exist in B2C. Create /-->
         <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="IsSignUpAllowed" TechnicalProfileReferenceId="REST-IsSignupAllowed" />
-          </ClaimsExchanges>
-        </OrchestrationStep>         
-        <OrchestrationStep Order="6" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>objectId</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>isSignupAllowed</Value>
-              <Value>True</Value>              
-              <Action>SkipThisOrchestrationStep</Action>
             </Precondition>            
-          </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="BlockNewSocialUser" TechnicalProfileReferenceId="ShowBlockPage" />
-          </ClaimsExchanges>
-        </OrchestrationStep>        
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="GetTenantData" TechnicalProfileReferenceId="REST-GetTenantsForUser" />
-          </ClaimsExchanges>
-        </OrchestrationStep> 
-        <!-- If this is an AAD user and the tenant allows uninvited same-directory users, this user may not yet exist in B2C. Create /-->
-        <OrchestrationStep Order="8" Type="ClaimsExchange">
-          <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
               <Value>identityProvider</Value>
               <Value>aadOrganizations</Value>              
@@ -174,13 +146,31 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId-NoError" />
+            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId-NoError" />  <!-- Precondition may allow attempt to write existing AAD user /-->
           </ClaimsExchanges>
-        </OrchestrationStep>    
+        </OrchestrationStep>  
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetTenantData" TechnicalProfileReferenceId="REST-GetTenantsForUser" />
+          </ClaimsExchanges>
+        </OrchestrationStep>                   
+      
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>appTenantId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="BlockUserWithNoTenants" TechnicalProfileReferenceId="ShowBlockPage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>        
+
 
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
               This step checks whether there's a phone number on record,  for the user. If found, then the user is challenged to verify it. -->
-        <OrchestrationStep Order="9" Type="ClaimsExchange">
+        <OrchestrationStep Order="8" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>isActiveMFASession</Value>
@@ -199,7 +189,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
         <!-- Save MFA phone number: The precondition verifies whether the user provided a new number in the 
               previous step. If so, then the phone number is stored in the directory for future authentication 
               requests. -->
-        <OrchestrationStep Order="10" Type="ClaimsExchange">
+        <OrchestrationStep Order="9" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>newPhoneNumberEntered</Value>
@@ -210,10 +200,10 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>   
-        <OrchestrationStep Order="11" Type="ClaimsExchange">
+        <OrchestrationStep Order="10" Type="ClaimsExchange">
           <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>newUser</Value>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>KMSI</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>            
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
@@ -226,7 +216,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep>                  
-        <OrchestrationStep Order="12" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="11" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
   
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
@@ -276,6 +266,8 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
         <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" /> 
         <OutputClaim ClaimTypeReferenceId="allTenants" />         
         <OutputClaim ClaimTypeReferenceId="identityProvider" />      
+        <OutputClaim ClaimTypeReferenceId="KMSI" />    
+        <OutputClaim ClaimTypeReferenceId="newUser" />                    
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

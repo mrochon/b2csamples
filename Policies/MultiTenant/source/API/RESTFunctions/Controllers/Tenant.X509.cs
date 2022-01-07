@@ -230,53 +230,75 @@ namespace RESTFunctions.Controllers
         }
         // Used by IEF
         [HttpGet("GetTenantsForUser")]
-        public async Task<IActionResult> GetTenantsForUser([FromQuery] string userId, string tenantName = "", string identityProvider = "", string directoryId = "")
+        public async Task<IActionResult> GetTenantsForUser([FromQuery] string userId, string tenantName, string identityProvider, string directoryId)
         {
             _logger.LogInformation($"GetTenantsForUser: User id:{userId}, tenantName: {tenantName}");
             if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
-            Member tenant = null;
-            IEnumerable<Member> ts = null;
-            if (!String.IsNullOrEmpty(userId)) // for an AAD user new to B2C this could be empty
+            if (String.IsNullOrEmpty(userId))
             {
-                ts = await GetTenantsForUserImpl(userId);
-                if (!String.IsNullOrEmpty(tenantName))
-                    tenant = ts.FirstOrDefault(t => String.Compare(t.tenantName, tenantName.ToUpper(), true) == 0);
-                if (tenant == null)
-                    tenant = ts.FirstOrDefault();
+                _logger.LogError("GetTenantsForUser called with empty userId");
+                return new OkResult();
             }
+
+            Member tenant = null;
+            IEnumerable<Member> userTenants = null;
+            tenantName = tenantName?.ToUpper();
+
+            userTenants = await GetTenantsForUserImpl(userId);
+            tenant = userTenants?.FirstOrDefault(t => String.Compare(t.tenantName, tenantName, true) == 0);
+
+            if ((tenant == null) && !String.IsNullOrEmpty(tenantName) && String.Equals("aadOrganizations", identityProvider)) // perhaps this tenant allows users from same directory as creator
+            {
+                var tenantId = await GetTenantIdFromNameAsync(tenantName);
+                if (!String.IsNullOrEmpty(tenantId))
+                {
+                    var t = await _ext.GetAsync(new TenantDetails() { id = tenantId });
+                    if (String.Equals(directoryId, t.directoryId) && t.allowSameIssuerMembers)
+                    {
+                        var http = await _graph.GetClientAsync();
+                        var segment = "members";
+                        var resp = await http.PostAsync(
+                            $"{Graph.BaseUrl}groups/{tenantId}/{segment}/$ref",
+                            new StringContent(
+                                $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{userId}\"}}",
+                                System.Text.Encoding.UTF8,
+                                "application/json"));
+                        if (!resp.IsSuccessStatusCode)
+                        {
+                            _logger.LogError($"GetTenantsForUser failed to add AAD user {userId} to tenant {tenantName}");
+                            return new OkResult();
+                        }
+                        tenant = new Member() { tenantId = tenantId, tenantName = tenantName, roles = new List<string> { "member" }, userId = userId };
+                        if (userTenants == null)
+                            userTenants = new List<Member>() { tenant };
+                        else
+                        {
+                            var list = userTenants.ToList();
+                            list.Add(tenant);
+                            userTenants = list;
+                        }
+                    }
+                }
+            }
+            if(tenant == null) // if still no tenant
+                tenant = userTenants?.FirstOrDefault();
+
             if (tenant != null)
             {
+                //TODO: not needed if a new AAD user was added - we got these details already
                 var t = await _ext.GetAsync(new TenantDetails() { id = tenant.tenantId });
-                return new JsonResult(new TenantUserResponse {
+                return new JsonResult(new TenantUserResponse
+                {
                     tenantId = tenant.tenantId,
                     tenantName = tenant.tenantName,
                     requireMFA = t.requireMFA,
                     roles = tenant.roles, // .Aggregate((a, s) => $"{a},{s}"),
-                    allTenants = ts.Select(t => t.tenantName),  // .Aggregate((a, s) => $"{a},{s}")
+                    allTenants = userTenants.Select(t => t.tenantName),  // .Aggregate((a, s) => $"{a},{s}")
                     newUser = false
                 });
-            } else if (String.Equals("commonaad", identityProvider)) // perhaps this tenant allows users from same directory as creator
-            {
-                var id = await GetTenantIdFromNameAsync(tenantName);
-                if (!String.IsNullOrEmpty(id))
-                {
-                    var t = await _ext.GetAsync(new TenantDetails() { id = id });
-                    if (String.Equals(directoryId, t.directoryId) && t.allowSameIssuerMembers)
-                        return new JsonResult(new TenantUserResponse
-                        {
-                            tenantId = id,
-                            tenantName = tenantName,
-                            requireMFA = t.requireMFA,
-                            roles = new string[] { "member" },
-                            allTenants = new string[] { tenantName },
-                            newUser = String.IsNullOrEmpty(userId)
-                        });
-                }
             }
-            return new NotFoundObjectResult(new ErrorMsg
-            { 
-                userMessage = "You are not a member of any tenant. Please either create a new tenant or obtain an invitation to an existing one."
-            }); // empty response
+            _logger.LogWarning($"GetTenantsForUser: failed attempt to by {userId} to join {tenantName}");
+            return new OkResult(); // empty response
         }
         [HttpGet("IsSignupAllowed")]
         public async Task<IActionResult> IsSignupAllowed([FromQuery] string appTenantName, string identityProvider = "", string directoryId = "")

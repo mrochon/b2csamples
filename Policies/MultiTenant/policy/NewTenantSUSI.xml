@@ -185,7 +185,11 @@
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>newUser</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>            
+            </Precondition>     
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+              <Value>KMSI</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>                   
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>KMSI</Value>
               <Value>False</Value>
