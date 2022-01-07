@@ -19,6 +19,10 @@ B2C does not expose the UI for adding application roles. To define define them u
 ```
 ## Assigning roles
 
+### Using AAD portal
+
+You can use the [Azure AD portal blade](https://aad.portal.azure.com) to assign users to an application role. Make sure to select the application in the Enterprise Applications view. Users and groups sub-menu is the standard AAD UI for assigning groups/users to roles.
+
 ### Using PowerShell
 You can create groups, assign
 these groups to the application roles using the [Graph SDK PowerShell](https://docs.microsoft.com/en-us/graph/powershell/get-started)
