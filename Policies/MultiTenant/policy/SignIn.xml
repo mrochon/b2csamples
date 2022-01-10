@@ -167,7 +167,6 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           </ClaimsExchanges>
         </OrchestrationStep>        
 
-
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
               This step checks whether there's a phone number on record,  for the user. If found, then the user is challenged to verify it. -->
         <OrchestrationStep Order="8" Type="ClaimsExchange">
@@ -201,6 +200,11 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           </ClaimsExchanges>
         </OrchestrationStep>   
         <OrchestrationStep Order="10" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange id="GetRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="11" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>KMSI</Value>
@@ -216,7 +220,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep>                  
-        <OrchestrationStep Order="11" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="12" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
   
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />

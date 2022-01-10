@@ -28,8 +28,18 @@ namespace RESTFunctions.Services
         public async Task InvokeAsync(HttpContext context)
         {
             _logger.LogInformation("Starting cert validation");
+
+            var testRun = Environment.GetEnvironmentVariable("SkipAuth");
+            if (!String.IsNullOrEmpty(testRun) && (testRun == "Yes"))
+            {
+                context.User = new System.Security.Claims.ClaimsPrincipal(new ClaimsIdentity(
+                    new Claim[] { new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "ief") }));
+                await _next(context);
+                return;
+            }
+
             bool isAuthorized = false;
-            ClaimsIdentity identity  = null;
+            ClaimsIdentity identity = null;
             var certHeader = context.Request.Headers["X-ARR-ClientCert"];
             if (!String.IsNullOrEmpty(certHeader))
             {

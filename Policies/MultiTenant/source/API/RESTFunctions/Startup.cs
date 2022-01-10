@@ -34,10 +34,11 @@ namespace RESTFunctions
             Trace.WriteLine("Starting Startup");
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
+            services.AddLogging();
             services.Configure<ClientCertificateOptions>(Configuration.GetSection("AuthCert"));
             services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("ClientCreds"));
             services.Configure<InvitationTokenOptions>(Configuration.GetSection("Invitation"));
-            services.AddSingleton<Services.Graph>();
+            services.AddHttpClient<Services.GraphClient>();
             services.AddTransient<Services.InvitationService>();
             services.AddTransient<Services.GraphOpenExtensions>();
             services.AddAuthentication(options =>

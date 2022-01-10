@@ -276,7 +276,8 @@
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
-            <InputClaim ClaimTypeReferenceId="client_id" PartnerClaimType="{OIDC:ClientId}" />            
+            <InputClaim ClaimTypeReferenceId="client_id" PartnerClaimType="{OIDC:ClientId}" />       
+            <InputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />                        
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appRoles" PartnerClaimType="roles" />

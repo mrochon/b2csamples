@@ -23,7 +23,7 @@ namespace RESTFunctions.Services
             _tokenOptions = tokenOptions;
         }
         IOptionsMonitor<InvitationTokenOptions> _tokenOptions;
-        private readonly Graph _graph;
+
         public async Task<string> GetInvitationUrl(ClaimsPrincipal inviter, InvitationDetails invite)
         {
             var tokenOptions = _tokenOptions.CurrentValue;
