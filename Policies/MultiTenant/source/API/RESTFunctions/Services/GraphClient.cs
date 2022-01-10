@@ -35,69 +35,15 @@ namespace RESTFunctions.Services
                     .Build();
         }
         private readonly HttpClient _httpClient;
+        public async Task<HttpClient> CreateClient()
+        {
+            //if (_httpClient.DefaultRequestHeaders.Authorization == null) // could cause auth errors if header stays for too long
+                await AuthorizeClientAsync();
+            return _httpClient; 
+        }
+
         ILogger<GraphClient> _log;
         IConfidentialClientApplication _app;
-
-        public Uri BaseAddress { get => _httpClient.BaseAddress; }
-
-        public async Task<string> GetStringAsync(string segment)
-        {
-            await AuthorizeClientAsync();
-            return await _httpClient.GetStringAsync($"{_httpClient.BaseAddress}{segment}");
-        }
-        public async Task<HttpResponseMessage> GetAsync(string segment)
-        {
-            await AuthorizeClientAsync();
-            return await _httpClient.GetAsync($"{_httpClient.BaseAddress}{segment}");
-        }
-        public async Task<HttpResponseMessage> PostAsync(string segment, HttpContent content)
-        {
-            await AuthorizeClientAsync();
-            return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{segment}", content);
-       }
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage msg)
-        {
-            await AuthorizeClientAsync();
-            return await _httpClient.SendAsync(msg);
-        }
-        public async Task<HttpResponseMessage> PatchAsync(string segment, HttpContent content)
-        {
-            await AuthorizeClientAsync();
-            return await _httpClient.PatchAsync($"{_httpClient.BaseAddress}{segment}", content);
-        }
-        public async Task<IEnumerable<string>> GetAppRoles(string appId, string userObjectId)
-        {
-            _log.LogInformation("GetAppRoles starting.");
-            await AuthorizeClientAsync();
-            if (String.IsNullOrEmpty(userObjectId) || String.IsNullOrEmpty(appId))
-                throw new ArgumentException();
-
-            _log.LogInformation($"GetAppRoles for userObjectId={userObjectId}&appId={appId}");
-            try
-            {
-                // Cache this!!  https://docs.microsoft.com/en-us/aspnet/core/performance/caching/memory?view=aspnetcore-5.0#:~:text=Cache%20in-memory%20in%20ASP.NET%20Core%201%20Caching%20basics.,8%20Background%20cache%20update.%20...%209%20Additional%20resources
-                var json = await GetStringAsync($"applications?$filter=(appId eq '{appId}')&$select=appRoles");
-                var appRolesJson = (JArray)JObject.Parse(json)["value"];
-                if (appRolesJson.Count() > 0)
-                {
-                    var appRoles = appRolesJson.First()["appRoles"]
-                        .Where(role => role["isEnabled"].Value<bool>())
-                        .Select(role => new { id = role["id"].Value<string>(), value = role["value"].Value<string>() });
-                    _log.LogInformation($"GetRoles: retrieved {appRoles.Count()} roles");
-                    json = await GetStringAsync($"users/{userObjectId}/appRoleAssignments");
-                    var roleAssignments = (JArray)JObject.Parse(json)["value"];
-                    var roles = roleAssignments
-                        .Join(appRoles, ra => ((JObject)ra)["appRoleId"].Value<string>(), role => role.id, (ra, role) => role.value).ToList();
-                    return roles;
-                }
-                return new string[] { };
-            }
-            catch (Exception ex)
-            {
-                _log.LogError($"GetAppRoles user/roles exception: {ex.Message}");
-                throw;
-            }
-        }
 
         public async Task AuthorizeClientAsync()
         {

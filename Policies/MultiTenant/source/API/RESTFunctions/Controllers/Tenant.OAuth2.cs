@@ -31,9 +31,10 @@ namespace RESTFunctions.Controllers
             Guid guid;
             if (!Guid.TryParse(id, out guid))
                 return BadRequest("Invalid id");
+            var http = await _graph.CreateClient();
             try
             {
-                var json = await _graph.GetStringAsync($"groups/{id}");
+                var json = await http.GetStringAsync($"groups/{id}");
                 var result = JObject.Parse(json);
                 var tenant = new TenantDetails()
                 {
@@ -73,7 +74,8 @@ namespace RESTFunctions.Controllers
                 {
                     Content = new StringContent(JObject.FromObject(groupData).ToString(), Encoding.UTF8, "application/json")
                 };
-                var resp = await _graph.SendAsync(req);
+                var http = await _graph.CreateClient();
+                var resp = await http.SendAsync(req);
                 if (!resp.IsSuccessStatusCode)
                     return BadRequest("Update failed");
                 if (!(await _ext.UpdateAsync(tenant)))
@@ -98,10 +100,11 @@ namespace RESTFunctions.Controllers
             if (tenantId == null) return null;
             _logger.LogInformation($"Tenant:GetMembers: {tenantId}");
             var result = new List<Member>();
+            var http = await _graph.CreateClient();
             foreach (var role in new string[] { "Tenant.admin", "Tenant.member" })
             {
                 var entType = (role == "Tenant.admin") ? "owners" : "members";
-                var json = await _graph.GetStringAsync($"groups/{tenantId}/{entType}");
+                var json = await http.GetStringAsync($"groups/{tenantId}/{entType}");
                 foreach (var memb in JObject.Parse(json)["value"].Value<JArray>())
                 {
                     var user = result.FirstOrDefault(m => m.userId == memb["id"].Value<string>());
@@ -115,7 +118,7 @@ namespace RESTFunctions.Controllers
                             userId = memb["id"].Value<string>(),
                             roles = new List<string>() { role }
                         };
-                        var userJson = await _graph.GetStringAsync($"users/{user.userId}?$select=displayName,identities,otherMails");
+                        var userJson = await http.GetStringAsync($"users/{user.userId}?$select=displayName,identities,otherMails");
                         var userObj = JObject.Parse(userJson);
                         user.name = userObj["displayName"].Value<string>();
                         var otherMails = (JArray)userObj["otherMails"];

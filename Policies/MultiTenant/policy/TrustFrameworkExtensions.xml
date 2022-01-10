@@ -226,7 +226,8 @@
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" Required="true" />            
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" AlwaysUseDefaultValue="true" />
             <InputClaim ClaimTypeReferenceId="identityProvider" />
-            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />                 
+            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />        
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:client_id}" AlwaysUseDefaultValue="true" />                        
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
@@ -262,28 +263,6 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>   
-        <TechnicalProfile Id="REST-GetUserRoles">
-          <DisplayName>Get user role</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ServiceUrl">{RestGetRolesForUser}</Item>
-            <Item Key="AuthenticationType">ClientCertificate</Item>
-            <Item Key="SendClaimsIn">Body</Item>
-            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
-          </CryptographicKeys>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />       
-            <InputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />                        
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="appRoles" PartnerClaimType="roles" />
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>           
       </TechnicalProfiles>
     </ClaimsProvider>
 

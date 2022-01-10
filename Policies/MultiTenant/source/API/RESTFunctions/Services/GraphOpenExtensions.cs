@@ -19,12 +19,13 @@ namespace RESTFunctions.Services
             _graph = graph;
             _logger = logger;
         }
-        GraphClient _graph;
+        readonly GraphClient _graph;
         ILogger<GraphOpenExtensions> _logger;
 
         public async Task<bool> CreateAsync(TenantDetails tenant)
         {
-            var resp = await _graph.PostAsync(
+            var http = await _graph.CreateClient();
+            var resp = await http.PostAsync(
                 $"groups/{tenant.id}/extensions",
                 new StringContent(ToJson(tenant).ToString(), System.Text.Encoding.UTF8, "application/json"));
             return resp.IsSuccessStatusCode;
@@ -33,7 +34,8 @@ namespace RESTFunctions.Services
         {
             using (_logger.BeginScope("GraphExtensions:Get"))
             {
-                var resp = await _graph.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"groups/{tenant.id}/extensions/{propName}/"));
+                var http = await _graph.CreateClient();
+                var resp = await http.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"groups/{tenant.id}/extensions/{propName}/"));
                 if (resp.IsSuccessStatusCode)
                 {
                     var json = await resp.Content.ReadAsStringAsync();
@@ -50,12 +52,13 @@ namespace RESTFunctions.Services
         }
         public async Task<bool> UpdateAsync(TenantDetails tenant)
         {
+            var http = await _graph.CreateClient();
             var req = new HttpRequestMessage(HttpMethod.Get, $"groups/{tenant.id}/extensions/{propName}");
-            var resp = await _graph.SendAsync(req);
+            var resp = await http.SendAsync(req);
             if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return await CreateAsync(tenant);
             var json = ToJson(tenant);
-            resp = await _graph.PatchAsync(
+            resp = await http.PatchAsync(
                 $"groups/{tenant.id}/extensions/{propName}",
                 new StringContent(ToJson(tenant, false).ToString(), System.Text.Encoding.UTF8, "application/json"));
             return resp.IsSuccessStatusCode;

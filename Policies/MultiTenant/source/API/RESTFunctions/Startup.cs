@@ -38,9 +38,9 @@ namespace RESTFunctions
             services.Configure<ClientCertificateOptions>(Configuration.GetSection("AuthCert"));
             services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("ClientCreds"));
             services.Configure<InvitationTokenOptions>(Configuration.GetSection("Invitation"));
-            services.AddHttpClient<Services.GraphClient>();
-            services.AddTransient<Services.InvitationService>();
-            services.AddTransient<Services.GraphOpenExtensions>();
+            services.AddHttpClient<GraphClient>();
+            services.AddTransient<InvitationService>();
+            services.AddTransient<GraphOpenExtensions>();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

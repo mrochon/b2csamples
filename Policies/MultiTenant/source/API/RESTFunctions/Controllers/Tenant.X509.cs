@@ -34,9 +34,9 @@ namespace RESTFunctions.Controllers
             _inviter = inviter;
             _ext = ext;
         }
-        GraphClient _graph;
-        InvitationService _inviter;
-        GraphOpenExtensions _ext;
+        readonly GraphClient _graph;
+        readonly InvitationService _inviter;
+        readonly GraphOpenExtensions _ext;
         
         // Used by IEF
         [HttpPost]
@@ -48,16 +48,17 @@ namespace RESTFunctions.Controllers
             if ((string.IsNullOrEmpty(tenant.name) || (string.IsNullOrEmpty(tenant.ownerId))))
                 return BadRequest(new { userMessage = "Bad parameters", status = 409, version = 1.0 });
             tenant.name = tenant.name.ToUpper();
+            var http = await _graph.CreateClient();
             try
             {
-                await _graph.GetStringAsync($"users/{tenant.ownerId}");
+                await http.GetStringAsync($"users/{tenant.ownerId}");
             } catch (HttpRequestException ex)
             {
                 return BadRequest(new { userMessage = "Unknown user", status = 409, version = 1.0 });
             }
             if ((tenant.name.Length > 60) || !Regex.IsMatch(tenant.name, "^[A-Za-z]\\w*$"))
                 return BadRequest(new { userMessage = "Invalid tenant name", status = 409, version = 1.0 });
-            var resp = await _graph.GetAsync($"groups?$filter=(displayName eq '{tenant.name}')");
+            var resp = await http.GetAsync($"groups?$filter=(displayName eq '{tenant.name}')");
             if (!resp.IsSuccessStatusCode)
                 return BadRequest(new { userMessage = "Unable to validate tenant existence", status = 409, version = 1.0 });
             var values = JObject.Parse(await resp.Content.ReadAsStringAsync())["value"].Value<JArray>();
@@ -73,11 +74,11 @@ namespace RESTFunctions.Controllers
                 securityEnabled = true,
             };
             var jGroup = JObject.FromObject(group);
-            var owners = new string[] { $"{_graph.BaseAddress}users/{tenant.ownerId}" };
+            var owners = new string[] { $"{http.BaseAddress}users/{tenant.ownerId}" };
             jGroup.Add("owners@odata.bind", JArray.FromObject(owners));
             //jGroup.Add("members@odata.bind", JArray.FromObject(owners));
             //  https://docs.microsoft.com/en-us/graph/api/group-post-groups?view=graph-rest-1.0&tabs=http
-            resp = await _graph.PostAsync(
+            resp = await http.PostAsync(
                 "groups", new StringContent(jGroup.ToString(), System.Text.Encoding.UTF8, "application/json"));
             if (!resp.IsSuccessStatusCode)
             {
@@ -94,7 +95,7 @@ namespace RESTFunctions.Controllers
             if (!(await _ext.CreateAsync(tenant)))
                 return BadRequest("Tenant extensions creation failed");
             // add this group to the user's tenant collection
-            var allTenants = await GetTenantsForUserImpl(tenant.ownerId);
+            var allTenants = await GetTenantsForUserImpl(http, tenant.ownerId);
             _logger.LogInformation("Finishing Create tenant");
             return new OkObjectResult(new TenantUserResponse
             { 
@@ -104,80 +105,12 @@ namespace RESTFunctions.Controllers
                 allTenants = allTenants.Select(t => t.tenantName)
             });
         }
-        [HttpGet("forUser")]
-        public async Task<IActionResult> GetForUser(string userId)
-        {
-            using (_logger.BeginScope("forUser"))
-            {
-                if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
-                _logger.LogInformation("Authorized");
-                try
-                {
-                    var json = await _graph.GetStringAsync($"users/{userId}/memberOf");
-                    var groups = JObject.Parse(json)["value"].Value<JArray>();
-                    var membership = new
-                    {
-                        tenantIds = new List<string>(),
-                        tenants = new List<string>(),
-                        roles = new List<string>()
-                    };
-                    _logger.LogInformation("Processing groups");
-                    foreach (var group in groups)
-                    {
-                        var isGroup = group["@odata.type"].Value<string>() == "#microsoft.graph.group";
-                        if (!isGroup) continue;
-                        var id = group["id"].Value<string>();
-                        json = await _graph.GetStringAsync($"groups/{id}/owners");
-                        var values = JObject.Parse(json)["value"].Value<JArray>();
-                        var admin = values.FirstOrDefault(u => u["id"].Value<string>() == userId);
-                        membership.tenantIds.Add(group["id"].Value<string>());
-                        membership.tenants.Add(group["displayName"].Value<string>());
-                        membership.roles.Add(admin != null ? "Tenant.admin" : "Tenant.member");
-                    }
-                    if (membership.tenantIds.Count == 0)
-                        return new JsonResult(new { });
-                    return new JsonResult(membership);
-                }
-                catch (HttpRequestException ex)
-                {
-                    return BadRequest("Unable to validate user id");
-                }
-            }
-        }
-        [HttpGet("getUserRoles")]
-        public async Task<IActionResult> GetUserRolesByNameAsync(string tenantName, string userId)
-        {
-            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
-            try
-            {
-                IEnumerable<string> roles = null;
-                string tenantId = await GetTenantIdFromNameAsync(tenantName);
-                if (!String.IsNullOrEmpty(tenantId))
-                {
-                    roles = await GetUserRolesByIdAsync(tenantId, userId);
-                }
-                return new JsonResult(new { tenantName, roles });
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest("Errors processing this request");
-            }
-        }
-        private async Task<IEnumerable<string>> GetUserRolesByIdAsync(string tenantId, string userId)
-        {
-            List<string> roles = new List<string>();
-            if (await IsMemberAsync(tenantId, userId, true))
-                roles.Add("Tenant.admin");
-            else if (await IsMemberAsync(tenantId, userId, false))
-                roles.Add("Tenant.member");
-            else
-                roles = null;
-            return roles;
-        }
+
         private async Task<bool> IsMemberAsync(string tenantId, string userId, bool asAdmin = false)
         {
+            var http = await _graph.CreateClient();
             var membType = asAdmin ? "owners" : "members";
-            var json = await _graph.GetStringAsync($"groups/{tenantId}/{membType}");
+            var json = await http.GetStringAsync($"groups/{tenantId}/{membType}");
             var members = JObject.Parse(json)["value"].Value<JArray>();
             var member = members.FirstOrDefault(m => m["id"].Value<string>() == userId.ToString());
             return (member != null);
@@ -195,9 +128,10 @@ namespace RESTFunctions.Controllers
             if (String.IsNullOrEmpty(tenantId))
                 return new NotFoundObjectResult(new { userMessage = "Tenant does not exist", status = 404, version = 1.0 });
             string appTenantName;
+            var http = await _graph.CreateClient();
             try
             {
-                var json = await _graph.GetStringAsync($"groups/{tenantId}");
+                var json = await http.GetStringAsync($"groups/{tenantId}");
                 appTenantName = JObject.Parse(json).Value<string>("displayName");
             } catch(Exception)
             {
@@ -214,7 +148,7 @@ namespace RESTFunctions.Controllers
             else
             {
                 var segment = (!String.IsNullOrEmpty(memb.isAdmin) && (memb.isAdmin.ToLower() == "true")) ? "owners" : "members";
-                var resp = await _graph.PostAsync(
+                var resp = await http.PostAsync(
                     $"groups/{tenantId}/{segment}/$ref",
                     new StringContent(
                         $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{memb.userId}\"}}",
@@ -231,7 +165,7 @@ namespace RESTFunctions.Controllers
         }
         // Used by IEF
         [HttpGet("GetTenantsForUser")]
-        public async Task<IActionResult> GetTenantsForUser([FromQuery] string userId, string tenantName, string identityProvider, string directoryId)
+        public async Task<IActionResult> GetTenantsForUser([FromQuery] string userId, string tenantName, string identityProvider, string directoryId, string client_id)
         {
             _logger.LogInformation($"GetTenantsForUser: User id:{userId}, tenantName: {tenantName}");
             if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
@@ -245,9 +179,9 @@ namespace RESTFunctions.Controllers
             IEnumerable<Member> userTenants = null;
             tenantName = tenantName?.ToUpper();
 
-            userTenants = await GetTenantsForUserImpl(userId);
+            var http = await _graph.CreateClient();
+            userTenants = await GetTenantsForUserImpl(http, userId);
             tenant = userTenants?.FirstOrDefault(t => String.Compare(t.tenantName, tenantName, true) == 0);
-
             if ((tenant == null) && !String.IsNullOrEmpty(tenantName) && String.Equals("aadOrganizations", identityProvider)) // perhaps this tenant allows users from same directory as creator
             {
                 var tenantId = await GetTenantIdFromNameAsync(tenantName);
@@ -257,7 +191,7 @@ namespace RESTFunctions.Controllers
                     if (String.Equals(directoryId, t.directoryId) && t.allowSameIssuerMembers)
                     {
                         var segment = "members";
-                        var resp = await _graph.PostAsync(
+                        var resp = await http.PostAsync(
                             $"groups/{tenantId}/{segment}/$ref",
                             new StringContent(
                                 $"{{\"@odata.id\": \"https://graph.microsoft.com/v1.0/directoryObjects/{userId}\"}}",
@@ -296,12 +230,15 @@ namespace RESTFunctions.Controllers
             if (tenant != null)
             {
                 var t = await _ext.GetAsync(new TenantDetails() { id = tenant.tenantId });
+                var appRoles = await GetAppRoles(client_id, userId);
+                if (tenant.roles != null)
+                    appRoles = appRoles.Concat(tenant.roles);
                 return new JsonResult(new TenantUserResponse
                 {
                     tenantId = tenant.tenantId,
                     tenantName = tenant.tenantName,
                     requireMFA = t.requireMFA,
-                    roles = tenant.roles, // .Aggregate((a, s) => $"{a},{s}"),
+                    roles = appRoles, // .Aggregate((a, s) => $"{a},{s}"),
                     allTenants = userTenants.Select(t => t.tenantName),  // .Aggregate((a, s) => $"{a},{s}")
                     newUser = false
                 });
@@ -309,47 +246,11 @@ namespace RESTFunctions.Controllers
             _logger.LogWarning($"GetTenantsForUser: failed attempt to by {userId} to join {tenantName}");
             return new OkResult(); // empty response
         }
-        [HttpPost("GetAppRoles")]
-        public async Task<IActionResult> GetAppRoles([FromBody] UserRoles userRoles)
-        {
-            IEnumerable<string> result = null;
-            try
-            {
-                result = await _graph.GetAppRoles(userRoles.client_id, userRoles.userObjectId);
-                if (userRoles.roles != null)
-                    result = result.Concat(userRoles.roles);
-            } catch(Exception ex)
-            {
-                _logger.LogError($"GetAppRoles: {ex.Message}");
-            }
-            return new JsonResult(result);
-        }
-        [HttpGet("IsSignupAllowed")]
-        public async Task<IActionResult> IsSignupAllowed([FromQuery] string appTenantName, string identityProvider = "", string directoryId = "")
-        {
-            _logger.LogInformation("IsSignupAllowed");
-            _logger.LogInformation($"appTenantname is null?{String.IsNullOrEmpty(appTenantName)}");
-            if ((User == null) || (!User.IsInRole("ief"))) return new UnauthorizedObjectResult("Unauthorized");
-            bool isSignupAllowed = false;
-            if (!String.IsNullOrEmpty(appTenantName))
-            {
-                _logger.LogInformation($"Tenant: {appTenantName}, identityprovider: {identityProvider}, directoryId: {directoryId}");
-                var id = await GetTenantIdFromNameAsync(appTenantName);
-                if (!String.IsNullOrEmpty(id))
-                {
-                    var t = await _ext.GetAsync(new TenantDetails() { id = id });
-                    _logger.LogInformation($"Found: {t.allowSameIssuerMembers}, {t.identityProvider}, {t.directoryId}");
-                    isSignupAllowed = t.allowSameIssuerMembers 
-                        && (t.identityProvider == identityProvider)
-                        && (t.directoryId == directoryId);
-                }
-            }
-            _logger.LogInformation($"Result: {isSignupAllowed}");
-            return new JsonResult(new { isSignupAllowed });
-        }
+
         private async Task<string> GetTenantIdFromNameAsync(string tenantName)
         {
-            var json = await _graph.GetStringAsync($"groups?$filter=(mailNickName eq '{tenantName.ToUpper()}')");
+            var http = await _graph.CreateClient();
+            var json = await http.GetStringAsync($"groups?$filter=(mailNickName eq '{tenantName.ToUpper()}')");
             var tenants = JObject.Parse(json)["value"].Value<JArray>();
             string tenantId = null;
             if (tenants.Count == 1)
@@ -359,14 +260,14 @@ namespace RESTFunctions.Controllers
             }
             return null;
         }
-        private async Task<IEnumerable<Member>> GetTenantsForUserImpl(string userId)
+        private async Task<IEnumerable<Member>> GetTenantsForUserImpl(HttpClient http, string userId)
         {
             var result = new List<Member>();
             try
             {
                 foreach (var role in new string[] { "ownedObjects", "memberOf" })
                 {
-                    var json = await _graph.GetStringAsync($"users/{userId}/{role}");
+                    var json = await http.GetStringAsync($"users/{userId}/{role}");
                     var groups = JObject.Parse(json)["value"].Value<JArray>();
                     foreach (var group in groups)
                     {
@@ -391,6 +292,39 @@ namespace RESTFunctions.Controllers
             catch (HttpRequestException ex)
             {
                 return null;
+            }
+        }
+        private async Task<IEnumerable<string>> GetAppRoles(string appId, string userObjectId)
+        {
+            _logger.LogInformation("GetAppRoles starting.");
+            if (String.IsNullOrEmpty(userObjectId) || String.IsNullOrEmpty(appId))
+                throw new ArgumentException();
+
+            _logger.LogInformation($"GetAppRoles for userObjectId={userObjectId}&appId={appId}");
+            var http = await _graph.CreateClient();
+            try
+            {
+                // Cache this!!  https://docs.microsoft.com/en-us/aspnet/core/performance/caching/memory?view=aspnetcore-5.0#:~:text=Cache%20in-memory%20in%20ASP.NET%20Core%201%20Caching%20basics.,8%20Background%20cache%20update.%20...%209%20Additional%20resources
+                var json = await http.GetStringAsync($"applications?$filter=(appId eq '{appId}')&$select=appRoles");
+                var appRolesJson = (JArray)JObject.Parse(json)["value"];
+                if (appRolesJson.Count() > 0)
+                {
+                    var appRoles = appRolesJson.First()["appRoles"]
+                        .Where(role => role["isEnabled"].Value<bool>())
+                        .Select(role => new { id = role["id"].Value<string>(), value = role["value"].Value<string>() });
+                    _logger.LogInformation($"GetRoles: retrieved {appRoles.Count()} roles");
+                    json = await http.GetStringAsync($"users/{userObjectId}/appRoleAssignments");
+                    var roleAssignments = (JArray)JObject.Parse(json)["value"];
+                    var roles = roleAssignments
+                        .Join(appRoles, ra => ((JObject)ra)["appRoleId"].Value<string>(), role => role.id, (ra, role) => role.value).ToList();
+                    return roles;
+                }
+                return new string[] { };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"GetAppRoles user/roles exception: {ex.Message}");
+                throw;
             }
         }
     }
