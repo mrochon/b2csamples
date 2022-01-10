@@ -267,16 +267,16 @@
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
             <Item Key="ServiceUrl">{RestGetRolesForUser}</Item>
-            <Item Key="AuthenticationType">ApiKeyHeader</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="x-functions-key" StorageReferenceId="B2C_1A_RESTFuncKey" />
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
-            <InputClaim ClaimTypeReferenceId="client_id" PartnerClaimType="{OIDC:ClientId}" />       
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />       
             <InputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />                        
           </InputClaims>
           <OutputClaims>

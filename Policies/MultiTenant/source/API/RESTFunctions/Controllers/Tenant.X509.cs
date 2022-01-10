@@ -315,7 +315,7 @@ namespace RESTFunctions.Controllers
             IEnumerable<string> result = null;
             try
             {
-                result = await _graph.GetAppRoles(userRoles.appId, userRoles.userObjectId);
+                result = await _graph.GetAppRoles(userRoles.client_id, userRoles.userObjectId);
                 if (userRoles.roles != null)
                     result = result.Concat(userRoles.roles);
             } catch(Exception ex)
@@ -428,7 +428,7 @@ namespace RESTFunctions.Controllers
     }
     public class UserRoles
     {
-        public string appId { get; set; }
+        public string client_id { get; set; }
         public string userObjectId { get; set; }
         public IEnumerable<string> roles { get; set; }
     }

@@ -50,7 +50,7 @@ namespace RESTFunctions.Services
             await AuthorizeClientAsync();
             return await _httpClient.GetAsync($"{_httpClient.BaseAddress}{segment}");
         }
-        public async Task<HttpResponseMessage> PostAsync(string segment, HttpContent? content)
+        public async Task<HttpResponseMessage> PostAsync(string segment, HttpContent content)
         {
             await AuthorizeClientAsync();
             return await _httpClient.PostAsync($"{_httpClient.BaseAddress}{segment}", content);
@@ -60,7 +60,7 @@ namespace RESTFunctions.Services
             await AuthorizeClientAsync();
             return await _httpClient.SendAsync(msg);
         }
-        public async Task<HttpResponseMessage> PatchAsync(string segment, HttpContent? content)
+        public async Task<HttpResponseMessage> PatchAsync(string segment, HttpContent content)
         {
             await AuthorizeClientAsync();
             return await _httpClient.PatchAsync($"{_httpClient.BaseAddress}{segment}", content);

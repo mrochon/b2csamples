@@ -17,7 +17,7 @@ export const Tenant = () => {
     const [nowShowing, setState] = useState("claims");    
     const { instance, accounts } = useMsal();
     let options = [["claims","Claims"], ["members", "Members"], ["invitation", "New"], ["myurl", "My url"]].filter(role).map((v) => 
-        <Button onClick={() => setState(v[0])}>{v[1]}</Button>
+        <Button key={v[0]} onClick={() => setState(v[0])}>{v[1]}</Button>
     );
     function role(option) {
         if(option[0] === "invitation")

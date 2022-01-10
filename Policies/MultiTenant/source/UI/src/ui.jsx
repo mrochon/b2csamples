@@ -2,11 +2,11 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-import React, { useState } from "react";
+import React from "react";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { Navbar, Button, Card, Col, Container, Dropdown, DropdownButton, Nav, Row} from "react-bootstrap";
+import { Navbar, Button, Dropdown, DropdownButton } from "react-bootstrap";
 
 import { loginRequest, b2cPolicies, deployment } from "./authConfig";
 
@@ -19,11 +19,6 @@ const NavigationBar = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const { instance } = useMsal();
-    const queryParams = new URLSearchParams(window.location.search);
-    const login_hint = queryParams.get('login_hint');    
-    const domain_hint = queryParams.get('domain_hint');
-    const sub = queryParams.get('sub');
-    console.log("login_hint:" + login_hint);
 
     return (
         <>
@@ -50,11 +45,8 @@ const NavigationBar = () => {
                 </div>   
                 <div className="ml-auto">                         
                     <Button variant="warning" className="ml-auto" onClick={() => instance.loginRedirect({
-                        scopes: loginRequest.scopes, 
-                        loginHint: login_hint,
-                        extraQueryParameters : {
-                            domain_hint: domain_hint
-                        }})}>Sign in</Button>  
+                        scopes: loginRequest.scopes
+                        })}>Sign in</Button>  
                 </div>   
                 {/*              
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">

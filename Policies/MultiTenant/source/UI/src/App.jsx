@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 import { EventType, InteractionType } from "@azure/msal-browser";
 
-import { msalConfig, b2cPolicies } from "./authConfig";
+import { loginRequest, b2cPolicies } from "./authConfig";
 import { PageLayout, IdTokenClaims, InviteMember } from "./ui.jsx";
 import { Tenant } from "./tenant.jsx";
 import { Docs } from "./docs.jsx";
@@ -19,6 +19,11 @@ const MainContent = () => {
 
     const { instance } = useMsal();
     const [redeemToken, setRedeemToken ] = useState(null);
+    const queryParams = new URLSearchParams(window.location.search);
+    const login_hint = queryParams.get('login_hint');    
+    const domain_hint = queryParams.get('domain_hint');
+    const tenant = queryParams.get('tenant');
+    console.log("login_hint:" + login_hint);
 
     /**
      * Using the event API, you can register an event callback that will do something when an event is emitted. 
@@ -31,8 +36,9 @@ const MainContent = () => {
         
         const queryParams = new URLSearchParams(window.location.search);
         const id = queryParams.get('id_token');
-        const domain = queryParams.get('domain');
-        const sub = queryParams.get('sub');
+        const domain_hint = queryParams.get('domain_hint');
+        const tenant = queryParams.get('tenant');
+        const login_hint = queryParams.get('login_hint');        
         console.log("id_token:" + id);
         setRedeemToken(id);
 
@@ -65,6 +71,15 @@ const MainContent = () => {
                 }
             }
         });
+        if(domain_hint || login_hint || tenant) {
+            instance.loginRedirect({
+                scopes: loginRequest.scopes, 
+                loginHint: login_hint,
+                extraQueryParameters : {
+                    domain_hint: domain_hint,
+                    tenant: tenant
+                }})          
+        }
 
         return () => {
             if (callbackId) {

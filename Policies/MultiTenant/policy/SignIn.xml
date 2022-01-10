@@ -199,12 +199,12 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
           </ClaimsExchanges>
         </OrchestrationStep>   
-        <OrchestrationStep Order="10" Type="ClaimsExchange">
+        <!--OrchestrationStep Order="10" Type="ClaimsExchange">
           <ClaimsExchanges>
-            <ClaimsExchange id="GetRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
+            <ClaimsExchange Id="GetRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
           </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="11" Type="ClaimsExchange">
+        </OrchestrationStep-->
+        <OrchestrationStep Order="10" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>KMSI</Value>
@@ -220,7 +220,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
         </OrchestrationStep>                  
-        <OrchestrationStep Order="12" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="11" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
   
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
