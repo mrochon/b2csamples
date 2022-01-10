@@ -24,7 +24,7 @@ namespace RESTFunctions.Controllers
     [Route("[controller]/oauth2")]
     public partial class Tenant : ControllerBase
     {
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Tenant.admin")]
         public async Task<IActionResult> Get()
         {
             var id = User.FindFirst("appTenantId").Value;
@@ -52,7 +52,7 @@ namespace RESTFunctions.Controllers
  
         // POST api/values
         [HttpPut]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Tenant.admin")]
         public async Task<IActionResult> Put([FromBody] TenantDetails tenant)
         {
             using (_logger.BeginScope("PUT tenant"))
@@ -82,7 +82,7 @@ namespace RESTFunctions.Controllers
             }
         }
         [HttpPost("invite")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Tenant.admin")]
         public async Task<string> Invite([FromBody] InvitationDetails invite)
         {
             return await _inviter.GetInvitationUrl(User, invite);
@@ -98,15 +98,15 @@ namespace RESTFunctions.Controllers
             if (tenantId == null) return null;
             _logger.LogInformation($"Tenant:GetMembers: {tenantId}");
             var result = new List<Member>();
-            foreach (var role in new string[] { "admin", "member" })
+            foreach (var role in new string[] { "Tenant.admin", "Tenant.member" })
             {
-                var entType = (role == "admin") ? "owners" : "members";
+                var entType = (role == "Tenant.admin") ? "owners" : "members";
                 var json = await _graph.GetStringAsync($"groups/{tenantId}/{entType}");
                 foreach (var memb in JObject.Parse(json)["value"].Value<JArray>())
                 {
                     var user = result.FirstOrDefault(m => m.userId == memb["id"].Value<string>());
                     if (user != null) // already exists; can only be because already owner; add member role
-                        user.roles.Add("member");
+                        user.roles.Add("Tenant.member");
                     else
                     {
                         user = new Member()
