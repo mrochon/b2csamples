@@ -227,7 +227,7 @@
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" AlwaysUseDefaultValue="true" />
             <InputClaim ClaimTypeReferenceId="identityProvider" />
             <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />        
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:client_id}" AlwaysUseDefaultValue="true" />                        
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />                        
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
