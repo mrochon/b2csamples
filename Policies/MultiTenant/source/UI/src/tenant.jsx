@@ -21,9 +21,9 @@ export const Tenant = () => {
     );
     function role(option) {
         if(option[0] === "invitation")
-            if (accounts[0].idTokenClaims.roles.includes("admin")) return true; else return false;
-        if(option[0] === "myurl")
-            if (accounts[0].idTokenClaims.idp != 'local') return true; else return false;            
+            if (accounts[0].idTokenClaims.roles.includes("Tenant.admin")) return true; else return false;
+        //if(option[0] === "myurl")
+        //    if (accounts[0].idTokenClaims.idp != 'local') return true; else return false;            
         return true;
     }
     return (
@@ -40,7 +40,7 @@ export const Tenant = () => {
             :(nowShowing === "invitation")?
                 <InviteMember />
             :
-                <MyUrl domain_hint={accounts[0].idTokenClaims.idp} login_hint={accounts[0].idTokenClaims.email} tenant={accounts[0].idTokenClaims.appTenantName}/>
+                <MyUrl domain_hint={accounts[0].idTokenClaims.idp} login_hint={accounts[0].idTokenClaims.email?? accounts[0].idTokenClaims.signInName} tenant={accounts[0].idTokenClaims.appTenantName}/>
             }            
         </>
     );
