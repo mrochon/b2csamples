@@ -58,16 +58,39 @@ const IdTokenContent = () => {
 
 const IdTokenClaims = (props) => {  
     return (
-        <div id="token-div">
-            <p><strong>Sign in name: </strong> {props.idTokenClaims.signInName}</p>               
-            <p><strong>Email: </strong> {props.idTokenClaims.email}</p>            
-            <p><strong>SUB: </strong> {props.idTokenClaims.sub}</p>
-            <p><strong>UPN: </strong> {props.idTokenClaims.preferred_username}</p>
-            <p><strong>App tenant: </strong> {props.idTokenClaims.appTenantName}</p>
-            <p><strong>App tenant id: </strong> {props.idTokenClaims.appTenantId}</p>
-            <p><strong>Roles: </strong> </p>
-            <ul>{listRoles(props.idTokenClaims.roles)}</ul>
-        </div>
+        <>
+            <h5 className="card-title">Some token claims</h5>
+            <Table>
+                <thead>
+                    <tr key="ix">
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>    
+                <tbody>
+                    <tr>
+                        <td><strong>Email/sign in name</strong></td>
+                        <td>{props.idTokenClaims.email?? props.idTokenClaims.signInName}</td>
+                    </tr> 
+                    <tr>
+                        <td><strong>Object id</strong></td>
+                        <td>{props.idTokenClaims.sub}</td>
+                    </tr>   
+                    <tr>
+                        <td><strong>App tenant name</strong></td>
+                        <td>{props.idTokenClaims.appTenantName}</td>
+                    </tr>      
+                    <tr>
+                        <td><strong>App tenant id</strong></td>
+                        <td>{props.idTokenClaims.appTenantId}</td>
+                    </tr>     
+                    <tr>
+                        <td><strong>Role(s)</strong></td>
+                        <td><ul className="plain-list"><ListRoles roles={props.idTokenClaims.roles} /></ul></td>
+                    </tr>                                                                                                          
+                </tbody>                                
+            </Table>      
+            </>  
     );
 }
 
@@ -203,7 +226,7 @@ const Members = (props)  => {
                         </tr>
                     </thead>    
                     <tbody>
-                        { listMembers(members) }   
+                        <ListMembers members={members} />   
                     </tbody>                                
                 </Table>
             </div>
@@ -215,19 +238,18 @@ const Members = (props)  => {
     )
 };
 
-const listRoles = (roles) => {
-    return (roles.map((r,ix) =>
+const ListRoles = (props) => {
+    return (props.roles.map((r,ix) =>
         <li key={ix}>{r}</li>
     ))
 }
 
-const listMembers = (members) => {
-    console.log("listMembers");
-    return (members.map((m, ix) =>
+const ListMembers = (props) => {
+    return (props.members.map((m, ix) =>
         <tr key={ix}>
             <td>{m.email}</td>
             <td>{m.name}</td>
-            <td><ul>{m.roles}</ul></td>
+            <td><ul className="plain-list" ><ListRoles roles={m.roles}/></ul></td>
         </tr>
     ))
 }

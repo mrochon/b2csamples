@@ -9,3 +9,13 @@
   justify-content: center;
   text-align: left;
 }
+
+td, th {
+  text-align: left;
+  width:0.1%;
+  white-space: nowrap;  
+}
+
+.plain-list {
+  list-style-type: none
+}
