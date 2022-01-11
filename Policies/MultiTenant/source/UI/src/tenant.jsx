@@ -65,7 +65,8 @@ const IdTokenClaims = (props) => {
             <p><strong>UPN: </strong> {props.idTokenClaims.preferred_username}</p>
             <p><strong>App tenant: </strong> {props.idTokenClaims.appTenantName}</p>
             <p><strong>App tenant id: </strong> {props.idTokenClaims.appTenantId}</p>
-            <p><strong>Roles: </strong> {props.idTokenClaims.roles}</p>
+            <p><strong>Roles: </strong> </p>
+            <ul>{listRoles(props.idTokenClaims.roles)}</ul>
         </div>
     );
 }
@@ -214,13 +215,19 @@ const Members = (props)  => {
     )
 };
 
+const listRoles = (roles) => {
+    return (roles.map((r,ix) =>
+        <li key={ix}>{r}</li>
+    ))
+}
+
 const listMembers = (members) => {
     console.log("listMembers");
     return (members.map((m, ix) =>
         <tr key={ix}>
             <td>{m.email}</td>
             <td>{m.name}</td>
-            <td>{m.roles.toString()}</td>
+            <td><ul>{m.roles}</ul></td>
         </tr>
     ))
 }

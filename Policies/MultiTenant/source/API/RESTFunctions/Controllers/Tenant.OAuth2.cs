@@ -24,6 +24,7 @@ namespace RESTFunctions.Controllers
     [Route("[controller]/oauth2")]
     public partial class Tenant : ControllerBase
     {
+        // Get user tenants
         [Authorize(Roles = "Tenant.admin")]
         public async Task<IActionResult> Get()
         {
@@ -100,6 +101,7 @@ namespace RESTFunctions.Controllers
             if (tenantId == null) return null;
             _logger.LogInformation($"Tenant:GetMembers: {tenantId}");
             var result = new List<Member>();
+            var appId = User.FindFirstValue("azp");
             var http = await _graph.CreateClient();
             foreach (var role in new string[] { "Tenant.admin", "Tenant.member" })
             {
@@ -112,11 +114,13 @@ namespace RESTFunctions.Controllers
                         user.roles.Add("Tenant.member");
                     else
                     {
+                        var userId = memb["id"].Value<string>();
+                        var appRoles = await GetAppRoles(appId, userId);
                         user = new Member()
                         {
                             tenantId = tenantId,
-                            userId = memb["id"].Value<string>(),
-                            roles = new List<string>() { role }
+                            userId = userId,
+                            roles = appRoles.Concat(new List<string>() { role }).ToList()
                         };
                         var userJson = await http.GetStringAsync($"users/{user.userId}?$select=displayName,identities,otherMails");
                         var userObj = JObject.Parse(userJson);
