@@ -94,7 +94,6 @@ export const SwitchTenant = () => {
                     authority:b2cPolicies.authorities.signIn.authority,
                     scopes: ["openid", "profile", `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.Invite`, `https://${deployment.b2cTenantName}.onmicrosoft.com/mtrest/User.ReadAll`],                    
                     account: accounts[0],
-                    prompt: "login",
                     extraQueryParameters: { tenant: tenant }
                 })
             }>{tenant}</Dropdown.Item>
