@@ -41,15 +41,14 @@ const NavigationBar = () => {
                             authority:b2cPolicies.authorities.newTenant.authority,
                             scopes: loginRequest.scopes                           
                         })
-                        .catch(function (error) {
-                            console.log(error);
-                        })
                     }>Create new tenant</Button>
                 </div>   
                 <div className="ml-auto">                         
-                    <Button variant="warning" className="ml-auto" onClick={() => instance.loginRedirect({
-                        scopes: loginRequest.scopes
-                        })}>Sign in</Button>  
+                    <Button variant="warning" className="ml-auto" onClick={() => 
+                        instance.loginRedirect({
+                            scopes: loginRequest.scopes
+                            })
+                        }>Sign in</Button>  
                 </div>   
                 {/*              
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
