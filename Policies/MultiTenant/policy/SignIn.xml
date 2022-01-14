@@ -20,7 +20,15 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
       <ClaimType Id="isSignupAllowed">
         <DisplayName>Does this app tenant allow signup</DisplayName>
         <DataType>boolean</DataType>
-      </ClaimType>         
+      </ClaimType>       
+      <ClaimType Id="errorCode">
+        <DisplayName>Error code</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>    
+      <ClaimType Id="errorMessage">
+        <DisplayName>Error message</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>                  
     </ClaimsSchema>
   </BuildingBlocks>
 
@@ -28,64 +36,39 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
     <ClaimsProvider>
       <DisplayName>Self asserted</DisplayName>
       <TechnicalProfiles>
-        <TechnicalProfile Id="ShowBlockPage">
-          <DisplayName>Show Block message</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
-          <Metadata>
-            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
-            <Item Key="TokenLifeTimeInSeconds">3600</Item>
-            <Item Key="AllowGenerationOfClaimsWithNullValues">true</Item>
-            <Item Key="setting.showContinueButton">false</Item>
-            <Item Key="setting.showCancelButton">false</Item>
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="responseMsg" DefaultValue="You are not a member of any tenant.You must either create a new tenant or be invited to an existing one."/>
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="responseMsg"/>
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop"/>
-          <EnabledForUserJourneys>Always</EnabledForUserJourneys>
-        </TechnicalProfile>    
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
           <Metadata>
             <Item Key="setting.showSignupLink">false</Item>
           </Metadata>
         </TechnicalProfile>  
-        <TechnicalProfile Id="REST-IsSignupAllowed">
-          <DisplayName>Does this tenant allow users t signup</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="ServiceUrl">{RestIsSignupAllowed}</Item>
-            <Item Key="AuthenticationType">ClientCertificate</Item>
-            <Item Key="SendClaimsIn">QueryString</Item>
-            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
-          </Metadata>
-          <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
-          </CryptographicKeys>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="appTenantName" DefaultValue="{OAUTH-KV:tenant}" />
-            <InputClaim ClaimTypeReferenceId="identityProvider" />
-            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />            
-          </InputClaims>
-          <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="isSignupAllowed" />
-          </OutputClaims>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-        </TechnicalProfile>         
       </TechnicalProfiles>
     </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Token Issuer</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ReturnOAuth2Error">
+          <DisplayName>Return OAuth2 error</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>OAuth2Error</OutputTokenFormat>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="errorCode" DefaultValue="App01" />
+            <InputClaim ClaimTypeReferenceId="errorMessage" DefaultValue="You do not have a tenant" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
   </ClaimsProviders>
 
   <UserJourneys>
     <!-- Jurney for existing user or new AAD users of app tenants allowing autojoin by other emebers. Does not allow UI entry of tenant name -->
-    <UserJourney Id="SignIn">
+    <UserJourney Id="SignIn" DefaultCpimIssuerTechnicalProfileReferenceId="JwtIssuer">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin" >
           <ClaimsProviderSelections>
             <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />              
             <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />          
@@ -155,16 +138,13 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           </ClaimsExchanges>
         </OrchestrationStep>                   
       
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="ReturnOAuth2Error">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>appTenantId</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
           </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="BlockUserWithNoTenants" TechnicalProfileReferenceId="ShowBlockPage" />
-          </ClaimsExchanges>
         </OrchestrationStep>        
 
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
