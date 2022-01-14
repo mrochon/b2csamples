@@ -41,6 +41,9 @@ const NavigationBar = () => {
                             authority:b2cPolicies.authorities.newTenant.authority,
                             scopes: loginRequest.scopes                           
                         })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
                     }>Create new tenant</Button>
                 </div>   
                 <div className="ml-auto">                         

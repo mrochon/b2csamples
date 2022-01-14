@@ -55,8 +55,8 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="errorCode" DefaultValue="App01" />
-            <InputClaim ClaimTypeReferenceId="errorMessage" DefaultValue="You do not have a tenant" />
+            <InputClaim ClaimTypeReferenceId="errorCode" DefaultValue="App01" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="errorMessage" DefaultValue="You do not have a tenant" AlwaysUseDefaultValue="true" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
