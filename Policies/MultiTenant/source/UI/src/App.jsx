@@ -19,11 +19,7 @@ const MainContent = () => {
 
     const { instance } = useMsal();
     const [redeemToken, setRedeemToken ] = useState(null);
-    const queryParams = new URLSearchParams(window.location.search);
-    const login_hint = queryParams.get('login_hint');    
-    const domain_hint = queryParams.get('domain_hint');
-    const tenant = queryParams.get('tenant');
-    console.log("login_hint:" + login_hint);
+    const [loginError, setLoginError ] = useState(null);
 
     /**
      * Using the event API, you can register an event callback that will do something when an event is emitted. 
@@ -54,6 +50,8 @@ const MainContent = () => {
                                 return;
                             });
                     }
+                } else {
+                    setLoginError("No tenants!")
                 }
             }
 
@@ -95,7 +93,7 @@ const MainContent = () => {
             </AuthenticatedTemplate>
 
             <UnauthenticatedTemplate>
-                <Docs redeemToken={redeemToken} />
+                <Docs redeemToken={redeemToken} error={loginError} />
             </UnauthenticatedTemplate>
         </div>
     );

@@ -16,6 +16,12 @@ export const Docs = (props) => {
         {props.redeemToken?
             <h5 className="card-title">Please sign-in to complete signup.</h5>           
             :
+        props.error?
+            <div>
+                <h5 className="card-title">You do not own or belong to any tenant.</h5>
+                <h5> Please create one or get invited to a tenant owned by someone else to complete the signin.</h5>      
+            </div>
+        :       
             <Container className="text-justify">
                 <Row>
                     <Col />

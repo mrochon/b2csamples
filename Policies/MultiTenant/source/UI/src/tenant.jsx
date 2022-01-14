@@ -157,6 +157,7 @@ const InviteMember = () => {
                 {invitation?
                     <Table bordered="true">
                         <tbody>
+                            <p>Copy and send the following link to the invited person.</p>
                             <a href={invitation} target="_blank" rel="noopener">Invitation url</a>
                         </tbody>
                     </Table>
