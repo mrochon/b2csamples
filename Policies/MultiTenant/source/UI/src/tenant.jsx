@@ -230,12 +230,14 @@ const Members = (props)  => {
                         <ListMembers members={members} />   
                     </tbody>                                
                 </Table>
-                {members.length < 2}
+                {members.length < 2?
                 <div>
                     <h5>It's lonely here! Please use <strong>New</strong> option above to invite other users</h5>
                     <h5>If this tenant was created with a <i>Work or School</i> account and marked as <i>Allow</i>,</h5>
                     <h5>invitations are not needed for users from the same AAD directory.</h5>
                 </div>
+                :
+                <p/>}
             </div>
         :
             <p>Loading, please wait...</p>
