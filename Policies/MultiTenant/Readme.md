@@ -14,14 +14,10 @@ Most of the sample's functionality subsists in the custom journeys (policies) an
 2. Sign-in journey administrators or members can use to sign in to the SaaS application. The provided OIDC token will include, in additional to the usual user identifying data, claims identifying the application tenant, the user belongs to. Note that a user may belong to several application tenants.
 
 Some additional functionality demonstrated in the sample includes:
-1. Combined signin/up, password reset and profile edit journeys
+1. single journey for signin/up, password reset and profile edit
 2. Home realm discovery based on invited user's email, e.g. users with an email whose domain represents a valid AAD tenant are automatically directed to that tenant
 
 Users may create local B2C consumer accounts (using their email) or use gmail or any Azure AD directory to authenticate. A user invited with an email from an existing Azure AD tenant will be redirected to that tenant to authenticate.
-
-### Contents
-
-B2C policies supporting signin/signup with simultanoeus creation of an applicaton tenant
 
 **Note:** this sample is **NOT** about [using AAD multi-tenancy](https://docs.microsoft.com/en-us/azure/dotnet-develop-multitenant-applications) to support an application. AAD multi-tenancy is ideal for medium-to-large enterprises who own and manage their own identity infrastructure. This sample is for small enteprises, usually without their own identity infrastructure. It provides support for an application that needs to group it's users into discrete groups, each representing an *application tenant* - a group of people sharing common data in the application. Azure AD B2C allows create their own logins, possibly use some external identity providers (social or work). Using the code provided in this repo, B2C will maintain association between users and *application tenants* and provide that data to your applications when users sign in.
 
@@ -38,13 +34,34 @@ The multi-tenant sample consists of three components, each in a separate repo:
 ### Setup
 
 #### B2C
-Using the IEFPolicies PS module:
+
+1. Install [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies/). **Note:** make sure you have PowerShell 7.x installed first.
+2. Clone this sample to a local directory, e.g. /mt. 
+3. Open a PowerShell window
+4. If you have never used B2C with IEF policies (or you are not sure) execute the following:
 
 ```PowerShell
 Connect-IefPolicies <yourtenantname> -allowInit
-Initialize-IefPolicies  # only needed if your B2C is not yet setup for deploying IEF custom journeys
-New-IefPoliciesCert RestClient -validityMonths 24
+Initialize-IefPolicies  
 ```
+
+5. Otherwise:
+
+```PowerShell
+Connect-IefPolicies <yourtenantname>
+```
+
+6. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C:
+
+```PowerShell
+New-IefPoliciesCert RestClient -validityMonths 24
+```PowerShell
+
+7. Deploy the [REST functions](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/API)
+8. Register the REST function app in your B2C tenant
+9. More to come - will try an ARM template 
+
+
 
 #### SPA
 
