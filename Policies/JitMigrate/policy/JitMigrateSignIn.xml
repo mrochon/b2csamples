@@ -143,8 +143,8 @@
             <Item Key="DefaultUserMessageIfRequestFailed">Username or Password is invalid.</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="username" />
-            <InputClaim ClaimTypeReferenceId="password" PartnerClaimType="password" />
+            <InputClaim ClaimTypeReferenceId="signInName" />
+            <InputClaim ClaimTypeReferenceId="password" />
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="displayName" />
