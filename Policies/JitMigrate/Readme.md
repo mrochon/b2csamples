@@ -15,3 +15,5 @@ Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies)
 ```PowerShell
 Add-IefPoliciesSample JitMigrate -owner mrochon -repo b2csamples
 ```
+
+A sample REST API for this sample is deployed at the url in .json file of this sample. It returns OK if the first part of the user's signin email (e.g. *abc* in *abc@xyz.com*) is the same string as the password, otherwise returns unauthentticated error. Copy the "logonApi" file from the JitMigrate.conf.json into your conf.json file if you want to use it.
