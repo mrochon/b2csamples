@@ -2,7 +2,7 @@
 
 ## Overview
 
-Based on the Social and Local with MFA starter pack, implemants Conditional Access-based rules for user blocking or requiring MFA or password change
+Based on the Social and Local with MFA starter pack, implemants Conditional Access-based rules for user blocking or requiring MFA or password change. the policy will return an OAuth2 eror to the application. Please uncomment/comment lines 491/492 to display a blocking page instead. 
 
 ## Using
 

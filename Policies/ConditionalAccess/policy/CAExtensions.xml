@@ -192,6 +192,24 @@
     </ClaimsProvider>
 
     <ClaimsProvider>
+      <DisplayName>Token Issuer</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="ReturnOAuth2Error">
+          <DisplayName>Return OAuth2 error</DisplayName>
+          <Protocol Name="None" />
+          <OutputTokenFormat>OAuth2Error</OutputTokenFormat>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="errorCode" DefaultValue="App01" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="errorMessage" DefaultValue="You are not allowed to acess this application" AlwaysUseDefaultValue="true" />
+          </InputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
       <DisplayName>Facebook</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="Facebook-OAUTH">
@@ -469,7 +487,8 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="ShowBlockPage" TechnicalProfileReferenceId="ShowBlockPage"/>
+            <ClaimsExchange Id="ReturnError" TechnicalProfileReferenceId="ReturnOAuth2Error"/>            
+            <!--ClaimsExchange Id="ShowBlockPage" TechnicalProfileReferenceId="ShowBlockPage"/-->
           </ClaimsExchanges>
         </OrchestrationStep>     
         <OrchestrationStep Order="4" Type="ClaimsExchange">
