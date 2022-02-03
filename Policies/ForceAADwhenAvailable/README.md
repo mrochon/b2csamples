@@ -1,13 +1,13 @@
 # Force use of AAD (work account) when available
 
-Requires federation with [AAD to support multi-tenant users](https://docs.microsoft.com/en-us/azure/active-directory-b2c/identity-provider-azure-ad-multi-tenant?pivots=b2c-custom-policy).
+Requires federation with [AAD with support for multi-tenant signin](https://docs.microsoft.com/en-us/azure/active-directory-b2c/identity-provider-azure-ad-multi-tenant?pivots=b2c-custom-policy).
 
 Sign-in policy which first asks for user email, determines whether there is an existing Azure AD tenant for
 the user's domain and, if it is redirects the user to that tenant. Other users are sent to local signin.
 
-Could probably be extended to likewise redirect users for other, non-AAD federated IdPs.
+Could be extended to redirect users to other, non-AAD federated IdPs.
 
-The REST function used to determine the user's Home Realm (currently AAD only) is ppublicly accessible and referenced in the conf.json file
+The REST function used to determine the user's Home Realm (currently AAD only) is publicly accessible and referenced in the conf.json file
 
 ## Deployment
 
