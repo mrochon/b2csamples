@@ -1,9 +1,7 @@
-# Allows B2C to be used as a SAML IdP for AAD Direct Federation
-
-**Moving this a more appropriately named folder: [B2B2B2C](https://github.com/mrochon/b2csamples/tree/master/Policies/B2B2B2C)
+# Using B2C as a SAML IdP for AAD Direct Federation
 
 ## Background
-Azure AD (enterprise) supports [federation to external IdPs](https://docs.microsoft.com/en-us/azure/active-directory/external-identities/direct-federation) to support external user identities. This sample shows how use this feature to federate an Azure B2C tenant as IdP to an AAD.
+Azure AD (enterprise) supports [federation to external IdPs](https://docs.microsoft.com/en-us/azure/active-directory/external-identities/direct-federation) to support external user identities. This sample shows how use this feature could be used to federate an Azure B2C tenant as IdP to an AAD. **Note: this is my own hack, I have never tried it in a production environment.**
 
 ## Basic operation
 This sample uses standard setup for using B2C as SAML IdP modified to issue user's email address transformed to use a fake domain name. In this sample email 'abc@gmail.com' becomes 'abc.gmail.com@b2clogin.com'. AAD inviters need to use this invitation to create a B2B invite. They can then modify the user's email address back to the original in the user's record in AAD. (be aware that there is a period of a few minutes after the invitation is created during which the portal does not allow editing of the user data).
@@ -30,9 +28,27 @@ In order for the B2C users to sign in to AAD managed resources, either the resou
 ## User invitation process
   
 2. Invite user using email <original email with @ replaced by '.'>@<fake domain name>, e.g. user1.gmail.com@b2clogin.com.
+2. After creating the invitation (using Graph), change the user's email created in AAD to the correct email address
 3. User attempts to signin, app must send domain_hint=b2clogin.com to AAD (see below)
 4. User is redirected to B2C and signs in (or -up) in to B2C
 4. SAML token is sent back to AAD
+
+## Add policies to your policy set
+
+You can use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following commands:
+
+To download a starter pack to the current folder (replace yourtenant with your B2C tenant's name; assuming your PS console' 
+```PowerShell
+cd <folder with your custom policies>
+Connect-IefPolicies yourtenant
+Add-IefPoliciesSample B2B2B2C -owner mrochon -repo b2csamples
+```
+
+To import to your tenant:
+```PowerShell
+Import-IefPolicies
+```
+
 
 
 

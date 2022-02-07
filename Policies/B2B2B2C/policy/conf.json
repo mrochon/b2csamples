@@ -1,0 +1,6 @@
+{
+    "Prefix": "SAMLIdP",
+    "SAMLIssuer": "https://mrochonb2cprod.onmicrosoft.com",
+    "GoogleClientId": "696994352313-cbsromrmj6oa01hmhnntp4l709328goq.apps.googleusercontent.com",
+    "B2BEmailDomain": "b2clogin.com"
+}
