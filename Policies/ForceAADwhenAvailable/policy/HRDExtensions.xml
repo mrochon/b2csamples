@@ -164,14 +164,10 @@
             <Item Key="ServiceUrl">{DoHRD}</Item>
             <Item Key="SendClaimsIn">QueryString</Item>
             <!-- Set AuthenticationType to Basic or ClientCertificate in production environments -->
-            <Item Key="AuthenticationType">Basic</Item>
+            <Item Key="AuthenticationType">None</Item>
             <!-- REMOVE the following line in production environments -->
-            <Item Key="AllowInsecureAuthInProduction">false</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
           </Metadata>
-          <CryptographicKeys>
-            <Key Id="BasicAuthenticationUsername" StorageReferenceId="B2C_1A_RESTUserId" />
-            <Key Id="BasicAuthenticationPassword" StorageReferenceId="B2C_1A_RESTSecret" />
-          </CryptographicKeys>          
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="enteredEmail" PartnerClaimType="email" />
             <InputClaim ClaimTypeReferenceId="allowAny" DefaultValue="true" AlwaysUseDefaultValue="true" />            
