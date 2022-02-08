@@ -1,0 +1,6 @@
+{
+  "Prefix": "MR",
+  "DoHRD": "https://mrb2csamplesrest.azurewebsites.net/api/GetPolicyDomain",
+  "AADOrganizationsClientId": "eb0eed96-9965-43b9-a0ac-2ebf6dbf84af",
+  "AADOrganizationsSecret": "B2C_1A_AADOrganizationsSecret"
+}

@@ -12,6 +12,7 @@
 | Nov 2021 | New: Persisted custom attribute |
 | Dec 2021 | New: Optionally, allow profile edit during signin |
 | Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
+| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
 
 ## Samples list
 
@@ -33,5 +34,6 @@
 | [PromptForToAAD](https://github.com/mrochon/b2csamples/tree/master/Policies/PromptForToAAD)  | Passes whatever prompt parameter was used with B2C to a federated AAD. |
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
 | [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |
+| [UseUserInfoforEmailClaim](https://github.com/mrochon/b2csamples/tree/master/Policies/UseUserInfoforEmailClaim)  | Invite B2C users as B2B users in an Azure AD |
 
 
