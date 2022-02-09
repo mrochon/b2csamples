@@ -26,6 +26,19 @@ namespace RESTFunctions.Services
 
         public async Task<string> GetInvitationUrl(ClaimsPrincipal inviter, InvitationDetails invite)
         {
+
+            /*
+             * var payload = new JObject()
+            {
+                { JwtRegisteredClaimNames.Email, "Bob@contoso.com" },
+                { JwtRegisteredClaimNames.GivenName, "Bob" },
+                { JwtRegisteredClaimNames.Iss, "http://Default.Issuer.com"; },
+                { JwtRegisteredClaimNames.Aud, "http://Default.Audience.com" },
+                { JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(DateTime.Parse("2017-03-17T18:33:37.095Z")).ToString() },
+                { JwtRegisteredClaimNames.Nbf, EpochTime.GetIntDate(DateTime.Parse("2017-03-17T18:33:37.080Z")).ToString() },
+                { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(DateTime.Parse("2021-03-17T18:33:37.080Z")).ToString() },
+            }.ToString();
+             * */
             var tokenOptions = _tokenOptions.CurrentValue;
             var issuer = inviter.FindFirstValue("iss").Split('/');
             var domainName = issuer[2].Split('.')[0];
