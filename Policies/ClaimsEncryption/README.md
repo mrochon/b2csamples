@@ -1,10 +1,10 @@
 # Claims Encryption
 ## Purpose
-Provides Azure B2C JWT token confidentiality by encrypting **selected** in the issued token. Clients use a back-channel to call an API to decrypt the claims.
+Provides Azure B2C JWT token confidentiality by asymetrically encrypting **selected** claims in the issued token. Clients use standard X509 decryption APIs to decrypt the claims on receipt of the token. (A possible enhancement: provide an extension to )the Microsoft.Identityweb to do in in Startup).
 
 ## Encryption
 
-To add the xml policy to your existing policy set you can use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
+Add the xml policy to your existing policy set. You can use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies) with the following command
 
 ```PowerShell
 Add-IefPoliciesSample Claimsencryption -owner mrochon -repo b2csamples
