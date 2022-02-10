@@ -20,7 +20,7 @@ Function provided in the source folder encrypts a JSON object with the public ke
 
 ## Decryption
 
-Client application can use the following code to decrypt the *encrypted* claim. *certificateThumbprint should reference a certificate available to the app.
+Client application can use the following code to decrypt the *encrypted* claim. *certificateThumbprint* should reference a certificate with the private key available to the app.
 
 ```CS
 ...
