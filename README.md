@@ -13,6 +13,7 @@
 | Dec 2021 | New: Optionally, allow profile edit during signin |
 | Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
 | Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
+| Feb 2022 | New: Claims encryption |
 
 ## Samples list
 
@@ -23,6 +24,7 @@
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
 | [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
+[Claims encryption](https://github.com/mrochon/b2csamples/tree/master/Policies/ClaimsEncryption)  | Supports encryption/decryption of claims in a token |
 | [Custom, persisted attribute](https://github.com/mrochon/b2csamples/tree/master/Policies/PersistCustomAttr)  | Modifies starter pack to add support for a new, persisted custom user attribute |
 | [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
   [EmailOrPhoneMFA](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOrPhoneMFA)  | Allows local users to use either their email or phone for 2nd FA |
