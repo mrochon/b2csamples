@@ -18,7 +18,7 @@ Create a self-signed X509 certificate and deploy its **public** key to the Azure
 
 Function provided in the source folder encrypts a JSON object with the public key of an X509 certificate and returns a JSON object with a single property (*encrypted*) with the encrypted value (Base64 encoded). This operation is used by B2C custom policies to encrypt selected claims.
 
-### Decryption
+## Decryption
 
 Client application can use the following code to decrypt the *encrypted* claim. *certificateThumbprint should reference a certificate available to the app.
 
