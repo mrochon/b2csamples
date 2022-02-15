@@ -1,4 +1,6 @@
 {
     "Prefix": "IDHINT",
-    "SUSI": "B2C_1A_IDHINTsignup_signin"
+    "SUSI": "B2C_1A_IDHINTsignup_signin",
+    "Aud": "id token audience",
+    "Tenantid": "tenant object id"
 }

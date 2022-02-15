@@ -27,8 +27,8 @@
           <Metadata>
             <!-- Replace with your endpoint location -->
             <Item Key="METADATA">https://yourtenant.b2clogin.com/yourtenant.onmicrosoft.com/{SUSI}/v2.0/.well-known/openid-configuration</Item>
-            <!--Item Key="IdTokenAudience">your_optional_audience</Item> -->
-            <!-- <Item Key="issuer">your_optional_token_issuer_override</Item> -->
+            <Item Key="IdTokenAudience">{Aud}</Item>
+            <Item Key="issuer">https://yourtenant.b2clogin.com/{TenantId}</Item>
           </Metadata>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />

@@ -31,7 +31,6 @@
       <DisplayName>Azure Active Directory</DisplayName>
       <TechnicalProfiles>
           <TechnicalProfile Id="AAD-Common">
-              <!-- Use https://aka.ms/b2csetup to get the values ExtObjectId and ExtAppId -->
               <Metadata>
                   <Item Key="ApplicationObjectId">{ExtObjectId}</Item>
                   <Item Key="ClientId">{ExtAppId}</Item>
