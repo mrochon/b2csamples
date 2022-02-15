@@ -34,6 +34,9 @@
             <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
           </OutputClaims>
         </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-ProfileUpdate">
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />          
+        </TechnicalProfile>            
       </TechnicalProfiles>
     </ClaimsProvider>    
 
