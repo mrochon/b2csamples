@@ -150,9 +150,9 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
 
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignUpOrSignInwithHRD" />
-    <!--UserJourneyBehaviors>
+    <UserJourneyBehaviors>
       <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="{AppInsightsKey}" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />    
-      </UserJourneyBehaviors-->    
+    </UserJourneyBehaviors>    
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />

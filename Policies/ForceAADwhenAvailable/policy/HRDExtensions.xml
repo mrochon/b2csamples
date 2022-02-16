@@ -15,21 +15,16 @@
 
   <BuildingBlocks>
     <ClaimsSchema>
-      <ClaimType Id="enteredEmail">
-        <DisplayName>User email</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Your email</UserHelpText>
-        <UserInputType>TextBox</UserInputType>
-        <!--Restriction>
-          <Pattern RegularExpression="^[a-zA-Z0-9]+[a-zA-Z0-9_-]*$" HelpText="The username you provided is not valid. It must begin with an alphabet or number and can contain alphabets, numbers and the following symbols: _ -" />
-        </Restriction-->        
-      </ClaimType>  
+      <ClaimType Id="signInName">
+        <DisplayName>Enter your Email address</DisplayName>
+        <UserHelpText>Email address to use for signing in.</UserHelpText>
+        <Restriction>
+            <Pattern RegularExpression="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$" HelpText="The email you provided is not valid." />
+        </Restriction>
+      </ClaimType>      
       <ClaimType Id="email">
         <UserInputType>Readonly</UserInputType>
       </ClaimType>      
-      <ClaimType Id="signInName">
-        <UserInputType>Readonly</UserInputType>
-      </ClaimType>               
       <ClaimType Id="tp">
         <DisplayName>Technical Profile reference</DisplayName>
         <DataType>string</DataType>
@@ -53,25 +48,17 @@
       </ClaimType>                 
     </ClaimsSchema>
     <ClaimsTransformations>
-      <ClaimsTransformation Id="CopyEnteredEmailToSignInName" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopySignInNameToEmail" TransformationMethod="CopyClaim">
         <InputClaims>
-          <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
-        </InputClaims>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="outputClaim"/>
-        </OutputClaims>
-      </ClaimsTransformation>
-      <ClaimsTransformation Id="CopyEnteredEmailToEmail" TransformationMethod="CopyClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
+          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim"/>
         </InputClaims>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim"/>
         </OutputClaims>
       </ClaimsTransformation>      
-      <ClaimsTransformation Id="CopyEnteredEmailToLoginHint" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopySignInNameToLoginHint" TransformationMethod="CopyClaim">
         <InputClaims>
-          <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
+          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim"/>
         </InputClaims>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="login_hint" TransformationClaimType="outputClaim"/>
@@ -125,7 +112,7 @@
             <Key Id="client_secret" StorageReferenceId="{AADOrganizationsSecret}"/>
           </CryptographicKeys>
           <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToLoginHint" />
+            <InputClaimsTransformation ReferenceId="CopySignInNameToLoginHint" />
           </InputClaimsTransformations>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="login_hint" />
@@ -161,29 +148,25 @@
           <Metadata>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
           </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
+          <IncludeInSso>false</IncludeInSso>          
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="signInName" />
+          </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="enteredEmail" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="tp" />
             <OutputClaim ClaimTypeReferenceId="domain_hint" />
           </OutputClaims>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="REST-DoHRD" ContinueOnError="true" />
           </ValidationTechnicalProfiles>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialSignup" />
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
-        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
-          <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToSignInName" />            
-          </InputClaimsTransformations>
-        </TechnicalProfile>  
         <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
           <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToEmail" />            
+            <InputClaimsTransformation ReferenceId="CopySignInNameToEmail" />            
           </InputClaimsTransformations>
-        </TechnicalProfile>     
+        </TechnicalProfile>   
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -202,7 +185,7 @@
             <Item Key="AllowInsecureAuthInProduction">true</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="enteredEmail" PartnerClaimType="email" />
+            <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="email" />
             <InputClaim ClaimTypeReferenceId="allowAny" DefaultValue="true" AlwaysUseDefaultValue="true" />            
           </InputClaims>
           <OutputClaims>
