@@ -7,7 +7,9 @@ the user's domain and, if it is redirects the user to that tenant. Other users a
 
 Could be extended to redirect users to other, non-AAD federated IdPs.
 
-The REST function used to determine the user's Home Realm (currently AAD only) is publicly accessible and referenced in the conf.json file
+The REST function used to determine the user's Home Realm (currently AAD only) is publicly accessible and referenced in the conf.json file.
+
+uses a separate REST TechnicalProfile to call AAD UserInfo endpoint to get user's email, which **may** not be returned in the defaults token.
 
 ## Deployment
 
@@ -17,6 +19,5 @@ Use [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies)
 Add-IefPoliciesSample ForceAADWhenAvailable -owner mrochon -repo b2csamples
 ```
 
-**Note:** currently the email address used for HRD is not write-protected when displayed later
-in the sign-in or sign-up dialogs, i.e. the user could change it. That's a bug - I am waiting to find out why the simple solution (making the fields Readonly in HRDExternsions) is not working
-as it should. The alternative is to override both the sign-in and sign-up self-asserted TechnicalProfiles with new ones using a Readonly, new field for that entry.
+**Note:** currently the email address used for HRD is not copied to or write-protected when displayed later
+in the sign-in dialog, i.e. the user could change it. That's a bug - looking at how to fix it.

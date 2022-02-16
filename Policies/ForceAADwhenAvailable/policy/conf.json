@@ -1,6 +1,6 @@
 {
-    "Prefix": "HRD",
-    "DoHRD": "https://mrb2csamplesrest.azurewebsites.net/api/GetPolicyDomain",
-    "AADMTClientAppId": "b4d453c6-369e-4551-8580-177a0043d595",
-    "AADMTClientSecretKeyName": "B2C_1A_AADCommonSecret"
+  "Prefix": "MR",
+  "DoHRD": "https://mrb2csamplesrest.azurewebsites.net/api/GetPolicyDomain",
+  "AADOrganizationsClientId": "eb0eed96-9965-43b9-a0ac-2ebf6dbf84af",
+  "AADOrganizationsSecret": "B2C_1A_AADOrganizationsSecret"
 }

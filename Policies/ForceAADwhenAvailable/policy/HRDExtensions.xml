@@ -16,7 +16,7 @@
   <BuildingBlocks>
     <ClaimsSchema>
       <ClaimType Id="enteredEmail">
-        <DisplayName>Email entered by the user</DisplayName>
+        <DisplayName>User email</DisplayName>
         <DataType>string</DataType>
         <UserHelpText>Your email</UserHelpText>
         <UserInputType>TextBox</UserInputType>
@@ -45,10 +45,15 @@
       <ClaimType Id="allowAny">
         <DisplayName>Allow non-AAD emails as local accounts</DisplayName>
         <DataType>boolean</DataType>
-      </ClaimType>          
+      </ClaimType>   
+      <ClaimType Id="idp_token">
+        <DisplayName>Access token from the identity provider</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>the original token from the identity provider (e.g. Facebook, Azure AD)</UserHelpText>
+      </ClaimType>                 
     </ClaimsSchema>
     <ClaimsTransformations>
-      <ClaimsTransformation Id="CopyEmailToSignInName" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopyEnteredEmailToSignInName" TransformationMethod="CopyClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
         </InputClaims>
@@ -56,22 +61,30 @@
           <OutputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="outputClaim"/>
         </OutputClaims>
       </ClaimsTransformation>
-      <ClaimsTransformation Id="CopySignInToEmail" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopyEnteredEmailToEmail" TransformationMethod="CopyClaim">
         <InputClaims>
-          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim"/>
+          <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
         </InputClaims>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim"/>
         </OutputClaims>
       </ClaimsTransformation>      
-      <ClaimsTransformation Id="CopyEmailToLoginHint" TransformationMethod="CopyClaim">
+      <ClaimsTransformation Id="CopyEnteredEmailToLoginHint" TransformationMethod="CopyClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="enteredEmail" TransformationClaimType="inputClaim"/>
         </InputClaims>
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="login_hint" TransformationClaimType="outputClaim"/>
         </OutputClaims>
-      </ClaimsTransformation>      
+      </ClaimsTransformation>    
+      <ClaimsTransformation Id="CreateAzureADIdentityProvider" TransformationMethod="ParseDomain">
+        <InputClaims>
+         <InputClaim ClaimTypeReferenceId="userPrincipalName" TransformationClaimType="emailAddress"/>
+        </InputClaims>
+        <OutputClaims>
+         <OutputClaim ClaimTypeReferenceId="identityProvider" TransformationClaimType="domain"/>
+        </OutputClaims>
+      </ClaimsTransformation>        
     </ClaimsTransformations>
     
   </BuildingBlocks>
@@ -80,48 +93,62 @@
     <!-- Allows any AAD tenant (comercial) to serve as IdP to this B2C -->
     <!-- A multi-tenant app has to be registered inyour own AAD to serve as STS for this B2C -->
     <ClaimsProvider>
-      <Domain>commonaad</Domain>
+      <Domain>aad</Domain>
       <DisplayName>Common AAD</DisplayName>
       <TechnicalProfiles>
-        <TechnicalProfile Id="AADCommon-OpenIdConnect">
-          <DisplayName>Multi-Tenant AAD</DisplayName>
-          <Description>Login with your any AAD account</Description>
-          <Protocol Name="OpenIdConnect"/>
+        <TechnicalProfile Id="AADOrganizations-OAuth2">
+          <DisplayName>AzureAD User</DisplayName>
+          <Protocol Name="OAuth2"/>
+          <OutputTokenFormat>JWT</OutputTokenFormat>
           <Metadata>
-            <Item Key="METADATA">https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration</Item>
-            <Item Key="client_id">{AADMTClientAppId}</Item>
-            <Item Key="response_types">code</Item>
-            <Item Key="scope">openid profile</Item>
-            <Item Key="response_mode">form_post</Item>
-            <Item Key="HttpBinding">POST</Item>
-            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="AccessTokenEndpoint">https://login.microsoftonline.com/organizations/oauth2/v2.0/token</Item>            
+            <Item Key="authorization_endpoint">https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize</Item>
+            <Item Key="BearerTokenTransmissionMethod">AuthorizationHeader</Item>
+            <Item Key="ClaimsEndpoint">https://graph.microsoft.com/v1.0/me</Item>
+            <!--Item Key="ClaimsEndpoint">https://graph.microsoft.com/oidc/userinfo</Item-->
+            <!-- <Item Key="IdTokenAudience">{AADOrganizationsClientId}</Item> -->
+            <Item Key="client_id">{AADOrganizationsClientId}</Item>
+            <Item Key="IdTokenAudience">{AADOrganizationsClientId}</Item>
             <Item Key="DiscoverMetadataByTokenIssuer">true</Item>
-            <Item Key="ValidTokenIssuerPrefixes">https://login.microsoftonline.com/</Item>
+            <Item Key="HttpBinding">POST</Item>
+            <Item Key="response_types">code</Item>
+            <Item Key="scope">openid user.read</Item>
+            <Item Key="UsePolicyInRedirectUri">false</Item>
+            <Item Key="ValidTokenIssuerPrefixes">https://sts.windows.net/</Item>
+            <!-- <Item Key="ValidTokenIssuerPrefixes">
+            https://sts.windows.net/4fd2b2f2-ea27-4fe5-a8f3-7b1a7c975f34,
+            https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47
+            </Item>  -->
           </Metadata>
           <CryptographicKeys>
-            <Key Id="client_secret" StorageReferenceId="{AADMTClientSecretKeyName}"/>
+            <!-- TODO update StorageRefenceId to match your configuration-->
+            <Key Id="client_secret" StorageReferenceId="{AADOrganizationsSecret}"/>
           </CryptographicKeys>
+          <InputClaimsTransformations>
+            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToLoginHint" />
+          </InputClaimsTransformations>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="domain_hint" />
             <InputClaim ClaimTypeReferenceId="login_hint" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid"/>
-            <OutputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="tid"/>
-            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name" />
-            <OutputClaim ClaimTypeReferenceId="surName" PartnerClaimType="family_name" />
-            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication" AlwaysUseDefaultValue="true" />
-            <OutputClaim ClaimTypeReferenceId="identityProvider" PartnerClaimType="iss" />
+            <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="socialIdpAuthentication"/>
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="displayName"/>
+            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email"/>
+            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="givenName"/>
+            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="surname"/>
+            <OutputClaim ClaimTypeReferenceId="userPrincipalName" PartnerClaimType="userPrincipalName"/>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="id"/>
+            <OutputClaim ClaimTypeReferenceId="idp_token" PartnerClaimType="{oauth2:access_token}"/>
           </OutputClaims>
           <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateAzureADIdentityProvider"/> 
             <OutputClaimsTransformation ReferenceId="CreateRandomUPNUserName"/>
             <OutputClaimsTransformation ReferenceId="CreateUserPrincipalName"/>
             <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId"/>
             <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId"/>
           </OutputClaimsTransformations>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialLogin"/>
-        </TechnicalProfile>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop"/>
+        </TechnicalProfile>        
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -142,15 +169,21 @@
             <OutputClaim ClaimTypeReferenceId="tp" />
             <OutputClaim ClaimTypeReferenceId="domain_hint" />
           </OutputClaims>
-          <OutputClaimsTransformations>
-            <OutputClaimsTransformation ReferenceId="CopyEmailToSignInName" />
-            <OutputClaimsTransformation ReferenceId="CopyEmailToLoginHint" />            
-          </OutputClaimsTransformations>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="REST-DoHRD" ContinueOnError="true" />
           </ValidationTechnicalProfiles>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-SocialSignup" />
         </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <InputClaimsTransformations>
+            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToSignInName" />            
+          </InputClaimsTransformations>
+        </TechnicalProfile>  
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+          <InputClaimsTransformations>
+            <InputClaimsTransformation ReferenceId="CopyEnteredEmailToEmail" />            
+          </InputClaimsTransformations>
+        </TechnicalProfile>     
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -178,6 +211,25 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
+        <TechnicalProfile Id="UserInfo">
+          <DisplayName>Call userInfo</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">https://graph.microsoft.com/oidc/userinfo</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <Item Key="AuthenticationType">Bearer</Item>
+            <Item Key="UseClaimAsBearerToken">idp_token</Item>            
+            <Item Key="AllowInsecureAuthInProduction">false</Item>
+            <Item Key="DefaultUserMessageIfRequestFailed">UserInfo request failed</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="idp_token"/>            
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>        
       </TechnicalProfiles>
     </ClaimsProvider>  
   </ClaimsProviders>
