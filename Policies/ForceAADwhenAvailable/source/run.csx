@@ -32,13 +32,16 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                 var json = await http.GetStringAsync($"https://login.microsoftonline.com/{domain_hint}/v2.0/.well-known/openid-configuration");
                 var token_endpoint = JObject.Parse(json)["token_endpoint"];
                 if (token_endpoint != null)
-                    tp = "aad";
+                {
+                    log.LogInformation($"GetPolicyDomain returning: tp=aad, domain_hint={domain_hint}.");
+                    return new JsonResult(new { email, tp = "aad", domain_hint});                    
+                }
             } catch // assuming 400
             {
 
             }
         }
     }
-    log.LogInformation($"GetPolicyDomain returningtp={tp}, domain_hint={domain_hint}.");
-    return new JsonResult(new { email, tp, domain_hint});
+    log.LogInformation($"GetPolicyDomain returning domain_hint={domain_hint}.");
+    return new JsonResult(new { email, domain_hint});
 }
