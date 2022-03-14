@@ -57,11 +57,10 @@ Connect-IefPolicies <yourtenantname>
 New-IefPoliciesCert RestClient -validityMonths 24
 ```PowerShell
 
-7. Deploy the [REST functions](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/API)
-8. Register the REST function app in your B2C tenant
-9. More to come - will try an ARM template 
-
-
+7. Register the REST function app in your B2C tenant as two application: a regular B2C API and an AAD client credentials app
+8. The former should expose 2 API permissions: User.Invite and Members.Read.All. Its configuration (id, etc.) should be stored in the *B2C* property of the appSettings.json
+8. The latter (Client Creds app) must have MS Graph Application permissions: Directory.Read.All and Group.Readwrite.All.
+9. Its app id, tenant id and secret should be deployed as part of the *ClientCreds* property of the REST function appSettings.json 
 
 #### SPA
 
@@ -81,25 +80,16 @@ copy /src
 ```
 
 #### API
-1. Register an application in your B2C tenant to manage authorization to the REST API
+1. Register two applications in your B2C tenant as described above:
 
-    a. Expose two API permissions: User.Read and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
+    a. In the first registration (through the B2C blade), expose two API permissions: Members.Read.All and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
 
-    b. Give **application** permissions to Graph API: Group.ReadWrite.All, GroupMember.ReadWrite.All, User.Read.All
+    b. In the second registration (through the AAD blade), give **application** permissions to Graph API: Directory.Read, Group.ReadWrite.All. Create a secret for this app and store its configuration in the *ClientCreds* property of the appSettings.json (store the secret in the API configuration as *ClientCreds:ClientSecret*)
 
-    c. Create a secret (store it in the API configuration as *ClientCreds:ClientSecret*)
+    d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). 
 
-    d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). You can then delete it from the application's secrets.
+2. The public component of the certificate created in the B2C setup step above should be provided to the deployed REST app. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*'. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application). 
 
-2. Modify appsettings.json as appropriate to your configuration
-
-    a. details of the certificate created above (B2C step)
-
-    b. details of the application registered above
-    
-3. Deploy to a publicly accessible url
-4. Provide the deployed application with the public key of the certificate created above and make it required for authentication to the app
-5. Exclude */tenant/oauth2* path from certificate requirement
 6. Enable CORS for the origin of your SPA app url
 
 #### Custom journeys
