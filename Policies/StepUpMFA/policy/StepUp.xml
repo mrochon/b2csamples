@@ -13,15 +13,6 @@
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
 
-  <BuildingBlocks>
-    <ClaimsSchema>
-      <ClaimType Id="mra">
-        <DisplayName>Authentication method</DisplayName>
-        <DataType>string</DataType>
-      </ClaimType>
-    </ClaimsSchema>
-  </BuildingBlocks>
-
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>PhoneFactor</DisplayName>
