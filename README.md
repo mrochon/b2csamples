@@ -15,6 +15,7 @@
 | Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
 | Feb 2022 | New: Claims encryption |
 | Mar 2022 | New: Step up MFA |
+| Mar 2022 | Fixed: Refresh token |
 
 ## Samples list
 
