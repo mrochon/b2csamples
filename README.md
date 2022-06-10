@@ -16,6 +16,7 @@
 | Feb 2022 | New: Claims encryption |
 | Mar 2022 | New: Step up MFA |
 | Mar 2022 | Fixed: Refresh token |
+| Jun 2022 | New: pwd reset with login hint |
 
 ## Samples list
 
