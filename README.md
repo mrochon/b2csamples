@@ -35,6 +35,7 @@
 | [Invite](https://github.com/mrochon/b2csamples/tree/master/Policies/Invitation)  | Create/use an invitation link using client_assertion request |
 | [JIT Migrate](https://github.com/mrochon/b2csamples/tree/master/Policies/JitMigrate)  | Migrate users using an API to verify their legacy passwords |
 | [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
+| [Pwd reset with email hint](https://github.com/mrochon/b2csamples/tree/master/Policies/PwdResetWithLoginHint)  | Useful for post-migration invitation to have user reset their pwd |
 | [PromptForToAAD](https://github.com/mrochon/b2csamples/tree/master/Policies/PromptForToAAD)  | Passes whatever prompt parameter was used with B2C to a federated AAD. |
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
 | [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |
