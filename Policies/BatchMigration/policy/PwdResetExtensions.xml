@@ -5,8 +5,8 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_PasswordResetWithHint"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_PasswordResetWithHint">
+  PolicyId="B2C_1A_PasswordResetExtensions"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_PasswordResetExtensions">
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -15,9 +15,6 @@
 
   <BuildingBlocks>
     <ClaimsSchema>
-      <ClaimType Id="email">
-        <UserInputType>Readonly</UserInputType>
-      </ClaimType>
       <ClaimType Id="verificationCode">
         <DisplayName>Verification Code</DisplayName>
         <DataType>string</DataType>
@@ -56,17 +53,40 @@
       <DisplayName>Various</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddressDC">
-          <DisplayName>Reset password using email address</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <DisplayName>Reset password using email address</DisplayName>
+            <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+            <Metadata>
+              <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+              <Item Key="ContentDefinitionReferenceId">api.localaccountpasswordreset</Item>
+              <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>              
+            </Metadata>
+            <CryptographicKeys>
+              <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+            </CryptographicKeys>
+            <IncludeInSso>false</IncludeInSso>
+            <InputClaims>
+                <InputClaim ClaimTypeReferenceId="email" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" Required="true" />
+            </InputClaims>              
+            <DisplayClaims>
+                <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+            </DisplayClaims>            
+            <OutputClaims>
+              <OutputClaim ClaimTypeReferenceId="email" />
+              <OutputClaim ClaimTypeReferenceId="objectId" />
+              <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
+              <OutputClaim ClaimTypeReferenceId="authenticationSource" />
+              </OutputClaims>
+            <ValidationTechnicalProfiles>
+              <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
+            </ValidationTechnicalProfiles>
+          </TechnicalProfile>
+
+        <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress">
           <Metadata>
             <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
             <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
           </Metadata>
-          <CryptographicKeys>
-            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
-          </CryptographicKeys>
-          <IncludeInSso>false</IncludeInSso>      
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="email" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" Required="true" />
           </InputClaims>              
@@ -75,13 +95,7 @@
           </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="email" />
-            <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
-            <OutputClaim ClaimTypeReferenceId="authenticationSource" />
           </OutputClaims>
-          <ValidationTechnicalProfiles>
-            <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress" />
-          </ValidationTechnicalProfiles>
         </TechnicalProfile>           
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -114,35 +128,15 @@
   </ClaimsProviders>
 
   <UserJourneys>
-    <UserJourney Id="PasswordResetWithLoginHint">
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddressDC" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>    
+    <UserJourney Id="PasswordReset">
+        <OrchestrationSteps>
+          <OrchestrationStep Order="1" Type="ClaimsExchange">
+            <ClaimsExchanges>
+              <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddressDC" />
+            </ClaimsExchanges>
+          </OrchestrationStep>
+        </OrchestrationSteps>
+      </UserJourney>    
   </UserJourneys>
 
-  <RelyingParty>
-    <DefaultUserJourney ReferenceId="PasswordResetWithLoginHint" />
-    <TechnicalProfile Id="PolicyProfile">
-      <DisplayName>PolicyProfile</DisplayName>
-      <Protocol Name="OpenIdConnect" />
-      <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="email" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
-      </OutputClaims>
-      <SubjectNamingInfo ClaimType="sub" />
-    </TechnicalProfile>
-  </RelyingParty>
 </TrustFrameworkPolicy>
