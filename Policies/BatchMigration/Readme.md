@@ -1,6 +1,7 @@
-# Password reset with login_hint
+# Batch migration with email-initiated password reset
 
-Journey to support batch user migrations. After creating user data in B2C, uusers could be sent to this journey via an email link. The link would include the user's email as *login_hint*. The user would then use the journey to initiate OTP authentication and be able to set the password. The journey does not allow the user to change the email (of course, the value of the login_hint may be modified in the url itself so this is more of convenience then security feature).
+Application creates b2C users using a csv file as input. Users are created with a random password and sent an email (using SendGrid) with link to a pasword
+reset policy. The policy expects to get user's email address in the *login_hint* parameter and does not allow the user to change it in the UI (though of course, the user could have manipulated the login_hint itself so this is more of convenience than security feature).
 
 ## Adding sample to your policy set
 
@@ -15,7 +16,7 @@ After replacing *yourtenantname* with the name of your B2C tenant (the *.onmicro
 
 To add this sample to the above starter pack
 ```PowerShell
-Add-IefPoliciesSample PwdResetWithLoginHint -owner mrochon -repo b2csamples
+Add-IefPoliciesSample BatchMigration -owner mrochon -repo b2csamples
 ```
 
 To import to your tenant:
