@@ -202,12 +202,24 @@
         </OrchestrationStep>  
         <!-- Block users with email different from invited -->
         <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>            
+          </Preconditions>          
           <ClaimsExchanges>
             <ClaimsExchange Id="CompareEmails" TechnicalProfileReferenceId="Validate-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>authenticationSource</Value>
+              <Value>localAccountAuthentication</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>              
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>sameEmail</Value>
               <Value>True</Value>              

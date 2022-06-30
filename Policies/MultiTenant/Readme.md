@@ -41,7 +41,7 @@ The multi-tenant sample consists of three components, each in a separate repo:
 4. If you have never used B2C with IEF policies (or you are not sure) execute the following:
 
 ```PowerShell
-Connect-IefPolicies <yourtenantname> -allowInit
+Connect-IefPolicies <yourtenantname>
 Initialize-IefPolicies  
 ```
 
