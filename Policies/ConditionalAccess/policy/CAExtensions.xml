@@ -34,6 +34,16 @@
         <DataType>boolean</DataType>
         <AdminHelpText>Is user authenticated via an external identity provider</AdminHelpText>
       </ClaimType>   
+      <ClaimType Id="errorCode">
+        <DisplayName>Error code</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>stores returned error code</AdminHelpText>
+      </ClaimType>   
+      <ClaimType Id="errorMessage">
+        <DisplayName>Error message</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>stores returned error code</AdminHelpText>
+      </ClaimType> 
       <ClaimType Id="estsRequestId">
         <DisplayName>estsRequestId</DisplayName>
         <DataType>string</DataType>
@@ -487,8 +497,8 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="ReturnError" TechnicalProfileReferenceId="ReturnOAuth2Error"/>            
-            <!--ClaimsExchange Id="ShowBlockPage" TechnicalProfileReferenceId="ShowBlockPage"/-->
+            <!--ClaimsExchange Id="ReturnError" TechnicalProfileReferenceId="ReturnOAuth2Error"/-->            
+            <ClaimsExchange Id="ShowBlockPage" TechnicalProfileReferenceId="ShowBlockPage"/>
           </ClaimsExchanges>
         </OrchestrationStep>     
         <OrchestrationStep Order="4" Type="ClaimsExchange">
