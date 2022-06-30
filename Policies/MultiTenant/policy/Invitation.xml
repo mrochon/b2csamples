@@ -123,9 +123,9 @@
           <InputClaimsTransformations>
             <InputClaimsTransformation ReferenceId="CopyInvitedEmailToEmail" />
           </InputClaimsTransformations> 
-          <OutputClaimsTransformations>
+          <!--OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="AssertSigninNameAndInviteEmailAreEqual" />
-          </OutputClaimsTransformations>                       
+          </OutputClaimsTransformations-->                       
         </TechnicalProfile> 
         <TechnicalProfile Id="ShowBlockPage">
           <DisplayName>Show Block message</DisplayName>
