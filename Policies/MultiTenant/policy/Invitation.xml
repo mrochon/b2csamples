@@ -12,12 +12,6 @@
 
   <BuildingBlocks>
     <ClaimsSchema>
-      <ClaimType Id="invitedEmail">
-        <DisplayName>Email address included in the invitation token</DisplayName>
-        <DataType>string</DataType>
-        <UserHelpText>Invitation email</UserHelpText>
-        <UserInputType>Readonly</UserInputType>
-      </ClaimType>  
       <ClaimType Id="sameEmail">
         <DisplayName>Are invited email and signin email same</DisplayName>
         <DataType>boolean</DataType>
@@ -30,46 +24,6 @@
       </ClaimType>                                  
     </ClaimsSchema>
     <ClaimsTransformations>
-      <ClaimsTransformation Id="AssertSigninNameAndInviteEmailAreEqual" TransformationMethod="AssertStringClaimsAreEqual">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim1" />
-          <InputClaim ClaimTypeReferenceId="invitedEmail" TransformationClaimType="inputClaim2" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-        </InputParameters>
-      </ClaimsTransformation>   
-      <ClaimsTransformation Id="AssertSigninEmailAndInviteEmailAreEqual" TransformationMethod="AssertStringClaimsAreEqual">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim1" />
-          <InputClaim ClaimTypeReferenceId="invitedEmail" TransformationClaimType="inputClaim2" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-        </InputParameters>
-      </ClaimsTransformation>        
-      <ClaimsTransformation Id="CopyInvitedEmailToSignInName" TransformationMethod="FormatStringClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="invitedEmail" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="{0}" />
-        </InputParameters>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>   
-      <ClaimsTransformation Id="CopyInvitedEmailToEmail" TransformationMethod="FormatStringClaim">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="invitedEmail" TransformationClaimType="inputClaim" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringFormat" DataType="string" Value="{0}" />
-        </InputParameters>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>  
       <ClaimsTransformation Id="CopySignInNameToEmail" TransformationMethod="FormatStringClaim">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim" />
@@ -84,7 +38,7 @@
       <ClaimsTransformation Id="CheckInvitedEmail" TransformationMethod="CompareClaims">
         <InputClaims>
           <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="inputClaim1" />
-          <InputClaim ClaimTypeReferenceId="invitedEmail" TransformationClaimType="inputClaim2" />
+          <InputClaim ClaimTypeReferenceId="signInName" TransformationClaimType="inputClaim2" />
         </InputClaims>
         <InputParameters>
           <InputParameter Id="operator" DataType="string" Value="EQUAL" />
@@ -101,27 +55,12 @@
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>    
       <TechnicalProfiles>
-        <TechnicalProfile Id="login-NonInteractive">
-          <OutputClaimsTransformations>
-            <OutputClaimsTransformation ReferenceId="AssertSigninNameAndInviteEmailAreEqual" />
-          </OutputClaimsTransformations>
-        </TechnicalProfile>
-        <!-- This technical profile uses a validation technical profile to authenticate the user. User must use email address as per invitaion-->
-        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
-          <Metadata>
-            <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">Invitation is for a different email address.</Item>
-            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
-          </Metadata>
-          <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyInvitedEmailToSignInName" />
-          </InputClaimsTransformations>     
-        </TechnicalProfile>
         <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
           <Metadata>
             <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">Invitation is for a different email address.</Item>
           </Metadata>     
           <InputClaimsTransformations>
-            <InputClaimsTransformation ReferenceId="CopyInvitedEmailToEmail" />
+            <InputClaimsTransformation ReferenceId="CopySignInNameToEmail" />
           </InputClaimsTransformations> 
           <!--OutputClaimsTransformations>
             <OutputClaimsTransformation ReferenceId="AssertSigninNameAndInviteEmailAreEqual" />
@@ -142,15 +81,9 @@
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="responseMsg" DefaultValue="This invitation url is for a user with a different email address."/>
-            <!--InputClaim ClaimTypeReferenceId="email" />
-            <InputClaim ClaimTypeReferenceId="invitedEmail" />     
-            <InputClaim ClaimTypeReferenceId="signInName" /-->                   
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="responseMsg"/>
-            <OutputClaim ClaimTypeReferenceId="email" />
-            <OutputClaim ClaimTypeReferenceId="invitedEmail" />
-            <OutputClaim ClaimTypeReferenceId="signInName" />            
+            <OutputClaim ClaimTypeReferenceId="responseMsg" Required="true" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop"/>
           <EnabledForUserJourneys>Always</EnabledForUserJourneys>
@@ -305,7 +238,7 @@
         <Key Id="client_secret" StorageReferenceId="B2C_1A_InvitationSigningKey" />
       </CryptographicKeys>
       <InputClaims>
-        <InputClaim ClaimTypeReferenceId="invitedEmail" PartnerClaimType="email" Required="true" />
+        <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="email" Required="true" />
         <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="appTenantId" Required="true" />
         <InputClaim ClaimTypeReferenceId="isAdmin" PartnerClaimType="isAdmin" />        
       </InputClaims>
