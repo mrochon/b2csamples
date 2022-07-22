@@ -407,6 +407,13 @@
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
+
+        <!-- Ensuring this use of account discovery sets the correct value on idp /-->
+        <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />            
+          </OutputClaims>
+        </TechnicalProfile>
       
       </TechnicalProfiles>
     </ClaimsProvider>  

@@ -148,6 +148,7 @@
         </OrchestrationStep>
         <OrchestrationStep Order="8" Type="ClaimsExchange">
           <Preconditions>
+            <!-- Make sure all IdP paths set identityProvider /-->
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>identityProvider</Value>
               <Value>aadOrganizations</Value>
@@ -160,11 +161,6 @@
         </OrchestrationStep>    
         <OrchestrationStep Order="9" Type="ClaimsExchange">
           <Preconditions>
-            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>authenticationSource</Value>
-              <Value>localAccountAuthentication</Value>
-              <Action>SkipThisOrchestrationStep</Action>    
-            </Precondition>            
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
               <Value>identityProvider</Value>
               <Value>aadOrganizations</Value>
