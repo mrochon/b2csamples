@@ -59,8 +59,8 @@ New-IefPoliciesCert RestClient -validityMonths 24
 
 7. Register the REST function app in your B2C tenant as two application: a regular B2C API and an AAD client credentials app
 8. The former should expose 2 API permissions: User.Invite and Members.Read.All. Its configuration (id, etc.) should be stored in the *B2C* property of the appSettings.json
-8. The latter (Client Creds app) must have MS Graph Application permissions: Directory.Read.All and Group.Readwrite.All.
-9. Its app id, tenant id and secret should be deployed as part of the *ClientCreds* property of the REST function appSettings.json 
+9. The latter (Client Creds app) must have MS Graph Application permissions: Directory.Read.All and Group.Readwrite.All.
+10. Its app id, tenant id and secret should be deployed as part of the *ClientCreds* property of the REST function appSettings.json 
 
 #### SPA
 
