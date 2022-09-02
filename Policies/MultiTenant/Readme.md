@@ -55,7 +55,7 @@ Connect-IefPolicies <yourtenantname>
 
 ```PowerShell
 New-IefPoliciesCert RestClient -validityMonths 24
-```PowerShell
+```
 
 7. Register the REST function app in your B2C tenant as two application: a regular B2C API and an AAD client credentials app
 8. The former should expose 2 API permissions: User.Invite and Members.Read.All. Its configuration (id, etc.) should be stored in the *B2C* property of the appSettings.json
