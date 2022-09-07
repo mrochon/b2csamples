@@ -16,29 +16,32 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages()
     .AddMicrosoftIdentityUI();
-builder.Services.AddHttpClient();
-builder.Services.AddSingleton<IConfidentialClientApplication>(svc =>
-{
-    var graphClientOptions = new ConfidentialClientApplicationOptions();
-    builder.Configuration.Bind("AzureAdB2C", graphClientOptions);
-    graphClientOptions.Instance = "https://login.microsoftonline.com";
-    return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(graphClientOptions).Build();
-});
-builder.Services.AddScoped<GraphServiceClient>(svc =>
-{
-    return new GraphServiceClient("https://graph.microsoft.com/V1.0/", new DelegateAuthenticationProvider(async (requestMessage) =>
+
+builder.Services
+    .AddSingleton<IConfidentialClientApplication>(svc =>
     {
-        var msal = svc.GetService<IConfidentialClientApplication>();
-        AuthenticationResult result = await msal.AcquireTokenForClient(
-            new string[]
-            {
-                "https://graph.microsoft.com/.default"
-            })
-            .ExecuteAsync();
-        requestMessage.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", result.AccessToken);
-    }));
-});
+        var graphClientOptions = new ConfidentialClientApplicationOptions();
+        builder.Configuration.Bind("AzureAdB2C", graphClientOptions);       // using single app registration for both user authn and client creds
+        graphClientOptions.Instance = "https://login.microsoftonline.com";  // override - otherwise, B2C login is invoked
+        return ConfidentialClientApplicationBuilder.CreateWithApplicationOptions(graphClientOptions).Build();
+    })
+    .AddScoped<GraphServiceClient>(svc =>
+    {
+        return new GraphServiceClient("https://graph.microsoft.com/V1.0/", new DelegateAuthenticationProvider(async (requestMessage) =>
+        {
+            var msal = svc.GetService<IConfidentialClientApplication>();
+            if (null == msal)
+                throw new ApplicationException("something went wrong. MSAL client for Client Creds is null");
+            AuthenticationResult result = await msal.AcquireTokenForClient(
+                new string[]
+                {
+                    "https://graph.microsoft.com/.default"
+                })
+                .ExecuteAsync();
+            requestMessage.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", result.AccessToken);
+        }));
+    });
 
 var app = builder.Build();
 
