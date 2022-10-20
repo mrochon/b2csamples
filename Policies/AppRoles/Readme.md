@@ -3,7 +3,9 @@ Azure B2C, unlike Azure AD, does not provide out-of-the-box support for [applica
 at times through the AAD portal view of B2C.
 
 ## Setup
-Based on LocalAccounts starter pack. To use it with any other starer pack, please modify the orchestration step numbers in the RoleExtensions.xml
+Based on LocalAccounts starter pack. To use it with any other starer pack, please modify the orchestration step numbers in the RoleExtensions.xml.
+
+Setup instructions for the Azure Function are provided in the [/source](https://github.com/mrochon/b2csamples/edit/master/Policies/AppRoles/source) folder.
 
 ### Defining roles
 B2C does not expose the UI for adding application roles. To define define them use the manifest view of the application (in App Registrations). To the application's appRoles property add an array of objects with the [following data structure](https://docs.microsoft.com/en-us/graph/api/resources/approle?view=graph-rest-1.0#properties):
