@@ -19,12 +19,22 @@
             <UserInputType>Readonly</UserInputType>
         </ClaimType>
     </ClaimsSchema>
+    <ClaimsTransformations>
+      <ClaimsTransformation Id="GetEmailFromOtherMails" TransformationMethod="GetSingleItemFromStringCollection">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="otherMails" TransformationClaimType="collection" />
+        </InputClaims>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="email" TransformationClaimType="extractedItem" />
+        </OutputClaims>
+      </ClaimsTransformation>      
+    </ClaimsTransformations>
     <DisplayControls>
       <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
         <InputClaims>
-            <InputClaim ClaimTypeReferenceId="email" DefaultValue="{Claim:signInName}" AlwaysUseDefaultValue="true" />
-        </InputClaims>
-      </DisplayControl>
+          <InputClaim ClaimTypeReferenceId="email" />
+        </InputClaims>        
+      </DisplayControl>      
     </DisplayControls>    
   </BuildingBlocks>
 
@@ -47,7 +57,12 @@
           <DisplayClaims>
             <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
           </DisplayClaims>
-        </TechnicalProfile>     
+        </TechnicalProfile>  
+        <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
+          </OutputClaims>
+        </TechnicalProfile>           
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
@@ -56,7 +71,6 @@
 
     <UserJourney Id="SignIn">
       <OrchestrationSteps>
-
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
@@ -65,22 +79,17 @@
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <OrchestrationStep Order="2" Type="ClaimsExchange">
-            <ClaimsExchanges>
-              <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-
-        <!-- This step reads any user attributes that we may not have received when in the token. -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-            <ClaimsExchanges>
-              <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-            </ClaimsExchanges>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
         </OrchestrationStep>
-
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="MFA" TechnicalProfileReferenceId="Email-MFA" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
         <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>
@@ -96,7 +105,7 @@
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="otpEmail" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
