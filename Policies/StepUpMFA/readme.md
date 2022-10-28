@@ -1,6 +1,6 @@
 # Step up MFA
 
-Sign-in only journey using Phone Factor MFA on every invocation. Thans to AntonS for shwoing this approach (change session management of the Phone Factor TP to use SM-NOOP).
+Sign-in only journey using Phone Factor MFA on every invocation. Thanks to AntonS for suggesting this approach (*change session management of the Phone Factor TP to use SM-NOOP*).
 
 Requires MFA starter pack.
 

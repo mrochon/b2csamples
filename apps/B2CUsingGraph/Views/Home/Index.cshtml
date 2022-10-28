@@ -1,0 +1,27 @@
+﻿@model Microsoft.Graph.IGraphServiceUsersCollectionPage
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CurrentPage)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DisplayName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
