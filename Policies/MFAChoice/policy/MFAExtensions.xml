@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="yourtenant.onmicrosoft.com"
+  PolicyId="B2C_1A_MFAExtensions"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_MFAExtensions">
+
+    <BasePolicy>
+        <TenantId>yourtenant.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_TrustFrameworkExtensions_TOTP</PolicyId>
+    </BasePolicy>
+
+    <BuildingBlocks>
+        <ClaimsSchema>
+          <ClaimType Id="readonlyMail">
+            <DisplayName>Verified email</DisplayName>
+            <DataType>string</DataType>
+            <UserInputType>Readonly</UserInputType>
+          </ClaimType>            
+          <ClaimType Id="expression">
+            <DisplayName>RPN expression</DisplayName>
+            <DataType>string</DataType>
+          </ClaimType>
+            <ClaimType Id="extension_mfaChoice">
+                <DisplayName>MFA Choice</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Add help text here</UserHelpText>
+                <UserInputType>DropdownSingleSelect</UserInputType>
+                <Restriction>
+                  <Enumeration Text="Mail OTP" Value="mail" SelectByDefault="true" />
+                  <Enumeration Text="Phone OTP" Value="phone" SelectByDefault="false" />
+                  <Enumeration Text="MS Authenticator" Value="totp" SelectByDefault="false" />                
+                </Restriction>
+            </ClaimType>
+        </ClaimsSchema>
+    </BuildingBlocks>
+
+    <ClaimsProviders>
+
+        <ClaimsProvider>
+            <DisplayName>Local Account</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="extension_mfaChoice" Required="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+                <TechnicalProfile Id="SelfAsserted-Social">
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="extension_mfaChoice" Required="true" />
+                    </OutputClaims>                    
+                </TechnicalProfile>                
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+      <ClaimsProvider>
+        <DisplayName>Self Asserted</DisplayName>
+        <TechnicalProfiles>
+          <TechnicalProfile Id="SelfAsserted-MFAChoice">
+              <DisplayName>MFA Selection</DisplayName>
+              <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+              <Metadata>
+                <Item Key="ContentDefinitionReferenceId">api.selfasserted.profileupdate</Item>
+              </Metadata>
+              <IncludeInSso>false</IncludeInSso>
+              <InputClaims>
+                <InputClaim ClaimTypeReferenceId="alternativeSecurityId"/>
+                <InputClaim ClaimTypeReferenceId="userPrincipalName"/>
+              </InputClaims>
+              <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true"/>
+                <OutputClaim ClaimTypeReferenceId="extension_mfaChoice" Required="true"/>
+              </OutputClaims>
+              <ValidationTechnicalProfiles>
+                <ValidationTechnicalProfile ReferenceId="AAD-UserWriteMFAChoiceUsingObjectId"/>
+              </ValidationTechnicalProfiles>
+            </TechnicalProfile>
+            <TechnicalProfile Id="SelfAsserted-EmailOTP">
+              <DisplayName>Reset password using email address</DisplayName>
+              <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+              <Metadata>
+                <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+              </Metadata>
+              <CryptographicKeys>
+                <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+              </CryptographicKeys>
+              <IncludeInSso>false</IncludeInSso>
+              <InputClaims>
+                <InputClaim ClaimTypeReferenceId="readonlyMail" Required="true" />
+              </InputClaims>
+              <OutputClaims>
+                <OutputClaim ClaimTypeReferenceId="readonlyMail" PartnerClaimType="Verified.Email" Required="true" />
+              </OutputClaims>
+            </TechnicalProfile>            
+          </TechnicalProfiles>
+        </ClaimsProvider>        
+
+        <ClaimsProvider>
+            <DisplayName>Custom REST API</DisplayName>
+            <TechnicalProfiles>
+              <TechnicalProfile Id="REST-EvaluateExpression">
+                <DisplayName>Validate user input data and return loyaltyNumber claim</DisplayName>
+                <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                <Metadata>
+                  <Item Key="ServiceUrl">{REST:EvaluateExpression}</Item>
+                  <Item Key="AuthenticationType">None</Item>
+                  <Item Key="SendClaimsIn">Body</Item>
+                </Metadata>
+                <InputClaims>
+                  <InputClaim ClaimTypeReferenceId="expression" Required="true" />       
+                </InputClaims>
+                <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+              </TechnicalProfile>
+            </TechnicalProfiles>
+          </ClaimsProvider>  
+          
+          <ClaimsProvider>
+            <DisplayName>Azure Active Directory</DisplayName>
+            <TechnicalProfiles>
+              <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+                <OutputClaims>
+                  <OutputClaim ClaimTypeReferenceId="extension_mfaChoice" />
+                  <OutputClaim ClaimTypeReferenceId="readonlyMail" PartnerClaimType="signInNames.emailAddress" />                  
+                </OutputClaims>
+              </TechnicalProfile>
+              <TechnicalProfile Id="AAD-UserWriteProfileUsingObjectId">
+                <OutputClaims>
+                  <OutputClaim ClaimTypeReferenceId="extension_mfaChoice"/>
+                </OutputClaims>
+              </TechnicalProfile>
+              <TechnicalProfile Id="AAD-UserWriteMFAChoiceUsingObjectId">
+                <Metadata>
+                  <Item Key="Operation">Write</Item>
+                  <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+                  <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+                </Metadata>
+                <IncludeInSso>false</IncludeInSso>
+                <InputClaims>
+                  <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+                </InputClaims>
+                <PersistedClaims>
+                  <PersistedClaim ClaimTypeReferenceId="objectId" />
+                  <PersistedClaim ClaimTypeReferenceId="extension_mfaChoice" />
+                </PersistedClaims>
+                <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+              </TechnicalProfile>              
+            </TechnicalProfiles>
+          </ClaimsProvider>
+    </ClaimsProviders>
+
+</TrustFrameworkPolicy>
