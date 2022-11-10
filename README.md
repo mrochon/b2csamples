@@ -1,5 +1,18 @@
 # My B2C samples
 
+## Dev environment setup
+
+### Software tools
+[VSCode](https://code.visualstudio.com/Download)
+B2C Extensions
+PowerShell 7.x
+IefPolicies
+
+### Dev B2C setup
+Register a web app (Token Viewer) with reply url https://oidcdebugger.com/debug, allow return of access and id token in the Authentication tab
+Create a user (Users->New user->Create user) with B2C's upn, ie. someuser@myb2c.onmicrosoft.com - useful for experiemnting with MS Graph through the [Graph Explore](https://aka.ms/ge).
+
+
 ## Changes
 | Date | Change |
 |---|---|
