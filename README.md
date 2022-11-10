@@ -3,8 +3,8 @@
 ## Dev environment setup
 
 ### Software tools
-[VSCode](https://code.visualstudio.com/Download)
-B2C Extensions
+- [VSCode](https://code.visualstudio.com/Download)
+- B2C Extensions
 PowerShell 7.x
 IefPolicies
 
