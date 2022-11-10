@@ -4,13 +4,26 @@
 
 ### Software tools
 - [VSCode](https://code.visualstudio.com/Download)
-- B2C Extensions
-PowerShell 7.x
-IefPolicies
+- [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
+- [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
+- [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
 
 ### Dev B2C setup
-Register a web app (Token Viewer) with reply url https://oidcdebugger.com/debug, allow return of access and id token in the Authentication tab
-Create a user (Users->New user->Create user) with B2C's upn, ie. someuser@myb2c.onmicrosoft.com - useful for experiemnting with MS Graph through the [Graph Explore](https://aka.ms/ge).
+- Register a web app (Token Viewer) with reply url https://oidcdebugger.com/debug, allow return of access and id token in the Authentication tab
+- Create a user (Users->New user->Create user) with B2C's upn, ie. someuser@myb2c.onmicrosoft.com - useful for experiemnting with MS Graph through the [Graph Explore](https://aka.ms/ge).
+
+### Usage example
+
+1. Open VSCode
+2. Terminal->New Terminal
+3. Create a new folder and change to it
+4. Enter *New-IefPolicies*
+5. Select a starter pack, e.g. *SL* (Social and local accounts)
+6. Enter *Connect-IefPolicies <your b2c name; onmicrosoft.com not needed>*
+7. Followed displayed instructions to sign in
+8. Enter *Import-IefPolicies*
+9. The downloaded starter pack will be modified for use in your B2C and uploaded
+10. Use https://portal.azure.com B2C menus to execute your policies
 
 
 ## Changes
