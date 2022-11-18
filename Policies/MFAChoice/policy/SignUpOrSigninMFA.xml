@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="yourtenant.onmicrosoft.com"
+  PolicyId="B2C_1A_signup_signinMFA"
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_signup_signinMFA">
+
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_MFAExtensions</PolicyId>
+  </BasePolicy>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignInMFA">
+      <OrchestrationSteps>
+
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>extension_mfaChoice</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>          
+          <ClaimsExchanges>
+            <ClaimsExchange Id="GetMFAChoice" TechnicalProfileReferenceId="SelfAsserted-MFAChoice" />
+          </ClaimsExchanges>
+        </OrchestrationStep>        
+
+        <OrchestrationStep Order="5" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+              <Value>extension_mfaChoice</Value>
+              <Value>totp</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>          
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="TOTP" />
+          </JourneyList>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="6" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+              <Value>extension_mfaChoice</Value>
+              <Value>phone</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>           
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="PhoneFactor" />
+          </JourneyList>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="7" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>newUser</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>  
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+              <Value>extension_mfaChoice</Value>
+              <Value>mail</Value>              
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>                      
+          </Preconditions>           
+          <ClaimsExchanges>
+            <ClaimsExchange Id="emailOTP" TechnicalProfileReferenceId="SelfAsserted-EmailOTP" />
+          </ClaimsExchanges>
+        </OrchestrationStep>        
+
+        <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+
+      </OrchestrationSteps>
+    </UserJourney>
+  </UserJourneys>
+
+
+  <SubJourneys>
+    <SubJourney Id="TOTP" Type="Call">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="InvokeSubJourney">
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="TotpFactor-Input" />
+          </JourneyList>
+        </OrchestrationStep>
+
+        <!-- Call the TOTP validation sub journey-->
+        <OrchestrationStep Order="2" Type="InvokeSubJourney">
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="TotpFactor-Verify" />
+          </JourneyList>
+        </OrchestrationStep>        
+      </OrchestrationSteps>  
+      </SubJourney>
+
+      <SubJourney Id="PhoneFactor" Type="Call">
+        <OrchestrationSteps>
+          <OrchestrationStep Order="1" Type="ClaimsExchange">
+            <Preconditions>
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                <Value>isActiveMFASession</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>
+            </Preconditions>
+            <ClaimsExchanges>
+              <ClaimsExchange Id="PhoneFactor-Verify" TechnicalProfileReferenceId="PhoneFactor-InputOrVerify" />
+            </ClaimsExchanges>
+          </OrchestrationStep>
+          <OrchestrationStep Order="2" Type="ClaimsExchange">
+            <Preconditions>
+              <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+                <Value>newPhoneNumberEntered</Value>
+                <Action>SkipThisOrchestrationStep</Action>
+              </Precondition>
+            </Preconditions>
+            <ClaimsExchanges>
+              <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
+            </ClaimsExchanges>
+          </OrchestrationStep>     
+        </OrchestrationSteps>  
+        </SubJourney>      
+  </SubJourneys>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpOrSignInMFA" />
+    <Endpoints>
+      <!--points to refresh token journey when app makes refresh token request-->
+      <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
+    </Endpoints>
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="readonlyMail" />        
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
