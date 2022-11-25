@@ -1,23 +1,32 @@
 # My B2C samples
 
-## Changes
-| Date | Change |
-|---|---|
-| Nov 2022 | New: user choice of 2nd FA |
-| Jun 2022 | New: batch migration |
-| Mar 2022 | Fixed: Refresh token |
-| Mar 2022 | New: Step up MFA |
-| Feb 2022 | New: Claims encryption |
-| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
-| Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
-| Dec 2021 | New: Optionally, allow profile edit during signin |
-| Nov 2021 | New: Persisted custom attribute |
-| Oct 2021 | New: Conditional Access |
-| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
-| Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
-| Sep 2021 | Change: Simplified Invitation sample |
-| Sep 2021 | New: JIT Migration |
-| Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
+## Dev environment setup
+
+### Software tools
+- [Visual Studio Code](https://code.visualstudio.com/Download). **Recommendation:** Set *File->Auto Save* to *On* in Visual Studio Code
+- [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
+- [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
+- [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
+
+### Dev B2C setup
+- Register a web app (Token Viewer) with reply url *https://oidcdebugger.com/debug*; allow return of the access and id token in the Authentication tab
+- Create a user (*Users->New user->Create user*) with B2C's upn, e.g. *someuser@myb2c.onmicrosoft.com* - useful for experiemnting with MS Graph through the [Graph Explorer](https://aka.ms/ge).
+
+### Usage example
+
+1. Open VSCode
+2. Select *Terminal->New Terminal*
+3. Ensure your PowerShell terminal is using PS 7.x (*$host.Version*)
+4. Create a new folder and change to it (e.g. *mkdir myProject; cd myProject*)
+4. Enter *New-IefPolicies*
+5. Select a starter pack, e.g. *SL* (Social and local accounts)
+6. Enter *Connect-IefPolicies <your b2c name; onmicrosoft.com not needed>*
+7. Followe displayed instructions to sign in
+8. Enter *Import-IefPolicies*
+9. The downloaded starter pack will be modified for use in your B2C and uploaded (you can see the modified files in the ./debug folder)
+10. Use https://portal.azure.com B2C menus to execute your policies
+11. Repeating *import-iefpolicies* will upload policies modified since the last import and any policies depending on it, e.g. modifying the TrustFrameworkBase.xml policy will result in import of all policies since they are all based on that file.
+
 
 ## Samples list
 
@@ -45,4 +54,21 @@
 | [Step up MFA](https://github.com/mrochon/b2csamples/tree/master/Policies/StepUpMFA)  | Require MFA even if recently executed |
 | [UseUserInfoforEmailClaim](https://github.com/mrochon/b2csamples/tree/master/Policies/UseUserInfoforEmailClaim)  | Invite B2C users as B2B users in an Azure AD |
 
-
+## Changes
+| Date | Change |
+|---|---|
+| Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
+| Sep 2021 | New: JIT Migration |
+| Sep 2021 | Change: Simplified Invitation sample |
+| Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
+| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
+| Oct 2021 | New: Conditional Access |
+| Nov 2021 | New: Persisted custom attribute |
+| Dec 2021 | New: Optionally, allow profile edit during signin |
+| Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
+| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
+| Feb 2022 | New: Claims encryption |
+| Mar 2022 | New: Step up MFA |
+| Mar 2022 | Fixed: Refresh token |
+| Jun 2022 | New: batch migration |
+| Nov 2022 | New: user choice of 2nd FA |

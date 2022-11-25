@@ -110,6 +110,7 @@
   <UserJourneys>
     <UserJourney Id="Invitation">
       <OrchestrationSteps>
+        
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />             

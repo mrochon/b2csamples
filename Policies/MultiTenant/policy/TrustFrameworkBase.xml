@@ -225,7 +225,7 @@
         <UserHelpText>Email address that can be used to contact you.</UserHelpText>
         <UserInputType>TextBox</UserInputType>
         <Restriction>
-          <Pattern RegularExpression="^[a-zA-Z0-9.!#$%&amp;'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" HelpText="Please enter a valid email address." />
+          <Pattern RegularExpression="^[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$" HelpText="Please enter a valid email address." />
         </Restriction>
       </ClaimType>
 
@@ -268,6 +268,22 @@
         <DisplayName>AuthenticationSource</DisplayName>
         <DataType>string</DataType>
         <UserHelpText>Specifies whether the user was authenticated at Social IDP or local account.</UserHelpText>
+      </ClaimType>
+
+      
+       <!--claims for refresh token revocation-->
+       <ClaimType Id="refreshTokenIssuedOnDateTime">
+        <DisplayName>refreshTokenIssuedOnDateTime</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Used to determine if the user should be permitted to reauthenticate silently via their existing refresh token.</AdminHelpText>
+        <UserHelpText>Used to determine if the user should be permitted to reauthenticate silently via their existing refresh token.</UserHelpText>
+      </ClaimType>
+
+      <ClaimType Id="refreshTokensValidFromDateTime">
+        <DisplayName>refreshTokensValidFromDateTime</DisplayName>
+        <DataType>string</DataType>
+        <AdminHelpText>Used to determine if the user should be permitted to reauthenticate silently via their existing refresh token.</AdminHelpText>
+        <UserHelpText>Used to determine if the user should be permitted to reauthenticate silently via their existing refresh token.</UserHelpText>
       </ClaimType>
 
       <!-- SECTION II: Claims required to pass on special parameters (including some query string parameters) to other claims providers -->
@@ -325,6 +341,13 @@
           <Protocol Name="SAML2" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" />
         </DefaultPartnerClaimTypes>
         <UserHelpText>Your surname (also known as family name or last name).</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+
+      <ClaimType Id="verificationCode">
+        <DisplayName>Verification Code</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Enter your verification code</UserHelpText>
         <UserInputType>TextBox</UserInputType>
       </ClaimType>
 
@@ -401,6 +424,19 @@
           <InputParameter Id="valueToCompareTo" DataType="boolean" Value="true" />
         </InputParameters>
       </ClaimsTransformation>
+      <!--claims transformation for refresh token revocation -->
+      <ClaimsTransformation Id="AssertRefreshTokenIssuedLaterThanValidFromDate" TransformationMethod="AssertDateTimeIsGreaterThan">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" TransformationClaimType="leftOperand" />
+          <InputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" TransformationClaimType="rightOperand" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="AssertIfEqualTo" DataType="boolean" Value="false" />
+          <InputParameter Id="AssertIfRightOperandIsNotPresent" DataType="boolean" Value="true" />
+          <InputParameter Id="TreatAsEqualIfWithinMillseconds" DataType="int" Value="300000" />
+        </InputParameters>
+      </ClaimsTransformation>
+
     </ClaimsTransformations>
 
     <ClientDefinitions>
@@ -512,8 +548,29 @@
           <Item Key="DisplayName">Collect information from user page</Item>
         </Metadata>
       </ContentDefinition>
-
     </ContentDefinitions>
+
+    <DisplayControls>
+      <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
+        <DisplayClaims>
+          <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
+          <DisplayClaim ClaimTypeReferenceId="verificationCode" ControlClaimType="VerificationCode" Required="true" />
+        </DisplayClaims>
+        <OutputClaims></OutputClaims>
+        <Actions>
+          <Action Id="SendCode">
+            <ValidationClaimsExchange>
+              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-SendCode" />
+            </ValidationClaimsExchange>
+          </Action>
+          <Action Id="VerifyCode">
+            <ValidationClaimsExchange>
+              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-VerifyCode" />
+            </ValidationClaimsExchange>
+          </Action>
+        </Actions>
+      </DisplayControl>
+    </DisplayControls>
   </BuildingBlocks>
 
   <!--
@@ -579,7 +636,6 @@
             <Item Key="response_types">id_token</Item>
             <Item Key="response_mode">query</Item>
             <Item Key="scope">email openid</Item>
-            <!-- <Item Key="grant_type">password</Item> -->
 
             <!-- Policy Engine Clients -->
             <Item Key="UsePolicyInRedirectUri">false</Item>
@@ -653,6 +709,7 @@
         </TechnicalProfile>
 
         <!-- Technical profiles for social logins -->
+
         <TechnicalProfile Id="AAD-UserWriteUsingAlternativeSecurityId">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -718,6 +775,7 @@
         </TechnicalProfile>
 
         <!-- Technical profiles for local accounts -->
+
         <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
           <Metadata>
             <Item Key="Operation">Write</Item>
@@ -894,6 +952,14 @@
             <InputClaim ClaimTypeReferenceId="givenName" />
             <InputClaim ClaimTypeReferenceId="surname" />
           </InputClaims>
+          <DisplayClaims>
+            <!-- Optional claims. These claims are collected from the user and can be modified. If a claim is to be persisted in the directory after having been 
+                 collected from the user, it needs to be added as a PersistedClaim in the ValidationTechnicalProfile referenced below, i.e. 
+                 in AAD-UserWriteUsingAlternativeSecurityId. -->
+            <DisplayClaim ClaimTypeReferenceId="displayName" />
+            <DisplayClaim ClaimTypeReferenceId="givenName" />
+            <DisplayClaim ClaimTypeReferenceId="surname" />
+          </DisplayClaims>
           <OutputClaims>
             <!-- These claims are not shown to the user because their value is obtained through the "ValidationTechnicalProfiles"
                  referenced below, or a default value is assigned to the claim. A claim is only shown to the user to provide a 
@@ -931,6 +997,12 @@
             <InputClaim ClaimTypeReferenceId="givenName" />
             <InputClaim ClaimTypeReferenceId="surname" />
           </InputClaims>
+          <DisplayClaims>
+            <!-- Optional claims. These claims are collected from the user and can be modified. Any claim added here should be updated in the
+                 ValidationTechnicalProfile referenced below so it can be written to directory after being updated by the user, i.e. AAD-UserWriteProfileUsingObjectId. -->
+            <DisplayClaim ClaimTypeReferenceId="givenName" />
+            <DisplayClaim ClaimTypeReferenceId="surname" />
+          </DisplayClaims>
           <OutputClaims>
             <!-- Required claims -->
             <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
@@ -964,9 +1036,19 @@
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="email" />
           </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+            <DisplayClaim ClaimTypeReferenceId="newPassword" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+
+            <!-- Optional claims, to be collected from the user -->
+            <DisplayClaim ClaimTypeReferenceId="displayName" />
+            <DisplayClaim ClaimTypeReferenceId="givenName" />
+            <DisplayClaim ClaimTypeReferenceId="surName" />
+          </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" />
-            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="email" />
             <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
             <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
             <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
@@ -992,11 +1074,16 @@
             <Item Key="SignUpTarget">SignUpWithLogonEmailExchange</Item>
             <Item Key="setting.operatingMode">Email</Item>
             <Item Key="ContentDefinitionReferenceId">api.localaccountsignin</Item>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
           </Metadata>
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="signInName" />
+            <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />
           </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="signInName" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
+          </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
@@ -1022,8 +1109,11 @@
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
           </CryptographicKeys>
           <IncludeInSso>false</IncludeInSso>
+          <DisplayClaims>
+            <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+          </DisplayClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="email" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
             <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" />
@@ -1051,6 +1141,10 @@
             <InputClaim ClaimTypeReferenceId="Verified.strongAuthenticationPhoneNumber" />
 
           </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="newPassword" Required="true" />
+            <DisplayClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+          </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
             <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
@@ -1114,6 +1208,11 @@
           </OutputClaims>
         </TechnicalProfile>
 
+        <!-- Session management technical profile for OIDC based tokens -->
+        <TechnicalProfile Id="SM-jwt-issuer">
+          <DisplayName>Session Management Provider</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.OAuthSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
 
@@ -1135,7 +1234,7 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="JwtIssuer">
           <DisplayName>JWT Issuer</DisplayName>
-          <Protocol Name="None" />
+          <Protocol Name="OpenIdConnect" />
           <OutputTokenFormat>JWT</OutputTokenFormat>
           <Metadata>
             <Item Key="client_id">{service:te}</Item>
@@ -1146,8 +1245,70 @@
             <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
             <Key Id="issuer_refresh_token_key" StorageReferenceId="B2C_1A_TokenEncryptionKeyContainer" />
           </CryptographicKeys>
-          <InputClaims />
-          <OutputClaims />
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-jwt-issuer" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    
+     <!--claims provider for refresh token revocation-->
+  <ClaimsProvider>
+    <DisplayName>Refresh token journey</DisplayName>
+    <TechnicalProfiles>
+      <TechnicalProfile Id="RefreshTokenReadAndSetup">
+        <DisplayName>Trustframework Policy Engine Refresh Token Setup Technical Profile</DisplayName>
+        <Protocol Name="None" />
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="objectId" />
+          <OutputClaim ClaimTypeReferenceId="refreshTokenIssuedOnDateTime" />
+           <!--Requirement: Claims that you return in the relying party technical profile output claims
+            that are not stored in Azure AD B2C, must be added to the output claims collection here-->
+          <!--
+          
+          <OutputClaim ClaimTypeReferenceId="RESTAPIclaim1" />
+          <OutputClaim ClaimTypeReferenceId="IDPclaim1" />
+           -->
+        </OutputClaims>
+      </TechnicalProfile>
+
+
+      <TechnicalProfile Id="AAD-UserReadUsingObjectId-CheckRefreshTokenDate">
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="refreshTokensValidFromDateTime" />
+          <OutputClaim ClaimTypeReferenceId="displayName" />
+        </OutputClaims>
+        <OutputClaimsTransformations>
+          <OutputClaimsTransformation ReferenceId="AssertRefreshTokenIssuedLaterThanValidFromDate" />
+        </OutputClaimsTransformations>
+        <IncludeTechnicalProfile ReferenceId="AAD-UserReadUsingObjectId" />
+      </TechnicalProfile>
+    </TechnicalProfiles>
+  </ClaimsProvider>
+
+
+    <ClaimsProvider>
+      <DisplayName>AAD SSPR</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AadSspr-SendCode">
+          <DisplayName>Send Code</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AadSsprProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="Operation">SendCode</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="emailAddress" />
+          </InputClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="AadSspr-VerifyCode">
+          <DisplayName>Verify Code</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AadSsprProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="Operation">VerifyCode</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="verificationCode" />
+            <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="emailAddress" />
+          </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -1356,5 +1517,26 @@
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>
 
+    <UserJourney Id="RedeemRefreshToken">
+      <PreserveOriginalAssertion>false</PreserveOriginalAssertion>
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="RefreshTokenSetupExchange" TechnicalProfileReferenceId="RefreshTokenReadAndSetup" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Extra steps can be added before or after this step for REST API or claims transformation calls-->
+        
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="CheckRefreshTokenDateFromAadExchange" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId-CheckRefreshTokenDate" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+    </UserJourney>
+
+    
   </UserJourneys>
 </TrustFrameworkPolicy>
