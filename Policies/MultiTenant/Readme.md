@@ -33,6 +33,22 @@ The multi-tenant sample consists of three components, each in a separate repo:
 
 ### Setup
 
+#### Azure AD App registrations
+
+You will need to register three applications in your B2C tenant:
+
+1. REST API called by B2C IEF policies, using client credentials, executing Microsoft Graph APIs. Give it **application** permissions to Graph API: *Directory.Read, Group.ReadWrite.All*. Create a secret for this app and store its configuration in the *ClientCreds* property of the appSettings.json (store the secret in the API configuration as *ClientCreds:ClientSecret*).
+
+2. REST API called by the SPA application. Use *Expose an API* to define two new scopes: *Members.Read.All* and *User.Invite*. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
+
+1. SPA application to represent the React application. Use *API Permissions* to grant this application permission to call the REST API with two scopes defined above.
+
+The first two registrations represent the same deployed code. The registration is split into two to allow it by both the SPA application (which uses delegated user tokens) and the B2C IEF policies (which use a client certificate for authentication) and then use an application token to call Grapg (B2C does not allow Graph to be called with a delagated user token).
+
+#### REST API deployment
+
+The public component of the certificate created in the B2C setup step above should be provided to the deployed REST app. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*' or the thumbprint of your certificate. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application and use OAuth2 tokens, not certificate for authorization). 
+
 #### B2C
 
 1. Install [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies/). **Note:** make sure you have PowerShell 7.x installed first.
@@ -78,19 +94,6 @@ npm i
 npm install axios
 copy /src
 ```
-
-#### API
-1. Register two applications in your B2C tenant as described above:
-
-    a. In the first registration (through the B2C blade), expose two API permissions: Members.Read.All and User.Invite. Use *https://yourtenant.onmicrosoft.com/mtrest* as Application ID URI.
-
-    b. In the second registration (through the AAD blade), give **application** permissions to Graph API: Directory.Read, Group.ReadWrite.All. Create a secret for this app and store its configuration in the *ClientCreds* property of the appSettings.json (store the secret in the API configuration as *ClientCreds:ClientSecret*)
-
-    d. Create another secret, store it in the API configuration as *Invitation:SigningKey* **and** as *InvitationSigningKey* in your b2C tenant). 
-
-2. The public component of the certificate created in the B2C setup step above should be provided to the deployed REST app. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*'. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application). 
-
-6. Enable CORS for the origin of your SPA app url
 
 #### Custom journeys
 ```PowerShell
