@@ -67,7 +67,7 @@ Initialize-IefPolicies
 Connect-IefPolicies <yourtenantname>
 ```
 
-6. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C:
+6. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
 
 ```PowerShell
 New-IefPoliciesCert RestClient -validityMonths 24
