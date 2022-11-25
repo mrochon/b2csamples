@@ -3,21 +3,21 @@
 ## Changes
 | Date | Change |
 |---|---|
-| Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
-| Sep 2021 | New: JIT Migration |
-| Sep 2021 | Change: Simplified Invitation sample |
-| Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
-| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
-| Oct 2021 | New: Conditional Access |
-| Nov 2021 | New: Persisted custom attribute |
-| Dec 2021 | New: Optionally, allow profile edit during signin |
-| Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
-| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
-| Feb 2022 | New: Claims encryption |
-| Mar 2022 | New: Step up MFA |
-| Mar 2022 | Fixed: Refresh token |
-| Jun 2022 | New: batch migration |
 | Nov 2022 | New: user choice of 2nd FA |
+| Jun 2022 | New: batch migration |
+| Mar 2022 | Fixed: Refresh token |
+| Mar 2022 | New: Step up MFA |
+| Feb 2022 | New: Claims encryption |
+| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
+| Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
+| Dec 2021 | New: Optionally, allow profile edit during signin |
+| Nov 2021 | New: Persisted custom attribute |
+| Oct 2021 | New: Conditional Access |
+| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
+| Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
+| Sep 2021 | Change: Simplified Invitation sample |
+| Sep 2021 | New: JIT Migration |
+| Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
 
 ## Samples list
 
