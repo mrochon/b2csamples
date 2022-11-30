@@ -72,3 +72,23 @@
 | Mar 2022 | Fixed: Refresh token |
 | Jun 2022 | New: batch migration |
 | Nov 2022 | New: user choice of 2nd FA |
+
+
+## Tips and tricks
+
+### Prevent OTP email send if email invalid
+
+Use DisplayCntrols starter pack and the following override:
+
+```
+      <DisplayControl Id="emailVerificationControl2" UserInterfaceControlType="VerificationControl">
+        <Actions>
+          <Action Id="SendCode">
+            <ValidationClaimsExchange>
+              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress" />                  
+              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-SendCode" />
+            </ValidationClaimsExchange>   
+          </Action>
+        </Actions>
+      </DisplayControl>            
+```
