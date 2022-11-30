@@ -86,7 +86,6 @@ Use DisplayCntrols starter pack and the following override:
           <Action Id="SendCode">
             <ValidationClaimsExchange>
               <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress" />                  
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AadSspr-SendCode" />
             </ValidationClaimsExchange>   
           </Action>
         </Actions>
