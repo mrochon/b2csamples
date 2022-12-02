@@ -19,6 +19,10 @@ namespace RESTFunctions
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((confBuilder) =>
+                {
+                    confBuilder.AddJsonFile("./test.json");
+                })
                 .UseStartup<Startup>();
     }
 }
