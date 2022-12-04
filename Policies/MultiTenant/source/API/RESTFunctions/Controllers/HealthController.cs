@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using RESTFunctions.Models;
+using RESTFunctions.Services;
 
 namespace RESTFunctions.Controllers
 {
@@ -30,11 +32,21 @@ namespace RESTFunctions.Controllers
         }
 
         [HttpGet("props")]
-        public string[] Props()
+        public IEnumerable<object> Props()
         {
             var inv = new InvitationTokenOptions();
             _configuration.GetSection("Invitation").Bind(inv);
-            return new string[] { inv.Policy, inv.ValidityHours.ToString() };
+            inv.SigningKey = "***";
+            var cert = new ClientCertificateOptions();
+            _configuration.GetSection("AuthCert").Bind(cert);
+            var client = new ConfidentialClientApplicationOptions();
+            _configuration.GetSection("ClientCreds").Bind(client);
+            return new object[] {
+                new { InvitationTokenOptions = new { inv.Policy, inv.ValidityHours, inv.clientId } },
+                new { AuthCert = cert },
+                new { ClientCred = new { client.ClientId, client.Instance }}
+            };
+            //return new string[] { inv.Policy, inv.ValidityHours.ToString() };
         }
 
         // GET: api/Health/5

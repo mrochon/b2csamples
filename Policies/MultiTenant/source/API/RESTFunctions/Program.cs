@@ -21,7 +21,9 @@ namespace RESTFunctions
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((confBuilder) =>
                 {
-                    confBuilder.AddJsonFile("./test.json");
+                    var path = "/app/Settings/appsettings.json";
+                    if (File.Exists(path))
+                        confBuilder.AddJsonFile(path);
                 })
                 .UseStartup<Startup>();
     }
