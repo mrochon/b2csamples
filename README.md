@@ -7,6 +7,7 @@
 - [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
 - [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
 - [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
+- [SAML2 test ServiceProvider](https://samltestapp2.azurewebsites.net/). Register an app in your B2C with this apps issuer id and rely url
 
 ### Dev B2C setup
 - Register a web app (Token Viewer) with reply url *https://oidcdebugger.com/debug*; allow return of the access and id token in the Authentication tab
@@ -41,6 +42,7 @@
 | [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
 [Claims encryption](https://github.com/mrochon/b2csamples/tree/master/Policies/ClaimsEncryption)  | Supports encryption/decryption of claims in a token |
 | [Custom, persisted attribute](https://github.com/mrochon/b2csamples/tree/master/Policies/PersistCustomAttr)  | Modifies starter pack to add support for a new, persisted custom user attribute |
+| [Custom token refresh](https://github.com/mrochon/b2csamples/tree/master/Policies/CustomTokenRefreshExpiryTime)  | Uses REST function to validate token expiry time |
 | [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
   [EmailOrPhoneMFA](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOrPhoneMFA)  | Allows local users to use either their email or phone for 2nd FA |
 | [ForceADWhenAvaialble](https://github.com/mrochon/b2csamples/tree/master/Policies/ForceAADwhenAvailable)  | Users who signup with an email address supported by an AAD tenant will be automatically redirected there (rather than defining local password in B2C) |
