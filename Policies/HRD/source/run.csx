@@ -6,10 +6,11 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-private static string[] _social = {
-    "gmail.com",
-    "live.com",
-    "hotmail.com"
+private static Dictionary<string,string> _idpDomains = new Dictionary<string,string> {
+    { "gmail.com", "gmail" },
+    { "live.com", "msa" },
+    { "hotmail.com", "msa" },
+    { "outlook.com", "msa" }
 };
 
 public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
@@ -19,11 +20,16 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
     string email = req.Query["email"];
     if(String.IsNullOrEmpty(email))
         return new BadRequestResult();
+    log.LogInformation($"   for {email}");
     var domain_hint = email.Split('@')[1];
     if(String.IsNullOrEmpty(domain_hint))
         return new BadRequestResult();  
-    string tp = null;
-    if (_social.FirstOrDefault(s => String.Compare(s, domain_hint, true) == 0) == null)
+      
+    if (_idpDomains.ContainsKey(domain_hint))
+    {
+        log.LogInformation($"Returning (true, {_idpDomains[domain_hint]}, {domain_hint}).");
+        return new JsonResult(new { isKnownDomain = true, idp = _idpDomains[domain_hint], domain_hint, email});  
+    } else
     {    
         using (var http = new HttpClient())
         {
@@ -33,8 +39,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                 var token_endpoint = JObject.Parse(json)["token_endpoint"];
                 if (token_endpoint != null)
                 {
-                    log.LogInformation($"GetPolicyDomain returning: tp=aad, domain_hint={domain_hint}.");
-                    return new JsonResult(new { email, tp = "aad", domain_hint});                    
+                    log.LogInformation($"Returning (true, aad, {domain_hint}).");
+                    return new JsonResult(new { isKnownDomain = true, idp = "aad", domain_hint, email});                    
                 }
             } catch // assuming 400
             {
@@ -42,6 +48,6 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             }
         }
     }
-    log.LogInformation($"GetPolicyDomain returning domain_hint={domain_hint}.");
-    return new JsonResult(new { email, domain_hint});
+    log.LogInformation($"Returning (false, local, {domain_hint}).");
+    return new JsonResult(new { isKnownDomain = false, idp = "unknown", domain_hint, email});  
 }

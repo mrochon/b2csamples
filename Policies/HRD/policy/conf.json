@@ -1,0 +1,8 @@
+{
+  "Prefix": "MR",
+  "Clients": {
+    "Work": "8f08158a-36ff-48fb-a692-2f8cdd67f077",
+    "MSA": "651e1987-1600-4908-98da-65a0696c7ee5"
+  },
+  "HRD_API": "https://mrb2cfunctions.azurewebsites.net/api/HRDHelper"
+}
