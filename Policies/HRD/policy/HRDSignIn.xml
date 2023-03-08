@@ -2,7 +2,8 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
     xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="yourtenant.onmicrosoft.com" 
     PolicyId="B2C_1A_SignIn_HRD" PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SignIn_HRD" 
-    TenantObjectId="yourtenant.onmicrosoft.com">
+    TenantObjectId="yourtenant.onmicrosoft.com"
+ >
     <BasePolicy>
         <TenantId>yourtenant.onmicrosoft.com</TenantId>
         <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
@@ -35,6 +36,21 @@
                 <UserHelpText>Known idp tp</UserHelpText>
             </ClaimType>            
         </ClaimsSchema>
+        <ClaimsTransformations>
+              <ClaimsTransformation Id="CheckIfDomainHintPresent" TransformationMethod="CompareClaimToValue">
+                <InputClaims>
+                  <InputClaim ClaimTypeReferenceId="idp" TransformationClaimType="inputClaim1" />
+                </InputClaims>
+                <InputParameters>
+                  <InputParameter Id="compareTo" DataType="string" Value="" />
+                  <InputParameter Id="operator" DataType="string" Value="not equal" />
+                  <InputParameter Id="ignoreCase" DataType="string" Value="true" />
+                </InputParameters>
+                <OutputClaims>
+                  <OutputClaim ClaimTypeReferenceId="isKnownDomain" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+              </ClaimsTransformation>                     
+        </ClaimsTransformations>
     </BuildingBlocks>
 
     <ClaimsProviders>
@@ -95,7 +111,8 @@
                   <Key Id="client_secret" StorageReferenceId="B2C_1A_WORKAppSecret" />
                 </CryptographicKeys>
                 <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="login_hint" />
+                    <InputClaim ClaimTypeReferenceId="domain_hint" />
+                    <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="login_hint" />                    
                 </InputClaims>
                 <OutputClaims>
                   <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="oid" />
@@ -171,11 +188,12 @@
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Metadata>
                         <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+                        <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
                     </Metadata>
                     <IncludeInSso>false</IncludeInSso>
                     <InputClaims>
-                        <!--InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" /-->
-                        <InputClaim ClaimTypeReferenceId="signInName" />                        
+                        <InputClaim ClaimTypeReferenceId="signInName" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />
+                        <!-- <InputClaim ClaimTypeReferenceId="signInName" />                         -->
                     </InputClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
@@ -189,6 +207,27 @@
                     </ValidationTechnicalProfiles>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
                 </TechnicalProfile>
+                <TechnicalProfile Id="Transform-GetIsKnownDomain">
+                    <DisplayName>Get domain hint</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />                 
+                    <Metadata>
+                        <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
+                    </Metadata>                      
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="idp" DefaultValue="{OIDC:DomainHint}" AlwaysUseDefaultValue="true" />
+                        <InputClaim ClaimTypeReferenceId="email" DefaultValue="{OIDC:LoginHint}" AlwaysUseDefaultValue="true" />                        
+                        <InputClaim ClaimTypeReferenceId="domain_hint" DefaultValue="{OAUTH-KV:aadDomain}" AlwaysUseDefaultValue="true" />                        
+                    </InputClaims>                    
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="idp" />        
+                        <OutputClaim ClaimTypeReferenceId="domain_hint" />                                                  
+                        <OutputClaim ClaimTypeReferenceId="isKnownDomain" />                        
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="CheckIfDomainHintPresent" />
+                    </OutputClaimsTransformations>
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+                </TechnicalProfile>                
             </TechnicalProfiles>
         </ClaimsProvider>
 
@@ -203,20 +242,39 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
+
     </ClaimsProviders>
 
     <UserJourneys>
         <UserJourney Id="SignIn">
 
             <OrchestrationSteps>
+
                 <OrchestrationStep Order="1" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="GetIsKnown" TechnicalProfileReferenceId="Transform-GetIsKnownDomain" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+
+                <OrchestrationStep Order="2" Type="ClaimsExchange">
+                    <Preconditions>
+                        <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+                            <Value>isKnownDomain</Value>
+                            <Value>True</Value>
+                            <Action>SkipThisOrchestrationStep</Action>
+                        </Precondition>                        
+                        <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
+                            <Value>idp</Value>
+                            <Value></Value>                            
+                            <Action>SkipThisOrchestrationStep</Action>
+                        </Precondition>
+                    </Preconditions>                    
                     <ClaimsExchanges>
                         <ClaimsExchange Id="SigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-Signin-Email" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <!-- If the domain_hint did not match any known domain, then redirect to a default local account sign in-->
-                <OrchestrationStep Order="2" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+                <OrchestrationStep Order="3" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
                     <Preconditions>
                         <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
                             <Value>isKnownDomain</Value>
@@ -231,8 +289,8 @@
                         <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
-                <!-- dont run this step if the domain was known, or we have an objectid (local account sign in)-->
-                <OrchestrationStep Order="3" Type="ClaimsExchange">
+
+                <OrchestrationStep Order="4" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
                             <Value>objectId</Value>
@@ -249,9 +307,7 @@
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <!-- If the domain matched any known domain, then this step will have a single IdP
-                    enabled due to each known IdP TP having an enablement flag via identityProviders claim -->
-                <OrchestrationStep Order="4" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
+                <OrchestrationStep Order="5" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
                     <Preconditions>
                         <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
                             <Value>isKnownDomain</Value>
@@ -265,7 +321,7 @@
                     </ClaimsProviderSelections>
                 </OrchestrationStep>
 
-                <OrchestrationStep Order="5" Type="ClaimsExchange">
+                <OrchestrationStep Order="6" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
                             <Value>objectId</Value>
@@ -283,8 +339,7 @@
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <!-- For social IDP authentication, attempt to find the user account in the directory. -->
-                <OrchestrationStep Order="6" Type="ClaimsExchange">
+                <OrchestrationStep Order="7" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
                             <Value>isKnownDomain</Value>
@@ -297,8 +352,7 @@
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <!-- Still dont have objectId (social idp user that doesnt yet exist) - write the account -->
-                <OrchestrationStep Order="7" Type="ClaimsExchange">
+                <OrchestrationStep Order="8" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
                             <Value>objectId</Value>
@@ -310,7 +364,7 @@
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <OrchestrationStep Order="8" Type="ClaimsExchange">
+                <OrchestrationStep Order="9" Type="ClaimsExchange">
                     <Preconditions>
                         <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
                             <Value>isKnownDomain</Value>
@@ -323,7 +377,7 @@
                     </ClaimsExchanges>
                 </OrchestrationStep>
 
-                <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+                <OrchestrationStep Order="10" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
             </OrchestrationSteps>
             <ClientDefinition ReferenceId="DefaultWeb" />
         </UserJourney>
@@ -339,7 +393,9 @@
                 <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="surname"/>
                 <OutputClaim ClaimTypeReferenceId="identityProvider" />
                 <OutputClaim ClaimTypeReferenceId="email" />
-                <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+                <OutputClaim ClaimTypeReferenceId="idp" />
+                <OutputClaim ClaimTypeReferenceId="isKnownDomain" />                                
+                <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" DefaultValue="Uknown"/>
             </OutputClaims>
             <SubjectNamingInfo ClaimType="sub" />
         </TechnicalProfile>
