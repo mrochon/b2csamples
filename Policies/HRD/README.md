@@ -32,5 +32,4 @@ This sample uses federation with [AAD with support for multi-tenant signin](http
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```
-(since *WORK* is already referenced in the *conf* file included with this sample, you only need to take the client id value in the ./federations/*.json file
-- after executing the above command - and repalce the one listed in the conf file in this sample)
+(copy the client id value from the *./federations/conf.json* file to the conf.json file in this folder)
