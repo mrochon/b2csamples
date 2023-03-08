@@ -12,12 +12,12 @@ to signin using a local account.
 If no hints are provided in the initial token requests, the journey will ask the user for their email and call a REST function which uses
 the user domain to check whether there is an existing Azure AD with that domain or whether the domain represents an MSA account. The Rest function can be extended to support other IdPs (e.g. gmail). If no appropriate IdP is found the user is asked to sign in using local password.
 
-The requesting application can also specify the domain_hint parameter. If specified, and the journey includes TechnicalProfiles corresponding to
-the value of the hint, that IdP will bbe chose. Note that in this sample the two valid domain_hint values are *aad* and *msa*. If the domain_hint has the value of *aad* **and** the request also contains an additional query parameter **aadDomain**, its value will be used to redirect the user to that AAD tenant.
+The requesting application can also specify the *domain_hint* parameter. If specified, and the journey includes TechnicalProfiles corresponding to
+the value of the hint, that IdP will be chosen. Note that in this sample the two valid *domain_hint* values are *aad* and *msa*. If the domain_hint has the value of *aad* **and** the request also contains an additional query parameter **aadDomain**, its value will be used to redirect the user to that AAD tenant.
 
-If the request includes a *login_hint*, its value will be useed to make the home realm discovery.
+If the request includes a *login_hint*, its value will be used to make the home realm discovery.
 
-The REST function used to determine the user's Home Realm is publicly accessible and referenced in the conf.json file.
+The [REST function used to determine](https://github.com/mrochon/b2csamples/tree/master/Policies/HRD/source) the user's Home Realm is publicly accessible and referenced in the conf.json file.
 
 ## Deployment
 
