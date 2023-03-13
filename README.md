@@ -5,6 +5,7 @@
 ### Software tools
 - [Visual Studio Code](https://code.visualstudio.com/Download). **Recommendation:** Set *File->Auto Save* to *On* in Visual Studio Code
 - [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
+- An xml handling extension, e.g. [Red Hat Xml](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml)
 - [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
 - [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
 - [SAML2 test ServiceProvider](https://samltestapp2.azurewebsites.net/). Register an app in your B2C with this apps issuer id and rely url
