@@ -38,6 +38,7 @@
 | [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
 | [Batch migration](https://github.com/mrochon/b2csamples/tree/master/Policies/BatchMigration)  | Batch user creation with email to reset pwd using login_hint |
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
+  [CallGraph](https://github.com/mrochon/b2csamples/tree/master/Policies/CallGraph)  | Call a Graph API |
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
 | [Choose 2nd FA](https://github.com/mrochon/b2csamples/tree/master/Policies/MFAChoice)  | User can choose whether to use enail OTP, phone OTP/sms/call or MS Authenticator TOTP |
 | [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
@@ -75,6 +76,7 @@
 | Mar 2022 | Fixed: Refresh token |
 | Jun 2022 | New: batch migration |
 | Nov 2022 | New: user choice of 2nd FA |
+| Mar 2023 | New: call Graph |
 
 
 ## Tips and tricks

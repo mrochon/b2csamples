@@ -7,8 +7,7 @@
   TenantId="yourtenant.onmicrosoft.com"
   PolicyId="B2C_1A_SUSIWithGraph"
   PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SUSIWithGraph"
-  DeploymentMode="Development"
-UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
+ >
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
@@ -19,6 +18,10 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
     <ClaimsSchema>
       <ClaimType Id="accessToken">
         <DisplayName>Access token</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>
+      <ClaimType Id="appName">
+        <DisplayName>Application name</DisplayName>
         <DataType>string</DataType>
       </ClaimType>
     </ClaimsSchema>
@@ -53,8 +56,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           <DisplayName>Get app name</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <!-- Set the ServiceUrl with your own REST API endpoint -->
-            <Item Key="ServiceUrl">https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{claim1}'&amp;$select=displayName</Item>
+            <Item Key="ServiceUrl">https://graph.microsoft.com/v1.0/applications?$filter=appId eq '{client_id}'&amp;$select=displayName</Item>
             <Item Key="SendClaimsIn">Url</Item>
             <Item Key="AuthenticationType">Bearer</Item>
             <Item Key="UseClaimAsBearerToken">accessToken</Item>
@@ -67,7 +69,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <InputClaim ClaimTypeReferenceId="accessToken" />                
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="displayName" />
+            <OutputClaim ClaimTypeReferenceId="appName" PartnerClaimType="value[0].displayName" />
           </OutputClaims>
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>        
@@ -78,17 +80,17 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
   <UserJourneys>
     <UserJourney Id="SignUpOrSignIn">
       <OrchestrationSteps>
-        <OrchestrationStep Order="7" Type="ClaimsExchange">
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="GetToken" TechnicalProfileReferenceId="REST-AcquireAccessToken" />
           </ClaimsExchanges>
         </OrchestrationStep>   
-        <OrchestrationStep Order="8" Type="ClaimsExchange">
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="GetApp" TechnicalProfileReferenceId="REST-GetAppData" />
           </ClaimsExchanges>
         </OrchestrationStep>              
-        <OrchestrationStep Order="9" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />        
+        <OrchestrationStep Order="6" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />        
       </OrchestrationSteps>
     </UserJourney>
   </UserJourneys>
@@ -99,20 +101,15 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
       <!--points to refresh token journey when app makes refresh token request-->
       <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
     </Endpoints>
-    <UserJourneyBehaviors>
-      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="{AppInsightsKey}" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />    
-    </UserJourneyBehaviors>        
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="appName" />
+        <OutputClaim ClaimTypeReferenceId="appName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-        <OutputClaim ClaimTypeReferenceId="identityProvider" />
-        <OutputClaim ClaimTypeReferenceId="accessToken" DefaultValue="unknown" />        
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
