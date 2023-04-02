@@ -12,7 +12,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_MTExtensions</PolicyId>
   </BasePolicy>
 
   <BuildingBlocks>

@@ -11,7 +11,7 @@
 
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_MTExtensions</PolicyId>
   </BasePolicy>
 
   <ClaimsProviders>
@@ -57,8 +57,6 @@
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />                  
-            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />                    
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />                 
           </ClaimsProviderSelections>
@@ -74,8 +72,6 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADExchange" TechnicalProfileReferenceId="Common-AAD" />             
-            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAUTH" />   
             <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />                         
             <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
           </ClaimsExchanges>
@@ -151,7 +147,7 @@
             <!-- Make sure all IdP paths set identityProvider /-->
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>identityProvider</Value>
-              <Value>aadOrganizations</Value>
+              <Value>organizations</Value>
               <Action>SkipThisOrchestrationStep</Action>              
             </Precondition>
           </Preconditions>          

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+  PolicySchemaVersion="0.3.0.0" 
+  TenantId="yourtenant.onmicrosoft.com" 
+  PolicyId="B2C_1A_MTExtensions" 
+  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_MTExtensions">
+  
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+      <ClaimType Id="KMSI">
+        <DisplayName>KMSI Flag</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>  
+      <ClaimType Id="requireEditProfile">
+        <DisplayName>Use request parameter to request profile edit UI</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>        
+      <ClaimType Id="isForgotPassword">
+        <DisplayName>isForgotPassword</DisplayName>
+        <DataType>boolean</DataType>
+        <AdminHelpText>Whether the user has selected Forgot your Password</AdminHelpText>
+      </ClaimType>        
+      <ClaimType Id="appTenantDescription">
+        <DisplayName>Tenant description</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Description of the tenant.</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>  
+      <ClaimType Id="appTenantId">
+        <DisplayName>Application tenant id</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Id of the application tenant.</UserHelpText>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>   
+      <ClaimType Id="appTenantRoles">
+        <DisplayName>Users role in the app tenant (admin or member)</DisplayName>
+        <DataType>stringCollection</DataType>
+        <UserHelpText>User role(s) in the application tenant.</UserHelpText>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>      
+      <ClaimType Id="appRoles">
+        <DisplayName>Users role in the application</DisplayName>
+        <DataType>stringCollection</DataType>
+        <UserHelpText>User role(s) in the application.</UserHelpText>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>         
+      <ClaimType Id="appTenantName">
+        <DisplayName>Unique tenant name</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Unique tenant name.</UserHelpText>
+        <UserInputType>TextBox</UserInputType>
+        <Restriction>
+          <Pattern RegularExpression="^[A-Za-z_$][A-Za-z_$0-9]*$" HelpText="Please enter a valid tenant name (alpha and digits)." />
+        </Restriction>         
+      </ClaimType> 
+      <ClaimType Id="allTenants">
+        <DisplayName>List of tenants (names) where user is an admin</DisplayName>
+        <DataType>stringCollection</DataType>
+      </ClaimType>   
+      <ClaimType Id="isNewMember">
+        <DisplayName>User joined an app tenant</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>  
+      <ClaimType Id="requireMFA">
+        <DisplayName>Is the app tenant configured to reuire MFA?</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>    
+      <ClaimType Id="allowSameIssuerMembersString">
+        <DisplayName>Allow other users from same directory to join without invitation</DisplayName>
+        <DataType>string</DataType>
+        <UserHelpText>Allow others from same directory to join without invitation</UserHelpText>
+        <UserInputType>DropdownSingleSelect</UserInputType>
+        <Restriction>
+          <Enumeration Text="Allow" Value="allow" SelectByDefault="false" />
+          <Enumeration Text="Require invitation" Value="allow" SelectByDefault="true" />          
+        </Restriction>    
+      </ClaimType>      
+      <ClaimType Id="allowSameIssuerMembers">
+        <DisplayName>Allow other users from same directory to join without invitation</DisplayName>
+        <DataType>boolean</DataType>
+      </ClaimType>             
+      <ClaimType Id="responseMsg">
+        <DisplayName>Error</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>         
+      <ClaimType Id="domain_hint">
+        <DisplayName>Domain hint</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>    
+      <ClaimType Id="login_hint">
+        <DisplayName>Login hint</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>   
+      <ClaimType Id="isAdmin">
+        <DisplayName>User is tenant admin</DisplayName>
+        <DataType>string</DataType>
+      </ClaimType>              
+    </ClaimsSchema>
+  
+    <Localization Enabled="true">
+      <SupportedLanguages DefaultLanguage="en" MergeBehavior="ReplaceAll">
+        <SupportedLanguage>en</SupportedLanguage>
+      </SupportedLanguages>
+      <LocalizedResources Id="api.signuporsignin.en">
+        <LocalizedStrings>
+          <LocalizedString ElementType="UxElement" StringId="remember_me">Edit my profile</LocalizedString>
+        </LocalizedStrings>
+      </LocalizedResources>
+    </Localization>       
+  </BuildingBlocks>
+
+  
+  <ClaimsProviders>
+
+    <ClaimsProvider>
+      <DisplayName>Azure Active Directory</DisplayName>    
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-UserWriteUsingAlternativeSecurityId-NoError">
+          <Metadata>
+            <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+          </Metadata>
+          <IncludeTechnicalProfile ReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
+        </TechnicalProfile>         
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Self Asserted</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SelfAsserted-JoinOrSelectTenant">
+          <DisplayName>Select tenant</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="appTenantName" />
+          </InputClaims>          
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantName" />
+            <OutputClaim ClaimTypeReferenceId="appTenantId" />  
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" />    
+            <OutputClaim ClaimTypeReferenceId="isNewMember" />      
+          </OutputClaims>
+          <ValidationTechnicalProfiles>
+            <ValidationTechnicalProfile ReferenceId="REST-GetOrJoinTenant" />
+          </ValidationTechnicalProfiles>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-NOOP" />
+        </TechnicalProfile> 
+      </TechnicalProfiles>
+    </ClaimsProvider>   
+
+    <ClaimsProvider>
+      <DisplayName>Custom REST API</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="REST-CreateTenant">
+          <DisplayName>Create a new tenant</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{RESTBase}"/tenant"</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
+            <InputClaim ClaimTypeReferenceId="appTenantDescription" PartnerClaimType="description" />
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="ownerId" />
+            <InputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />
+            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />     
+            <InputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" DefaultValue="no" />                   
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />    
+            <OutputClaim ClaimTypeReferenceId="allTenants"  /> 
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+        <TechnicalProfile Id="REST-GetTenantsForUser">
+          <DisplayName>Get user role</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{RESTBase}"/tenant/gettenantsforuser"</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" Required="true" />            
+            <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" DefaultValue="{OAUTH-KV:tenant}" AlwaysUseDefaultValue="true" />
+            <InputClaim ClaimTypeReferenceId="identityProvider" />
+            <InputClaim ClaimTypeReferenceId="tenantId" PartnerClaimType="directoryId" />        
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />                        
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />
+            <OutputClaim ClaimTypeReferenceId="requireMFA" />
+            <OutputClaim ClaimTypeReferenceId="allTenants" />     
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>         
+        <TechnicalProfile Id="REST-GetOrJoinTenant">
+          <DisplayName>Get user role</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{RESTBase}"/tenant/member"</Item>
+            <Item Key="AuthenticationType">ClientCertificate</Item>
+            <Item Key="SendClaimsIn">Body</Item>
+            <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+          </CryptographicKeys>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" />
+            <InputClaim ClaimTypeReferenceId="isAdmin" PartnerClaimType="isAdmin" />            
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+            <OutputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="tenantName" />            
+            <OutputClaim ClaimTypeReferenceId="isNewMember" />
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>   
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Local Account</DisplayName>
+      <TechnicalProfiles>
+
+        <TechnicalProfile Id="GetClaimsResolvers">
+          <DisplayName>Get claimsresolvers values</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">True</Item>
+          </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="KMSI" DefaultValue="{Context:KMSI}" AlwaysUseDefaultValue="true" />       
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>     
+        
+        <TechnicalProfile Id="ForgotPassword">
+          <DisplayName>Forgot your password?</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="isForgotPassword" DefaultValue="true" AlwaysUseDefaultValue="true"/>
+          </OutputClaims>
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+        </TechnicalProfile>
+
+        <!-- Ensuring this use of account discovery sets the correct value on idp /-->
+        <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />            
+          </OutputClaims>
+        </TechnicalProfile>
+      
+      </TechnicalProfiles>
+    </ClaimsProvider>  
+  
+  </ClaimsProviders>
+
+
+  <SubJourneys>
+    <SubJourney Id="PasswordReset" Type="Call">
+      <OrchestrationSteps>
+        <!-- Validate user's email address. -->
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <!-- Collect and persist a new password. -->
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+      </OrchestrationSteps>
+    </SubJourney>
+  </SubJourneys>  
+
+</TrustFrameworkPolicy>

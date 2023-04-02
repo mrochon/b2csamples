@@ -47,10 +47,10 @@ namespace RESTFunctions
             })
                 .AddJwtBearer(jwtOptions =>
                 {
-                    jwtOptions.MetadataAddress = $"https://{Configuration["B2C:TenantName"]}.b2clogin.com/{Configuration["B2C:TenantId"]}/{Configuration["B2C:Policy"]}/v2.0/.well-known/openid-configuration";
+                    jwtOptions.MetadataAddress = $"https://{Configuration["B2CBearer:TenantName"]}.b2clogin.com/{Configuration["B2CBearer:TenantId"]}/{Configuration["B2CBearer:Policy"]}/v2.0/.well-known/openid-configuration";
                     Trace.WriteLine($"Oauth2 metadata: {jwtOptions.MetadataAddress}");
-                    //jwtOptions.Authority = $"https://login.microsoftonline.com/tfp/{Configuration["B2C:TenantId"]}/{Configuration["B2C:Policy"]}/v2.0/";
-                    jwtOptions.Audience = Configuration["B2C:ClientId"];
+                    //jwtOptions.Authority = $"https://login.microsoftonline.com/tfp/{Configuration["B2CBearer:TenantId"]}/{Configuration["B2CBearer:Policy"]}/v2.0/";
+                    jwtOptions.Audience = Configuration["B2CBearer:ClientId"];
                     jwtOptions.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = (ctx) =>
