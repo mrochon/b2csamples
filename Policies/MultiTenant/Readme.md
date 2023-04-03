@@ -1,9 +1,7 @@
 ## Identity for multi-tenant SaaS apps for small organizations
 
 ### Description
-A [sample React SPA application](https://aka.ms/mtb2c) illustrating use of a single Azure B2C directory for a multi-tenant SaaS applications. SaaS applications need to know not only who the user is, but also which of the many organizations the application services the user belongs to. In the SaaS application, each organization is considered to be a separate tenant. To make it more obvious as to the context for using this term, the following will qualify it *application tenant*. In this sample, a single B2C directory maintains the relationship between individuals and the application tenants (organizations) presenting that information as part of the token it issues to the application.
-
-**Note:** an older version of the [sample application (MVC)](https://b2cmultitenant.azurewebsites.net) is still deployed. IEF policies in this folder are used by it. I am planning to retire it in a couple of months. For the time being the custom journey xml files are in the [Scripts folder](https://github.com/mrochon/b2csamples/tree/master/Scripts/MultiTenant).
+A [sample React SPA application](https://aka.ms/mtb2c) illustrating use of a **single Azure B2C directory** for a **multi-tenant SaaS application**. SaaS applications typically support many organizations. In terms of user identity, they need to know not only who the user is, but also which organization the user belongs to. In the SaaS application, each organization is considered to be a separate tenant. To make it more obvious as to the context for using this term, the following will qualify it as an *application tenant*. In this sample, a single B2C directory maintains the relationship between individuals and the application tenants (organizations) presenting that information as part of the token it issues to the application. In this implementation, the same user may belong to multiple tenants. The user will need to choose at signin time, on behalf of which tenant they are signing in.
 
 ### Functionality
 
@@ -23,66 +21,66 @@ Users may create local B2C consumer accounts (using their email) or use gmail or
 
 ### Source code
 
-The multi-tenant sample consists of three components, each in a separate repo:
+The multi-tenant sample consists of three components, each in a separate folder:
 
-1. [IEF policies](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/policy) implementing B2C user journeys.
+1. [Custom B2C journeys, Identity Experience Framework xml policy set](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/policy).
 
-2. [API application](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/API) used by the policies and the sample application: create new application tenant, add members, get member's tenant, create invitation url, get list of tenant members.
+2. [API application](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/API) used by both the policies and the sample application to create new application tenants and maintain user associations with them.
 
-3. [Sample SPA application](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/UI).
+3. [Sample SPA React application](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant/source/UI).
 
 ### Setup
 
 #### Invitation signing key
 
-Create a random 40 chars string to be used to sign invitation tokens.
+Create a random 40 chars string to be used to sign invitation tokens. It will be used to sign invitation tokens issued by application tenant owners to users invited to join particular tenants.
 
 #### Custom journeys
 
 1. Install [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies/). **Note:** make sure you have PowerShell 7.x installed first.
 2. Create a new empty directory and open VSCode to edit that folder.
 3. Open PowerShell window and make the *policy* folder its working directory (you can use Terminal->New window in VSCode. Make sure that terminal is using PowerShell 7.x: *$host.Version*)
-4. Sign in with a Global Admin account but make sure it is not an MSA account - use local or corporate B2B instead:
+4. Connect to B2C with a Global Admin account (must not be a MSA account - use local or corporate B2B instead):
 ```PowerShell
-Connect-IefPolicies <yourtenantname>
+Connect-IefPolicies <yourtenantname; onmicrosoft.com is not needed>
 ```
-4. If you have never used B2C with custom journeys (or you are not sure) execute the following:
+5. If you have never used this B2C with custom journeys (or you are not sure) execute the following to initialize support for using IEF:
 
 ```PowerShell
 Initialize-IefPolicies  
 ```
 
-5. Download the MFA Starter pack to the working folder. You may want to delete the Relying Party files (SignUpSignin.xml, etc.) as these journeys do not use the multi-tenancy support.
+6. Download the B2C MFA Starter pack to the working folder. You can delete the Relying Party files (SignUpSignin.xml, ProfileEdit.xml and PasswordReset.xml) as these journeys do not provide for the multi-tenancy support.
 ```PowerShell
 New-IefPolicies
 # Select 'M'
-```PowerShell
+```
 
-5. Save the invitation signing key secret in B2C:
+7. Save the invitation signing key secret in B2C:
 
 ```PowerShell
 New-IefPoliciesKey InvitationSigningKey -purpose sig -value "<key value>" -validityInMonths 12
 ```
 
-5. Add the multi-tenant sample policies:
+8. Add the multi-tenant sample policies:
 ```PowerShell
 Add-IefPoliciesSample MultiTenant -owner mrochon -repo b2csamples
-```PowerShell
+```
 
-5. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
+9. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```PowerShell
 
-6. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
+10. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
 
 ```PowerShell
 New-IefPoliciesCert MTRestClient -validityMonths 24
-```PowerShell
+```
 
-6. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
+11. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
 
-7. Upload your policies to your B2C tenant
+12. Upload your policies to your B2C tenant
 ```PowerShell
 Import-IefPolicies
 ```
@@ -109,7 +107,7 @@ The first two registrations represent the same deployed code. The registration i
 
 4. Create a random 40 characters string and store it as Invitation:SigningKey property.
 
-4. Deploy the API application. The public component of the certificate created in the *Custom journeys* step above should be provided to the deployed REST app (*Certificates->Public key certificates*). Public key of that certificate will exists as MTRestApi.cer file in the working directory. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*' or the thumbprint of your certificate. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application and use OAuth2 tokens, not certificate for authorization). 
+5. Deploy the API application. The public component of the certificate created in the *Custom journeys* step above should be provided to the deployed REST app (*Certificates->Public key certificates*). Public key of that certificate will exists as MTRestApi.cer file in the working directory. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*' or the thumbprint of your certificate. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application and use OAuth2 tokens, not certificate for authorization). 
 
 #### SPA
 
