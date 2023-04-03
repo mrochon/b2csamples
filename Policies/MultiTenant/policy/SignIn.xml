@@ -55,9 +55,9 @@
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
+            <ClaimsProviderSelection TargetClaimsExchangeId="FacebookExchange" />            
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
             <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />
-            <ClaimsProviderSelection TargetClaimsExchangeId="WORKExchange" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
@@ -71,8 +71,8 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
+            <ClaimsExchange Id="FacebookExchange" TechnicalProfileReferenceId="Facebook-OAUTH" />            
             <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />
-            <ClaimsExchange Id="WORKExchange" TechnicalProfileReferenceId="WORK-OIDC" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <OrchestrationStep Order="3" Type="InvokeSubJourney">
