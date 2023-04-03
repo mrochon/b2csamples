@@ -277,7 +277,11 @@
           <Metadata>
             <Item Key="setting.forgotPasswordLinkOverride">ForgotPasswordExchange</Item>
           </Metadata>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />
+          </OutputClaims>
         </TechnicalProfile>
+
         <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
         </TechnicalProfile>
@@ -288,7 +292,12 @@
             <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />            
           </OutputClaims>
         </TechnicalProfile>
-      
+
+        <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="local" />            
+          </OutputClaims>
+        </TechnicalProfile>      
       </TechnicalProfiles>
     </ClaimsProvider>  
   

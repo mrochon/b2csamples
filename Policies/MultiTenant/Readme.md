@@ -113,8 +113,17 @@ The first two registrations represent the same deployed code. The registration i
 
 #### SPA
 
-Follow https://jyoo.github.io/deploying-react-spa-in-10-minutes-using-azure
+1. Update ./UI/src/authConfig.js file for your deployment
 
+2. Build the app
+
+```
+npm run build
+```
+3. Deploy the ./build directory to a web server, e.g. Azure Storage Static web (just copy the ./build folder to the $web container)
+
+Also, see https://jyoo.github.io/deploying-react-spa-in-10-minutes-using-azure
+or
 
 **Ignore the following:**
 ```PowerShell
