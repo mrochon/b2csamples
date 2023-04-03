@@ -31,6 +31,11 @@ The multi-tenant sample consists of three components, each in a separate folder:
 
 ### Setup
 
+#### Web servers
+
+1. Create a web server (e.g. [Azure Web App](https://learn.microsoft.com/en-us/training/modules/host-a-web-app-with-azure-app-service/)) where you will deploy the API application. You will need its public url for the custom journey setup
+2. Create a web server (e.g. [Azure Storage Static Web](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website)) to host the React SPA app.
+
 #### Invitation signing key
 
 Create a random 40 chars string to be used to sign invitation tokens. It will be used to sign invitation tokens issued by application tenant owners to users invited to join particular tenants.
