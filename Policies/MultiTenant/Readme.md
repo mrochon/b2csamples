@@ -44,43 +44,43 @@ Create a random 40 chars string to be used to sign invitation tokens. It will be
 ```PowerShell
 Connect-IefPolicies <yourtenantname; onmicrosoft.com is not needed>
 ```
-4. If you have never used this B2C with custom journeys (or you are not sure) execute the following to initialize support for using IEF:
+5. If you have never used this B2C with custom journeys (or you are not sure) execute the following to initialize support for using IEF:
 
 ```PowerShell
 Initialize-IefPolicies  
 ```
 
-5. Download the B2C MFA Starter pack to the working folder. You can delete the Relying Party files (SignUpSignin.xml, ProfileEdit.xml and PasswordReset.xml) as these journeys do not provide for the multi-tenancy support.
+6. Download the B2C MFA Starter pack to the working folder. You can delete the Relying Party files (SignUpSignin.xml, ProfileEdit.xml and PasswordReset.xml) as these journeys do not provide for the multi-tenancy support.
 ```PowerShell
 New-IefPolicies
 # Select 'M'
 ```
 
-6. Save the invitation signing key secret in B2C:
+7. Save the invitation signing key secret in B2C:
 
 ```PowerShell
 New-IefPoliciesKey InvitationSigningKey -purpose sig -value "<key value>" -validityInMonths 12
 ```
 
-7. Add the multi-tenant sample policies:
+8. Add the multi-tenant sample policies:
 ```PowerShell
 Add-IefPoliciesSample MultiTenant -owner mrochon -repo b2csamples
 ```
 
-8. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
+9. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```PowerShell
 
-9. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
+10. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
 
 ```PowerShell
 New-IefPoliciesCert MTRestClient -validityMonths 24
 ```
 
-10. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
+11. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
 
-11. Upload your policies to your B2C tenant
+12. Upload your policies to your B2C tenant
 ```PowerShell
 Import-IefPolicies
 ```
