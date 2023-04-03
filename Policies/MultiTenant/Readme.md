@@ -67,25 +67,27 @@ New-IefPolicies
 New-IefPoliciesKey InvitationSigningKey -purpose sig -value "<key value>" -validityInMonths 12
 ```
 
-8. Add the multi-tenant sample policies:
+8. Add a new property *RESTBase* to yourtenant.json file with the url of your API Application.
+
+9. Add the multi-tenant sample policies:
 ```PowerShell
 Add-IefPoliciesSample MultiTenant -owner mrochon -repo b2csamples
 ```
 
-9. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
+10. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```
 
-10. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
+11. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
 
 ```PowerShell
 New-IefPoliciesCert MTRestClient -validityMonths 24
 ```
 
-11. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
+12. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
 
-12. Upload your policies to your B2C tenant
+13. Upload your policies to your B2C tenant
 ```PowerShell
 Import-IefPolicies
 ```
