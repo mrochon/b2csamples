@@ -67,7 +67,7 @@ New-IefPoliciesKey InvitationSigningKey -purpose sig -value "<key value>" -valid
 Add-IefPoliciesSample MultiTenant -owner mrochon -repo b2csamples
 ```
 
-9. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
+9. Update your policy set with Facebook id and/or add external IdPs. The following adds support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```PowerShell
