@@ -1,19 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TrustFrameworkPolicy
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
-  PolicySchemaVersion="0.3.0.0"
-  TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_NewTenant"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_NewTenant"
-   >
-
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="yourtenant.onmicrosoft.com" PolicyId="B2C_1A_NewTenant" PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_NewTenant">
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_MTExtensions</PolicyId>
   </BasePolicy>
-
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>Self Asserted</DisplayName>
@@ -32,8 +22,8 @@
             <OutputClaim ClaimTypeReferenceId="appTenantName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="appTenantDescription" />
             <OutputClaim ClaimTypeReferenceId="appTenantId" />
-            <OutputClaim ClaimTypeReferenceId="appTenantRoles" />  
-            <OutputClaim ClaimTypeReferenceId="allTenants"  /> 
+            <OutputClaim ClaimTypeReferenceId="appTenantRoles" />
+            <OutputClaim ClaimTypeReferenceId="allTenants" />
           </OutputClaims>
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="REST-CreateTenant" />
@@ -43,22 +33,22 @@
         <TechnicalProfile Id="NewTenantData-AAD">
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="appTenantName" Required="true" />
-            <OutputClaim ClaimTypeReferenceId="appTenantDescription" />            
-            <OutputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" />          
+            <OutputClaim ClaimTypeReferenceId="appTenantDescription" />
+            <OutputClaim ClaimTypeReferenceId="allowSameIssuerMembersString" />
           </OutputClaims>
-          <IncludeTechnicalProfile ReferenceId="NewTenantData" />          
-        </TechnicalProfile>      
+          <IncludeTechnicalProfile ReferenceId="NewTenantData" />
+        </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-  </ClaimsProviders>  
-
+  </ClaimsProviders>
   <UserJourneys>
     <UserJourney Id="NewTenantSusi">
       <OrchestrationSteps>
         <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
-            <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />                 
+            <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="WORKExchange" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
@@ -72,8 +62,9 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />                         
+            <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />
             <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+            <ClaimsExchange Id="WORKExchange" TechnicalProfileReferenceId="WORK-OIDC" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsExchanges>
         </OrchestrationStep>
         <OrchestrationStep Order="3" Type="InvokeSubJourney">
@@ -86,7 +77,7 @@
           <JourneyList>
             <Candidate SubJourneyReferenceId="PasswordReset" />
           </JourneyList>
-        </OrchestrationStep>         
+        </OrchestrationStep>
         <!-- For social IDP authentication, attempt to find the user account in the directory. -->
         <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
@@ -113,7 +104,7 @@
           <ClaimsExchanges>
             <ClaimsExchange Id="SelfAsserted-Social" TechnicalProfileReferenceId="SelfAsserted-Social" />
           </ClaimsExchanges>
-        </OrchestrationStep>                
+        </OrchestrationStep>
         <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
           in the token. -->
         <OrchestrationStep Order="6" Type="ClaimsExchange">
@@ -148,56 +139,55 @@
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>identityProvider</Value>
               <Value>organizations</Value>
-              <Action>SkipThisOrchestrationStep</Action>              
+              <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-          </Preconditions>          
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="CreateTenant" TechnicalProfileReferenceId="NewTenantData" />
           </ClaimsExchanges>
-        </OrchestrationStep>    
+        </OrchestrationStep>
         <OrchestrationStep Order="9" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
               <Value>identityProvider</Value>
               <Value>aadOrganizations</Value>
-              <Action>SkipThisOrchestrationStep</Action>    
+              <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-          </Preconditions>          
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="CreateTenant-AAD" TechnicalProfileReferenceId="NewTenantData-AAD" />
           </ClaimsExchanges>
-        </OrchestrationStep> 
+        </OrchestrationStep>
         <OrchestrationStep Order="10" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="GetClaimsResolvers" TechnicalProfileReferenceId="GetClaimsResolvers" />
           </ClaimsExchanges>
-        </OrchestrationStep>          
+        </OrchestrationStep>
         <OrchestrationStep Order="11" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>newUser</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>     
+            </Precondition>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>KMSI</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>                   
+            </Precondition>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>KMSI</Value>
               <Value>False</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-          </Preconditions>          
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
-        </OrchestrationStep>                   
+        </OrchestrationStep>
         <OrchestrationStep Order="12" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>  
+    </UserJourney>
   </UserJourneys>
-
   <RelyingParty>
     <DefaultUserJourney ReferenceId="NewTenantSusi" />
     <TechnicalProfile Id="PolicyProfile">
@@ -205,17 +195,17 @@
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="email" />
-        <OutputClaim ClaimTypeReferenceId="signInName" />            
+        <OutputClaim ClaimTypeReferenceId="signInName" />
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surname" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
         <OutputClaim ClaimTypeReferenceId="appTenantName" />
-        <OutputClaim ClaimTypeReferenceId="appTenantId" />  
-        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />     
-        <OutputClaim ClaimTypeReferenceId="allTenants"  /> 
-        <OutputClaim ClaimTypeReferenceId="identityProvider"  />         
+        <OutputClaim ClaimTypeReferenceId="appTenantId" />
+        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+        <OutputClaim ClaimTypeReferenceId="allTenants" />
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

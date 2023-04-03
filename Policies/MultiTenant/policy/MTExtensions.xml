@@ -168,13 +168,13 @@
           <DisplayName>Create a new tenant</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">{RESTBase}"/tenant"</Item>
+            <Item Key="ServiceUrl">{RESTBase}/tenant</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_MTRESTClient" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantName" PartnerClaimType="name" />
@@ -195,14 +195,14 @@
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">{RESTBase}"/tenant/gettenantsforuser"</Item>
+            <Item Key="ServiceUrl">{RESTBase}/tenant/gettenantsforuser</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">QueryString</Item>
             <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_MTRESTClient" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userId" Required="true" />            
@@ -224,13 +224,13 @@
           <DisplayName>Get user role</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">{RESTBase}"/tenant/member"</Item>
+            <Item Key="ServiceUrl">{RESTBase}/tenant/member</Item>
             <Item Key="AuthenticationType">ClientCertificate</Item>
             <Item Key="SendClaimsIn">Body</Item>
             <!--Item Key="AllowInsecureAuthInProduction">true</Item-->            
           </Metadata>
           <CryptographicKeys>
-            <Key Id="ClientCertificate" StorageReferenceId="{RESTClientCert}" />
+            <Key Id="ClientCertificate" StorageReferenceId="B2C_1A_MTRESTClient" />
           </CryptographicKeys>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="appTenantId" PartnerClaimType="tenantId" />

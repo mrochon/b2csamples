@@ -64,9 +64,9 @@ namespace RESTFunctions.Services
                     _logger.LogInformation($"Subject: {certificate.Subject.Trim()}");
                     _logger.LogInformation($"Issuer: {certificate.Issuer.Trim()}");
                     isAuthorized =
-                        (String.Compare(certificate.Thumbprint, options.thumbprint, true, CultureInfo.InvariantCulture) == 0)
-                        && (String.Compare(certificate.Subject.Trim(), options.subject, true, CultureInfo.InvariantCulture) == 0)
-                        && (String.Compare(certificate.Issuer.Trim(), options.issuer, true, CultureInfo.InvariantCulture) == 0);
+                        (String.Compare(certificate.Thumbprint, options.thumbprint, true, CultureInfo.InvariantCulture) == 0);
+                        //&& (String.Compare(certificate.Subject.Trim(), options.subject, true, CultureInfo.InvariantCulture) == 0)
+                        //&& (String.Compare(certificate.Issuer.Trim(), options.issuer, true, CultureInfo.InvariantCulture) == 0);
                     if (isAuthorized)
                     {
                         identity = new ClaimsIdentity(

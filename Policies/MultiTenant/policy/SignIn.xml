@@ -1,37 +1,25 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TrustFrameworkPolicy
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
-  PolicySchemaVersion="0.3.0.0"
-  TenantId="yourtenant.onmicrosoft.com"
-  PolicyId="B2C_1A_SignIn"
-  PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SignIn"
-  DeploymentMode="Development"
-UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
-
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="yourtenant.onmicrosoft.com" PolicyId="B2C_1A_SignIn" PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_SignIn" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
   <BasePolicy>
     <TenantId>yourtenant.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_MTExtensions</PolicyId>
   </BasePolicy>
-
   <BuildingBlocks>
-    <ClaimsSchema>   
+    <ClaimsSchema>
       <ClaimType Id="isSignupAllowed">
         <DisplayName>Does this app tenant allow signup</DisplayName>
         <DataType>boolean</DataType>
-      </ClaimType>       
+      </ClaimType>
       <ClaimType Id="errorCode">
         <DisplayName>Error code</DisplayName>
         <DataType>string</DataType>
-      </ClaimType>    
+      </ClaimType>
       <ClaimType Id="errorMessage">
         <DisplayName>Error message</DisplayName>
         <DataType>string</DataType>
-      </ClaimType>                  
+      </ClaimType>
     </ClaimsSchema>
   </BuildingBlocks>
-
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>Self asserted</DisplayName>
@@ -40,10 +28,9 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           <Metadata>
             <Item Key="setting.showSignupLink">false</Item>
           </Metadata>
-        </TechnicalProfile>  
+        </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
     <ClaimsProvider>
       <DisplayName>Token Issuer</DisplayName>
       <TechnicalProfiles>
@@ -61,19 +48,16 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
-
   </ClaimsProviders>
-
   <UserJourneys>
     <!-- Jurney for existing user or new AAD users of app tenants allowing autojoin by other emebers. Does not allow UI entry of tenant name -->
     <UserJourney Id="SignIn" DefaultCpimIssuerTechnicalProfileReferenceId="JwtIssuer">
       <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin" >
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
           <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="AADExchange" />              
-            <ClaimsProviderSelection TargetClaimsExchangeId="GoogleExchange" />          
             <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
-            <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />                
+            <ClaimsProviderSelection TargetClaimsExchangeId="ForgotPasswordExchange" />
+            <ClaimsProviderSelection TargetClaimsExchangeId="WORKExchange" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsProviderSelections>
           <ClaimsExchanges>
             <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
@@ -87,11 +71,10 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="AADExchange" TechnicalProfileReferenceId="Common-AAD" />           
-            <ClaimsExchange Id="GoogleExchange" TechnicalProfileReferenceId="Google-OAUTH" />    
-            <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />                  
+            <ClaimsExchange Id="ForgotPasswordExchange" TechnicalProfileReferenceId="ForgotPassword" />
+            <ClaimsExchange Id="WORKExchange" TechnicalProfileReferenceId="WORK-OIDC" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" />
           </ClaimsExchanges>
-        </OrchestrationStep>  
+        </OrchestrationStep>
         <OrchestrationStep Order="3" Type="InvokeSubJourney">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
@@ -102,7 +85,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           <JourneyList>
             <Candidate SubJourneyReferenceId="PasswordReset" />
           </JourneyList>
-        </OrchestrationStep>                   
+        </OrchestrationStep>
         <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
@@ -121,23 +104,23 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
               <Value>objectId</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>            
+            </Precondition>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="false">
               <Value>identityProvider</Value>
-              <Value>aadOrganizations</Value>              
+              <Value>aadOrganizations</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId-NoError" />  <!-- Precondition may allow attempt to write existing AAD user /-->
+            <ClaimsExchange Id="CreateNewAADUser" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId-NoError" />
+            <!-- Precondition may allow attempt to write existing AAD user /-->
           </ClaimsExchanges>
-        </OrchestrationStep>  
+        </OrchestrationStep>
         <OrchestrationStep Order="6" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="GetTenantData" TechnicalProfileReferenceId="REST-GetTenantsForUser" />
           </ClaimsExchanges>
-        </OrchestrationStep>                   
-      
+        </OrchestrationStep>
         <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="ReturnOAuth2Error">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -145,8 +128,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
           </Preconditions>
-        </OrchestrationStep>        
-
+        </OrchestrationStep>
         <!-- Phone verification: If MFA is not required, the next three steps (#5-#7) should be removed.
               This step checks whether there's a phone number on record,  for the user. If found, then the user is challenged to verify it. -->
         <OrchestrationStep Order="8" Type="ClaimsExchange">
@@ -159,7 +141,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
               <Value>requireMFA</Value>
               <Value>False</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>            
+            </Precondition>
           </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="PhoneFactor-Verify" TechnicalProfileReferenceId="PhoneFactor-InputOrVerify" />
@@ -178,7 +160,7 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
           <ClaimsExchanges>
             <ClaimsExchange Id="AADUserWriteWithObjectId" TechnicalProfileReferenceId="AAD-UserWritePhoneNumberUsingObjectId" />
           </ClaimsExchanges>
-        </OrchestrationStep>   
+        </OrchestrationStep>
         <!--OrchestrationStep Order="10" Type="ClaimsExchange">
           <ClaimsExchanges>
             <ClaimsExchange Id="GetRoles" TechnicalProfileReferenceId="REST-GetUserRoles" />
@@ -189,24 +171,22 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
               <Value>KMSI</Value>
               <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>            
+            </Precondition>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
               <Value>KMSI</Value>
               <Value>False</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
-          </Preconditions>          
+          </Preconditions>
           <ClaimsExchanges>
             <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
           </ClaimsExchanges>
-        </OrchestrationStep>                  
+        </OrchestrationStep>
         <OrchestrationStep Order="11" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-  
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>                
-  </UserJourneys>    
-
+    </UserJourney>
+  </UserJourneys>
   <SubJourneys>
     <SubJourney Id="PasswordReset" Type="Call">
       <OrchestrationSteps>
@@ -216,7 +196,6 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
             <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
           </ClaimsExchanges>
         </OrchestrationStep>
-
         <!-- Collect and persist a new password. -->
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <ClaimsExchanges>
@@ -225,32 +204,31 @@ UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights" >
         </OrchestrationStep>
       </OrchestrationSteps>
     </SubJourney>
-  </SubJourneys>  
-
+  </SubJourneys>
   <RelyingParty>
     <DefaultUserJourney ReferenceId="SignIn" />
     <UserJourneyBehaviors>
       <ScriptExecution>Allow</ScriptExecution>
-    </UserJourneyBehaviors>    
+    </UserJourneyBehaviors>
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="email" />
-        <OutputClaim ClaimTypeReferenceId="signInName" />            
+        <OutputClaim ClaimTypeReferenceId="signInName" />
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="signInName" PartnerClaimType="upn" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />        
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
         <OutputClaim ClaimTypeReferenceId="appTenantName" />
         <OutputClaim ClaimTypeReferenceId="appTenantId" />
-        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" /> 
-        <OutputClaim ClaimTypeReferenceId="allTenants" />         
-        <OutputClaim ClaimTypeReferenceId="identityProvider" />      
-        <OutputClaim ClaimTypeReferenceId="KMSI" />    
-        <OutputClaim ClaimTypeReferenceId="newUser" />                    
+        <OutputClaim ClaimTypeReferenceId="appTenantRoles" PartnerClaimType="roles" />
+        <OutputClaim ClaimTypeReferenceId="allTenants" />
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />
+        <OutputClaim ClaimTypeReferenceId="KMSI" />
+        <OutputClaim ClaimTypeReferenceId="newUser" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

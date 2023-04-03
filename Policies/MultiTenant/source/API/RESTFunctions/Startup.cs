@@ -36,7 +36,7 @@ namespace RESTFunctions
 
             services.AddLogging();
             services.Configure<ClientCertificateOptions>(Configuration.GetSection("AuthCert"));
-            services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("ClientCreds"));
+            services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("APIClientCreds"));
             services.Configure<InvitationTokenOptions>(Configuration.GetSection("Invitation"));
             services.AddHttpClient<GraphClient>();
             services.AddTransient<InvitationService>();
