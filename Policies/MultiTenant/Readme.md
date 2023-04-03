@@ -56,31 +56,31 @@ New-IefPolicies
 # Select 'M'
 ```
 
-5. Save the invitation signing key secret in B2C:
+6. Save the invitation signing key secret in B2C:
 
 ```PowerShell
 New-IefPoliciesKey InvitationSigningKey -purpose sig -value "<key value>" -validityInMonths 12
 ```
 
-5. Add the multi-tenant sample policies:
+7. Add the multi-tenant sample policies:
 ```PowerShell
 Add-IefPoliciesSample MultiTenant -owner mrochon -repo b2csamples
 ```
 
-5. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
+8. Add at least one external IdP. If you only want to allow local accounts, you will need to modify the journeys to not refernece alternativeSecurityId. The following will add support for signing in with any Azure AD (Work or School account). See [other options](https://github.com/mrochon/IEFPolicies#add-iefpoliciesidp) for adding Goggle, FB, etc. After executing this command, you will need to copy contents of the ./federations sub-folder over your current working folder.
 ```PowerShell
 Add-IefPoliciesIdP AAD -name WORK
 ```PowerShell
 
-6. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
+9. Create a certificate for your B2C policies to authenticate to the REST functions and deploy it to the RestClient policy key container in B2C. Its public key needs to be provided to the REST API application (see above).
 
 ```PowerShell
 New-IefPoliciesCert MTRestClient -validityMonths 24
 ```
 
-6. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
+10. Modify the <yourtenant>.json file to set a version id for your policies (e.g. V1_) and the url of your API Application deployment.
 
-7. Upload your policies to your B2C tenant
+11. Upload your policies to your B2C tenant
 ```PowerShell
 Import-IefPolicies
 ```
@@ -107,7 +107,7 @@ The first two registrations represent the same deployed code. The registration i
 
 4. Create a random 40 characters string and store it as Invitation:SigningKey property.
 
-4. Deploy the API application. The public component of the certificate created in the *Custom journeys* step above should be provided to the deployed REST app (*Certificates->Public key certificates*). Public key of that certificate will exists as MTRestApi.cer file in the working directory. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*' or the thumbprint of your certificate. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application and use OAuth2 tokens, not certificate for authorization). 
+5. Deploy the API application. The public component of the certificate created in the *Custom journeys* step above should be provided to the deployed REST app (*Certificates->Public key certificates*). Public key of that certificate will exists as MTRestApi.cer file in the working directory. If deploying to Azure Web Apps, set WEBSITE_LOAD_CERTIFICATES to '*' or the thumbprint of your certificate. Also, in the General Settings, specify the Cerificate exclusion Path as /tenant/oauth2 (these APIs are not called by the IEF policies but only by the UI application and use OAuth2 tokens, not certificate for authorization). 
 
 #### SPA
 
