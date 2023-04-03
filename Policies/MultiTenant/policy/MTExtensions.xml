@@ -273,6 +273,15 @@
           <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
         </TechnicalProfile>
 
+        <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
+          <Metadata>
+            <Item Key="setting.forgotPasswordLinkOverride">ForgotPasswordExchange</Item>
+          </Metadata>
+        </TechnicalProfile>
+        <TechnicalProfile Id="LocalAccountWritePasswordUsingObjectId">
+          <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+        </TechnicalProfile>
+
         <!-- Ensuring this use of account discovery sets the correct value on idp /-->
         <TechnicalProfile Id="LocalAccountDiscoveryUsingEmailAddress">
           <OutputClaims>
