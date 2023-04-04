@@ -1,8 +1,8 @@
 {
   "Prefix": "MR",
   "Clients": {
-    "Work": "<AAD multi-tenant app id>",
-    "MSA": "<MSA client id>"
+    "Work": "<multi-tenant app id>",
+    "MSA": "<msa app id>"
   },
   "HRD_API": "https://mrb2cfunctions.azurewebsites.net/api/HRDHelper"
 }

@@ -90,7 +90,7 @@ namespace RESTFunctions.Services
             {
                 var json = await http.GetStringAsync($"https://login.microsoftonline.com/{domain}/v2.0/.well-known/openid-configuration");
                 JsonDocument.Parse(json).RootElement.GetProperty("token_endpoint");
-                return $"&domain_hint=aadOrganizations&subdomain={domain}";
+                return $"&domain_hint=organizations&subdomain={domain}";
             }
             catch
             {
