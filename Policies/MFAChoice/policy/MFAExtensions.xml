@@ -98,25 +98,6 @@
             </TechnicalProfile>            
           </TechnicalProfiles>
         </ClaimsProvider>        
-
-        <ClaimsProvider>
-            <DisplayName>Custom REST API</DisplayName>
-            <TechnicalProfiles>
-              <TechnicalProfile Id="REST-EvaluateExpression">
-                <DisplayName>Validate user input data and return loyaltyNumber claim</DisplayName>
-                <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                <Metadata>
-                  <Item Key="ServiceUrl">{REST:EvaluateExpression}</Item>
-                  <Item Key="AuthenticationType">None</Item>
-                  <Item Key="SendClaimsIn">Body</Item>
-                </Metadata>
-                <InputClaims>
-                  <InputClaim ClaimTypeReferenceId="expression" Required="true" />       
-                </InputClaims>
-                <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-              </TechnicalProfile>
-            </TechnicalProfiles>
-          </ClaimsProvider>  
           
           <ClaimsProvider>
             <DisplayName>Azure Active Directory</DisplayName>
