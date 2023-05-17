@@ -2,6 +2,8 @@
 Azure B2C, unlike Azure AD, does not provide out-of-the-box support for [application roles](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps). However, the underlying data structures used for this support are available through Microsoft Graph and
 at times through the AAD portal view of B2C.
 
+**Note**: Application Roles support could be implemented in the User Flows as well using an Api Connector, at the *Before including application claims* event in the User Flow. The source code of the Azure Function returning the *roles* claim would need to be modified as User Flows pass more data into an Api Connector than my custom journey policy but otherwise the approach would be exactly the same.
+
 ## Setup
 Based on LocalAccounts starter pack. To use it with any other starer pack, please modify the orchestration step numbers in the RoleExtensions.xml.
 
