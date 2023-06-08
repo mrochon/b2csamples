@@ -13,6 +13,8 @@
 ### Dev B2C setup
 - Register a web app (Token Viewer) with reply url *https://oidcdebugger.com/debug*; allow return of the access and id token in the Authentication tab
 - Create a user (*Users->New user->Create user*) with B2C's upn, e.g. *someuser@myb2c.onmicrosoft.com* - useful for experiemnting with MS Graph through the [Graph Explorer](https://aka.ms/ge).
+- Using *Invite user* to add your corporate users who will manage B2C development. Give them Global Admin privilege (or other needed for their functions in B2C).
+- Use [B2C Setup tool](https://aka.ms/b2csetup) to initialize B2C for IEF use.
 
 ### Usage example
 
