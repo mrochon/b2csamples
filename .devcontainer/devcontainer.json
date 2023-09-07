@@ -1,7 +1,6 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/powershell
+// For format details, see https://aka.ms/devcontainer.json. 
 {
-	"name": "PowerShell",
+	"name": "B2C Custom Journey Development",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/powershell:lts-debian-11",
 	"features": {
@@ -12,6 +11,8 @@
 			"nonFreePackages": "true"
 		}
 	},
+
+	"onCreateCommand": "install-module IefPolicies -force",
 
 	"postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"",
 
