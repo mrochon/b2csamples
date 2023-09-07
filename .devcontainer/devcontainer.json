@@ -12,7 +12,7 @@
 		}
 	},
 
-	"onCreateCommand": "sudo pwsh -Command{install-module IefPolicies -force}",
+	// "onCreateCommand": "sudo pwsh -Command{install-module IefPolicies -force}",
 
 	"postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"",
 
