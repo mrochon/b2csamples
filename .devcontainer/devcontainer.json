@@ -14,7 +14,7 @@
 
 	// "onCreateCommand": "sudo pwsh -Command{install-module IefPolicies -force}",
 
-	"postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"",
+	"postCreateCommand": "sudo chsh vscode -s \"$(which pwsh)\"; pwsh -c \"install-module IefPolicies -force\"",
 
 	// Configure tool-specific properties.
 	"customizations": {
