@@ -6,9 +6,23 @@
 - [Visual Studio Code](https://code.visualstudio.com/Download). **Recommendation:** Set *File->Auto Save* to *On* in Visual Studio Code
 - [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
 - An xml handling extension, e.g. [Red Hat Xml](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml)
+- (Optionally) make sure your VSCode settings.json file includes the following xml file association
+```xml
+    "xml.fileAssociations": [
+        {
+          "pattern": "**.xml",
+          "systemId": "https://raw.githubusercontent.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack/master/TrustFrameworkPolicy_0.3.0.0.xsd"
+        }
+      ],
+```
 - [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
 - [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
 - [SAML2 test ServiceProvider](https://samltestapp2.azurewebsites.net/). Register an app in your B2C with this apps issuer id and rely url
+
+
+### GitHub Codespaces
+If you have access to Github codespaces, copy the devcontainer folder into the root of your project. This codespace is configured as per above
+section.
 
 ### Dev B2C setup
 - Register a web app (Token Viewer) with reply url *https://oidcdebugger.com/debug*; allow return of the access and id token in the Authentication tab
