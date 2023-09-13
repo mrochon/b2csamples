@@ -6,3 +6,10 @@ proceed to the next screen if the OTP is valid. Avoids having the user click bot
 ## Deployment
 Deploy the html file to your own, public facing web server and modify the url in the xml file (Contentdefinition) to point
 to that file.
+
+If you are using the [IefPolicies module](https://www.powershellgallery.com/packages/IefPolicies), to add this policy to your 
+policy set folder:
+
+```PowerShell
+Add-IefPoliciesSample ContinueOnOTPVerified -owner mrochon -repo b2csamples
+```
