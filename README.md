@@ -58,6 +58,7 @@ section.
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
 | [Choose 2nd FA](https://github.com/mrochon/b2csamples/tree/master/Policies/MFAChoice)  | User can choose whether to use enail OTP, phone OTP/sms/call or MS Authenticator TOTP |
 | [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
+| [ContinueOnOTPVerified](https://github.com/mrochon/b2csamples/tree/master/Policies/ContinueOnOTPVerified)  | UI continues to new password screen as soon as OTP is verified. Continue button is not used. |
 [Claims encryption](https://github.com/mrochon/b2csamples/tree/master/Policies/ClaimsEncryption)  | Supports encryption/decryption of claims in a token |
 | [Custom, persisted attribute](https://github.com/mrochon/b2csamples/tree/master/Policies/PersistCustomAttr)  | Modifies starter pack to add support for a new, persisted custom user attribute |
 | [Custom token refresh](https://github.com/mrochon/b2csamples/tree/master/Policies/CustomTokenRefreshExpiryTime)  | Uses REST function to validate token expiry time |
