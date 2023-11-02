@@ -55,6 +55,7 @@ section.
 | [Batch migration](https://github.com/mrochon/b2csamples/tree/master/Policies/BatchMigration)  | Batch user creation with email to reset pwd using login_hint |
 | [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
   [CallGraph](https://github.com/mrochon/b2csamples/tree/master/Policies/CallGraph)  | Call a Graph API |
+  [ChangeEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/ChangeEmail)  | Change signin email address of an exisiting user |
 | [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
 | [Choose 2nd FA](https://github.com/mrochon/b2csamples/tree/master/Policies/MFAChoice)  | User can choose whether to use enail OTP, phone OTP/sms/call or MS Authenticator TOTP |
 | [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
