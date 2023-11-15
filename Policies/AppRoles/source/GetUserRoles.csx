@@ -31,9 +31,9 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         {
             //TODO: cache token and its expiry time, reuse
             log.LogInformation($"Graph client: {client_id}");
-            var limit_time = DateTime.UtcNow.AddMinutes(-5);
+            var limit_time = DateTime.UtcNow.AddMinutes(5);
             log.LogInformation($"Current: {limit_time}; Expiry: {_expires_at}");
-            if(limit_time.CompareTo(_expires_at) >= 0)
+            if(limit_time.CompareTo(_expires_at) <= 0)
             {
                 log.LogInformation($"Getting new token");
                 var resp = await http.PostAsync($"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token",
