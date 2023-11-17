@@ -74,6 +74,7 @@ section.
 | [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
 | [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |
 | [Step up MFA](https://github.com/mrochon/b2csamples/tree/master/Policies/StepUpMFA)  | Require MFA even if recently executed |
+| [TOTP](https://github.com/mrochon/b2csamples/tree/master/Policies/TOTP)  | Add Authenticator/TOTP |
 | [UseUserInfoforEmailClaim](https://github.com/mrochon/b2csamples/tree/master/Policies/UseUserInfoforEmailClaim)  | Invite B2C users as B2B users in an Azure AD |
 
 ## Changes
