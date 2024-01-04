@@ -65,6 +65,7 @@ section.
 | [Custom token refresh](https://github.com/mrochon/b2csamples/tree/master/Policies/CustomTokenRefreshExpiryTime)  | Uses REST function to validate token expiry time |
 | [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
   [EmailOrPhoneMFA](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOrPhoneMFA)  | Allows local users to use either their email or phone for 2nd FA |
+| [Email OTP with reCaptch V3](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOTPWithGoogleRecaptchaV3) | Supports signin with just OTP to user email (no pwd). Uses Google reCaptcha |
 | [Embedded pwd reset](https://github.com/mrochon/b2csamples/tree/master/Policies/EmbeddedPwdReset)  | Journeys embedding pwd reset functionality as user selectable option |  
 | [HRD](https://github.com/mrochon/b2csamples/tree/master/Policies/HRD)  | Redirects user to configured IdP (AAD or other) if user's email domain is supported by a configured IdP |
 | [IdTokenSelfHint](https://github.com/mrochon/b2csamples/tree/master/Policies/IdTokenSelfHint)  | Allows long-running native apps to initiate profile edit without needing to re-authenticate user |
