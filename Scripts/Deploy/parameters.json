@@ -3,16 +3,16 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "rgName" :{ 
-            "value": "rg-b2c"
+            "value": "b2c-rg"
         },  
         "rgLocation" :{ 
             "value": "eastus"
         },              
         "b2cName" :{ 
-            "value": "myb2ctenant"
+            "value": "mrb2ctenant"
         },
         "b2cDisplayName" :{ 
-            "value": "My b2C tenant"
+            "value": "My B2C tenant"
         },
         "b2cGeo" :{ 
             "value": "United States"
