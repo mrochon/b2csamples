@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "rgName" :{ 
+            "value": "rg-b2c"
+        },  
+        "rgLocation" :{ 
+            "value": "eastus"
+        },              
+        "b2cName" :{ 
+            "value": "myb2ctenant"
+        },
+        "b2cDisplayName" :{ 
+            "value": "My b2C tenant"
+        },
+        "b2cGeo" :{ 
+            "value": "United States"
+        },
+        "b2cCountryCode" :{
+            "value": "US"
+        }
+    }
+}
