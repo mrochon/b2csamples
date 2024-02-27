@@ -12,6 +12,7 @@ param b2cName string
 @minLength(6)
 param b2cDisplayName string
 
+// https://learn.microsoft.com/en-us/azure/active-directory-b2c/data-residency
 @description('Geography (unitedstates,europe,asiapacific,australia,japan) ')
 @allowed([
   'Global'
@@ -21,7 +22,6 @@ param b2cDisplayName string
   'Australia'
 ])
 param b2cGeo string
-
 param b2cCountryCode string
 
 resource b2cRG 'Microsoft.Resources/resourceGroups@2021-04-01' = {
