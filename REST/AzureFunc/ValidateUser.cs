@@ -22,10 +22,12 @@ namespace MR.AzureFunc
         {
             _logger.LogInformation("ValidateUser starting.");
             var body = await new StreamReader(req.Body).ReadToEndAsync();
+            _logger.LogInformation($"ValidateUser received: {body}");
             var user = JsonSerializer.Deserialize<User>(body);
-            if((user == null) || String.IsNullOrEmpty(user.displayName) || String.IsNullOrEmpty(user.extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeId))
+            if((user == null) || String.IsNullOrEmpty(user.displayName) || String.IsNullOrEmpty(user.extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeID))
                 return new BadRequestObjectResult(new { version = "1.0.0", status = 409, userMessage = "Invalid or missing user data." });
-            if(user.displayName.EndsWith(user.extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeId))
+                _logger.LogInformation($"ValidateUser user: {user.displayName}/{user.extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeID  }");
+            if(user.displayName.EndsWith(user.extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeID))
                 return new OkObjectResult(new { version = "1.0.0", status = 200, userMessage = "User validated" });
             return new BadRequestObjectResult(new { version = "1.0.0", status = 409, userMessage = "Your signup data is invalid." });
         }
@@ -35,6 +37,6 @@ namespace MR.AzureFunc
         public string? displayName { get; set; }
         public string? givenName { get; set; }
         public string? surname { get; set; }
-        public string? extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeId { get; set; }
+        public string? extension_9fa255f4f18847feb0c166c6f2ad769a_EmployeeID { get; set; }
     }
 }
