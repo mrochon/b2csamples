@@ -99,7 +99,8 @@ section.
 | Jun 2022 | New: batch migration |
 | Nov 2022 | New: user choice of 2nd FA |
 | Mar 2023 | New: call Graph |
-| Jun 2023 | New: embedded pwd reset |
+| Jan 2025 | New: TOTP as approval code |
+
 
 
 ## Tips and tricks
