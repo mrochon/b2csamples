@@ -1,13 +1,75 @@
-# My B2C samples
+# Azure AD B2C custom policy samples
+
+Working Azure AD B2C custom policy (IEF) samples, plus the tooling I use to build and deploy them — the [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/) PowerShell module and the [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c) for VS Code.
+
+> **Moving off B2C?** Azure AD B2C is no longer sold to new customers (since May 1, 2025) and Microsoft's successor is Microsoft Entra External ID. External ID has no custom policies, so every IEF journey has to be rebuilt as configuration, custom authentication extensions, or application code. **[MIGRATION.md](MIGRATION.md)** maps each sample in this repo to its External ID equivalent.
+
+### About me
+
+I'm Marius Rochon, formerly a technical consultant at Microsoft specializing in identity, authentication and secure application development. I now work independently, on:
+
+- **Azure AD B2C → Entra External ID migration** — estate assessment, custom policy migration, and rescue work for B2C estates that nobody in-house still understands
+- **Identity for AI agents** — Microsoft Entra Agent ID, agent delegation and authorization, MCP security
+- **Training** — private courses on custom policies, OAuth 2.x, and agent identity
+
+Engagements run one week to three months. mrochon@merariai.com · www.linkedin.com/in/marrochon
+
+---
+
+## Samples
+
+| Name | Description |
+|---|---|
+| [AllInOne](Policies/AllInOne) | Allow profile edit during sign-in or password reset |
+| [AppRoles](Policies/AppRoles) | Application roles using standard Entra ID app role features |
+| [B2B2B2C](Policies/B2B2B2C) | Use B2C as a SAML IdP for Entra ID direct federation (supersedes *SAMLIdP*) |
+| [BatchMigration](Policies/BatchMigration) | Batch user creation, with an email inviting users to set their password via `login_hint` |
+| [CallGraph](Policies/CallGraph) | Call a Microsoft Graph API from a journey |
+| [ChangeLocalEmail](Policies/ChangeLocalEmail) | Change the sign-in email address of an existing local account |
+| [CheckEmail](Policies/CheckEmail) | Prevent sign-up or sign-in with emails from specific domains |
+| [ClaimsEncryption](Policies/ClaimsEncryption) | Encrypt and decrypt claims in a token |
+| [ConditionalAccess](Policies/ConditionalAccess) | Conditional Access rules to block, require MFA, or require a password change |
+| [ContinueOnOTPVerified](Policies/ContinueOnOTPVerified) | Proceed to the new-password screen as soon as the OTP is verified, without a Continue click |
+| [CustomRefreshTokenExpiryTime](Policies/CustomRefreshTokenExpiryTime) | Refresh token lifetime shorter than B2C's 24-hour minimum, enforced by a REST function |
+| [EmailAndUserId](Policies/EmailAndUserId) | Sign up with both an email and a user id; sign in later with either |
+| [EmailMFA](Policies/EmailMFA) | Email OTP as a second factor, for local and federated accounts |
+| [EmailOrPhoneMFA](Policies/EmailOrPhoneMFA) | Local users choose email or phone as their second factor |
+| [EmailOTPWithGoogleRecaptchaV3](Policies/EmailOTPWithGoogleRecaptchaV3) | Passwordless sign-in with an email OTP, protected by Google reCAPTCHA v3 |
+| [EmbeddedPwdReset](Policies/EmbeddedPwdReset) | Password reset as a user-selectable option inside the sign-in journey |
+| [HRD](Policies/HRD) | Home realm discovery: redirect to the configured IdP for the user's email domain |
+| [IdTokenSelfHint](Policies/IdTokenSelfHint) | Let long-running native apps start profile edit without re-authenticating the user |
+| [invitation](Policies/invitation) | Invitation links using a `client_assertion` JWT, for local-only or federated-only accounts |
+| [JitMigrate](Policies/JitMigrate) | Just-in-time migration: verify legacy passwords through an API at first sign-in |
+| [MFAChoice](Policies/MFAChoice) | User chooses email OTP, phone OTP/SMS/call, or Authenticator TOTP as second factor |
+| [MultiTenant](Policies/MultiTenant) | One B2C tenant serving a multi-tenant SaaS application |
+| [PassPromptToAAD](Policies/PassPromptToAAD) | Pass the OIDC `prompt` parameter through to a federated Entra ID |
+| [PersistCustomAttr](Policies/PersistCustomAttr) | Add a new persisted custom user attribute to a starter pack |
+| [RefreshToken](Policies/RefreshToken) | Reject refresh token redemption after the user has requested revocation |
+| [SendGrid](Policies/SendGrid) | Send verification and OTP emails through SendGrid |
+| [b2cSendOtpWith0365](Policies/b2cSendOtpWith0365) | Send email OTPs through Office 365 |
+| [StepUpMFA](Policies/StepUpMFA) | Require MFA even if the user completed it recently |
+| [TOTP](Policies/TOTP) | Authenticator app (TOTP) as a second factor |
+| [TOTPBasedApproval](Policies/TOTPBasedApproval) | Use a third-party TOTP value to approve an application action |
+| [UseUserInfoForEmailClaim](Policies/UseUserInfoForEmailClaim) | Get the user's email from the Entra ID UserInfo endpoint when the id_token doesn't include it |
+| [UserInfo](Policies/UserInfo) | Demonstrates the B2C UserInfo endpoint |
+| [UserNameWithEmailVerify](Policies/UserNameWithEmailVerify) | Username accounts created by Graph batch migration, with a verified-email attribute driving password reset |
+
+Most samples can be added to an existing policy set with IefPolicies:
+
+```PowerShell
+Add-IefPoliciesSample <SampleName> -owner mrochon -repo b2csamples
+```
+
+Supporting code: [REST](REST) (Azure Functions called from policies), [UI](UI) (custom page templates), [Tools/CustomUI](Tools/CustomUI), [Scripts](Scripts), and [apps/B2CUsingGraph](apps/B2CUsingGraph).
 
 ## Dev environment setup
 
 ### Software tools
-- [Visual Studio Code](https://code.visualstudio.com/Download). **Recommendation:** Set *File->Auto Save* to *On* in Visual Studio Code
+- [Visual Studio Code](https://code.visualstudio.com/Download). **Recommendation:** set *File → Auto Save* to *On*
 - [B2C Extensions](https://marketplace.visualstudio.com/items?itemName=AzureADB2CTools.aadb2c)
-- An xml handling extension, e.g. [Red Hat Xml](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml)
-- (Optionally) make sure your VSCode settings.json file includes the following xml file association
-```xml
+- An XML extension, e.g. [Red Hat XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml)
+- (Optional) add this XML file association to your VS Code `settings.json`:
+```json
     "xml.fileAssociations": [
         {
           "pattern": "**.xml",
@@ -16,107 +78,70 @@
       ],
 ```
 - [PowerShell 7.x](https://learn.microsoft.com/en-us/shows/it-ops-talk/how-to-install-powershell-7)
-- [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/), [documentation](https://github.com/mrochon/IEFPolicies)
-- [SAML2 test ServiceProvider](https://samltestapp2.azurewebsites.net/). Register an app in your B2C with this apps issuer id and rely url
-
+- [IefPolicies](https://www.powershellgallery.com/packages/IefPolicies/) ([documentation](https://github.com/mrochon/IEFPolicies))
+- [SAML2 test service provider](https://samltestapp2.azurewebsites.net/). Register an app in your B2C tenant with this app's issuer id and reply URL
 
 ### GitHub Codespaces
-If you have access to Github codespaces, copy the devcontainer folder into the root of your project. This codespace is configured as per above
-section.
+If you have access to GitHub Codespaces, copy the [.devcontainer](.devcontainer) folder into the root of your project. The codespace is configured as described above.
 
-### Dev B2C setup
-- Register a web app (Token Viewer) with reply url *https://oidcdebugger.com/debug*; allow return of the access and id token in the Authentication tab
-- Create a user (*Users->New user->Create user*) with B2C's upn, e.g. *someuser@myb2c.onmicrosoft.com* - useful for experiemnting with MS Graph through the [Graph Explorer](https://aka.ms/ge).
-- Using *Invite user* to add your corporate users who will manage B2C development. Give them Global Admin privilege (or other needed for their functions in B2C).
-- Use [B2C Setup tool](https://aka.ms/b2csetup) to initialize B2C for IEF use.
+### Dev B2C tenant setup
+- Register a web app (Token Viewer) with reply URL *https://oidcdebugger.com/debug*, and allow return of access and id tokens on the Authentication tab
+- Create a user (*Users → New user → Create user*) with the B2C UPN, e.g. *someuser@myb2c.onmicrosoft.com* — useful for experimenting with Microsoft Graph through [Graph Explorer](https://aka.ms/ge)
+- Use *Invite user* to add the corporate users who will manage B2C development, and give them the admin roles they need
+- Use the [B2C Setup tool](https://aka.ms/b2csetup) to initialize B2C for IEF use
 
 ### Usage example
 
-1. Open VSCode
-2. Select *Terminal->New Terminal*
-3. Ensure your PowerShell terminal is using PS 7.x (*$host.Version*)
-4. Create a new folder and change to it (e.g. *mkdir myProject; cd myProject*)
-4. Enter *New-IefPolicies*
-5. Select a starter pack, e.g. *SL* (Social and local accounts)
-6. Enter *Connect-IefPolicies <your b2c name; onmicrosoft.com not needed>*
-7. Followe displayed instructions to sign in
-8. Enter *Import-IefPolicies*
-9. The downloaded starter pack will be modified for use in your B2C and uploaded (you can see the modified files in the ./debug folder)
-10. Use https://portal.azure.com B2C menus to execute your policies
-11. Repeating *import-iefpolicies* will upload policies modified since the last import and any policies depending on it, e.g. modifying the TrustFrameworkBase.xml policy will result in import of all policies since they are all based on that file.
-
-
-## Samples list
-
-| Name  | Description  |
-|---|---|
-| [AllInOne](https://github.com/mrochon/b2csamples/tree/master/Policies/AllInOne)  | Allow profile edit during signin or password reset |
-| [AppRoles](https://github.com/mrochon/b2csamples/tree/master/Policies/AppRoles)  | Support for application roles using standard AAD features |
-| [Batch migration](https://github.com/mrochon/b2csamples/tree/master/Policies/BatchMigration)  | Batch user creation with email to reset pwd using login_hint |
-| [B2CSendOTPWithO365](https://github.com/mrochon/b2csamples/tree/master/Policies/b2cSendOtpWith0365)  | Send email OTP using O365 |
-  [CallGraph](https://github.com/mrochon/b2csamples/tree/master/Policies/CallGraph)  | Call a Graph API |
-  [ChangeEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/ChangeEmail)  | Change signin email address of an exisiting user |
-| [CheckEmail](https://github.com/mrochon/b2csamples/tree/master/Policies/CheckEmail)  | Prevents users from signing up or in using emails with specific email domains |
-| [Choose 2nd FA](https://github.com/mrochon/b2csamples/tree/master/Policies/MFAChoice)  | User can choose whether to use enail OTP, phone OTP/sms/call or MS Authenticator TOTP |
-| [ConditionalAccess](https://github.com/mrochon/b2csamples/tree/master/Policies/ConditionalAccess)  | Prevents users from signing up or in using emails with specific email domains |
-| [ContinueOnOTPVerified](https://github.com/mrochon/b2csamples/tree/master/Policies/ContinueOnOTPVerified)  | UI continues to new password screen as soon as OTP is verified. Continue button is not used. |
-[Claims encryption](https://github.com/mrochon/b2csamples/tree/master/Policies/ClaimsEncryption)  | Supports encryption/decryption of claims in a token |
-| [Custom, persisted attribute](https://github.com/mrochon/b2csamples/tree/master/Policies/PersistCustomAttr)  | Modifies starter pack to add support for a new, persisted custom user attribute |
-| [Custom token refresh](https://github.com/mrochon/b2csamples/tree/master/Policies/CustomTokenRefreshExpiryTime)  | Uses REST function to validate token expiry time |
-| [EmailOrUserId](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailAndUserId)  | Allow users to signup with both an email and a user id and user either to signin later on |
-  [EmailOrPhoneMFA](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOrPhoneMFA)  | Allows local users to use either their email or phone for 2nd FA |
-| [Email OTP with reCaptch V3](https://github.com/mrochon/b2csamples/tree/master/Policies/EmailOTPWithGoogleRecaptchaV3) | Supports signin with just OTP to user email (no pwd). Uses Google reCaptcha |
-| [Embedded pwd reset](https://github.com/mrochon/b2csamples/tree/master/Policies/EmbeddedPwdReset)  | Journeys embedding pwd reset functionality as user selectable option |  
-| [HRD](https://github.com/mrochon/b2csamples/tree/master/Policies/HRD)  | Redirects user to configured IdP (AAD or other) if user's email domain is supported by a configured IdP |
-| [IdTokenSelfHint](https://github.com/mrochon/b2csamples/tree/master/Policies/IdTokenSelfHint)  | Allows long-running native apps to initiate profile edit without needing to re-authenticate user |
-| [Invite](https://github.com/mrochon/b2csamples/tree/master/Policies/Invitation)  | Create/use an invitation link using client_assertion request |
-| [JIT Migrate](https://github.com/mrochon/b2csamples/tree/master/Policies/JitMigrate)  | Migrate users using an API to verify their legacy passwords |
-| [MultiTenant](https://github.com/mrochon/b2csamples/tree/master/Policies/MultiTenant)  | Supports use of a single B2C tenant to support a muli-tenant SaaS application |
-| [PromptForToAAD](https://github.com/mrochon/b2csamples/tree/master/Policies/PromptForToAAD)  | Passes whatever prompt parameter was used with B2C to a federated AAD. |
-| [RefreshToken](https://github.com/mrochon/b2csamples/tree/master/Policies/RefreshToken)  | Rejects refresh token exchange if user requested its revocation |
-| [SamlIdP](https://github.com/mrochon/b2csamples/tree/master/Policies/SAMLIdP)  | Invite B2C users as B2B users in an Azure AD |
-| [Step up MFA](https://github.com/mrochon/b2csamples/tree/master/Policies/StepUpMFA)  | Require MFA even if recently executed |
-| [TOTP](https://github.com/mrochon/b2csamples/tree/master/Policies/TOTP)  | Add Authenticator/TOTP |
-| [TOTPBasedApproval](https://github.com/mrochon/b2csamples/tree/master/Policies/TOTPBasedApproval)  | Use 3rd party TOTP value to approve application action |
-| [UseUserInfoforEmailClaim](https://github.com/mrochon/b2csamples/tree/master/Policies/UseUserInfoforEmailClaim)  | Invite B2C users as B2B users in an Azure AD |
-
-## Changes
-| Date | Change |
-|---|---|
-| Sep 2021 | New: Federate B2C as IdP for AAD (Direct Federation) |
-| Sep 2021 | New: JIT Migration |
-| Sep 2021 | Change: Simplified Invitation sample |
-| Oct 2021 | Change: Added PS script to assign group to app role in B2C (AppRoles sample) |
-| Oct 2021 | Change: Invitation sample supports local-only or federated-only accounts |
-| Oct 2021 | New: Conditional Access |
-| Nov 2021 | New: Persisted custom attribute |
-| Dec 2021 | New: Optionally, allow profile edit during signin |
-| Dec 2021 | Change: Multitenant sample now uses a new SPA app and updated policies and REST functions |
-| Feb 2022 | New: Use AAD userinfo endpoint to get user's email address (in case AAD does not return it in the id_token) |
-| Feb 2022 | New: Claims encryption |
-| Mar 2022 | New: Step up MFA |
-| Mar 2022 | Fixed: Refresh token |
-| Jun 2022 | New: batch migration |
-| Nov 2022 | New: user choice of 2nd FA |
-| Mar 2023 | New: call Graph |
-| Jan 2025 | New: TOTP as approval code |
-
-
+1. Open VS Code
+2. Select *Terminal → New Terminal*
+3. Make sure the terminal is running PowerShell 7.x (`$host.Version`)
+4. Create a new folder and change to it (e.g. `mkdir myProject; cd myProject`)
+5. Run `New-IefPolicies`
+6. Select a starter pack, e.g. *SL* (social and local accounts)
+7. Run `Connect-IefPolicies <your B2C name>` (the *onmicrosoft.com* suffix isn't needed)
+8. Follow the displayed instructions to sign in
+9. Run `Import-IefPolicies`
+10. The starter pack is modified for your tenant and uploaded (the modified files are in the `./debug` folder)
+11. Run your policies from the B2C menus at https://portal.azure.com
+12. Re-running `Import-IefPolicies` uploads the policies modified since the last import, plus any policies that depend on them — e.g. modifying `TrustFrameworkBase.xml` re-imports every policy, since they all build on it
 
 ## Tips and tricks
 
 ### Prevent OTP email send if email invalid
 
-Use DisplayCntrols starter pack and the following override:
+Use the DisplayControls starter pack and the following override:
 
-```
+```xml
       <DisplayControl Id="emailVerificationControl2" UserInterfaceControlType="VerificationControl">
         <Actions>
           <Action Id="SendCode">
             <ValidationClaimsExchange>
-              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress" />                  
-            </ValidationClaimsExchange>   
+              <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress" />
+            </ValidationClaimsExchange>
           </Action>
         </Actions>
-      </DisplayControl>            
+      </DisplayControl>
 ```
+
+## Changes
+
+| Date | Change |
+|---|---|
+| Sep 2026 | New: [MIGRATION.md](MIGRATION.md) — mapping every sample to Microsoft Entra External ID. Fixed broken sample links; added missing samples to the list |
+| Jan 2025 | New: TOTP as approval code |
+| Mar 2023 | New: call Graph |
+| Nov 2022 | New: user choice of second factor |
+| Jun 2022 | New: batch migration |
+| Mar 2022 | New: step-up MFA |
+| Mar 2022 | Fixed: refresh token |
+| Feb 2022 | New: claims encryption |
+| Feb 2022 | New: use the Entra ID UserInfo endpoint to get the user's email address (when the id_token doesn't include it) |
+| Dec 2021 | Change: multi-tenant sample now uses a new SPA app and updated policies and REST functions |
+| Dec 2021 | New: optionally allow profile edit during sign-in |
+| Nov 2021 | New: persisted custom attribute |
+| Oct 2021 | New: Conditional Access |
+| Oct 2021 | Change: invitation sample supports local-only or federated-only accounts |
+| Oct 2021 | Change: added PowerShell script to assign a group to an app role (AppRoles sample) |
+| Sep 2021 | Change: simplified invitation sample |
+| Sep 2021 | New: JIT migration |
+| Sep 2021 | New: federate B2C as IdP for Entra ID (direct federation) |
